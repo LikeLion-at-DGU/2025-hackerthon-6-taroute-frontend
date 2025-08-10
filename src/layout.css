@@ -1,0 +1,17 @@
+html, body, #root { height: 100%; }
+
+.app-container {
+  width: 100%;
+  max-width: 360px; /* iPhone 13 mini logical width */
+  margin: 0 auto;
+  padding: 16px;
+}
+
+@media (max-width: 480px) {
+  .app-container { padding: 12px; }
+}
+
+@media (max-width: 360px) {
+  .app-container { padding: 8px; }
+}
+
