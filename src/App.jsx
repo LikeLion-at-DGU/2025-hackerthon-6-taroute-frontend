@@ -4,7 +4,6 @@ import HomePage from './pages/Home.jsx'
 import NotFoundPage from './pages/NotFound.jsx'
 import Taro from './pages/Taro.jsx'
 
-
 function App() {
   return (
     <BrowserRouter>
