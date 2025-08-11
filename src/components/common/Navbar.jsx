@@ -1,6 +1,9 @@
 import styled from "styled-components";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faChevronDown, faHouse, faCartShopping, faCar } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import LocationIcon from '../../assets/icons/location.svg';
+import CartIcon from '../../assets/icons/cart.svg';
+import HomeIcon from '../../assets/icons/home.svg';
 
 
 const NavbarContainer = styled.div`
@@ -16,7 +19,7 @@ const NavbarContainer = styled.div`
 
 const LocationBar = styled.div`
     display: flex;
-    width: 153px;
+    width: fit-content;
     height: 100%;
     gap: 7px;
     align-items: center;
@@ -32,20 +35,21 @@ const ButtonBar = styled.div`
 
 const NowLocation = styled.div`
     font-weight: 700;
+    font-size: 17px;
 `;
 
 const Navbar = () => {
     return (
         <NavbarContainer>
             <LocationBar>
-                <FontAwesomeIcon icon={faLocationDot} color="#FFC500"/>
+                <img src={LocationIcon} alt="Location" />
                 {/*}나중에 API 연결 필요*/}
                 <NowLocation>충무로 3가</NowLocation>
                 <FontAwesomeIcon icon={faChevronDown} />
             </LocationBar>
             <ButtonBar>
-                <FontAwesomeIcon icon={faCartShopping} />
-                <FontAwesomeIcon icon={faHouse} />
+                <img src={CartIcon} alt="Cart" />
+                <img src={HomeIcon} alt="Home" />
             </ButtonBar>
         </NavbarContainer>
     );
