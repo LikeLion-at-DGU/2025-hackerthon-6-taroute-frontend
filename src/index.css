@@ -51,14 +51,8 @@
 html, body, #root { margin: 0; padding: 0; height: 100%; }
 
 body {
-<<<<<<< HEAD
-  margin: 0;
-  min-width: 320px;
-  min-height: 100dvh;
-=======
   display: flex;
   justify-content: center;
->>>>>>> 4e4f39e (feature:home 홈페이지)
 }
 
 #root {
