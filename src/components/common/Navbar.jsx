@@ -11,7 +11,7 @@ const NavbarContainer = styled.div`
     width: 343px;
     height: 33px;
     justify-content: space-between;
-    margin-top: 15px;
+    margin-top: 28px;
     margin-left: 9px;
     margin-right: 9px;
     font-size: 18px;
