@@ -1,10 +1,23 @@
-function HomePage() {
-  return (
-    <section>
-      <h1 style={{ margin: 0 }}>홈</h1>
-      <p style={{ marginTop: 8 }}>여기서부터 페이지들을 추가해 나가면 됩니다.</p>
-    </section>
-  )
-}
-export default HomePage
+import { useState } from 'react';
+import styled from 'styled-components';
+import Navbar from '../components/common/Navbar';
 
+const HomeContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: #271932;
+    color: #F0F0F0;
+`;
+
+const Home = () => {
+    return (
+        <HomeContainer>
+            <Navbar />
+        </HomeContainer>
+    );
+};
+
+export default Home;
