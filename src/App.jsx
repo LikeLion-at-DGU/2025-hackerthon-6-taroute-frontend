@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Layout from './layouts/Layout.jsx'
 import HomePage from './pages/Home.jsx'
@@ -15,6 +16,18 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+=======
+import { useState } from 'react'
+import './App.css'
+import Home from './pages/Home'
+
+function App() {
+
+  return (
+    <>
+      <Home/>
+    </>
+>>>>>>> 4e4f39e (feature:home 홈페이지)
   )
 }
 
