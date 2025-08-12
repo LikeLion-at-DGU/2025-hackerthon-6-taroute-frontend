@@ -2,6 +2,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import Navbar from '../components/common/Navbar';
 import SearchBar from '../components/common/SearchBar';
+import Ads from '../components/Home/Ads';
 
 const HomeContainer = styled.div`
     display: flex;
@@ -21,6 +22,7 @@ const Home = () => {
                 asButton  // 버튼 모드 ON
                 onClick={() => navigate('/search')}
             />
+            <Ads />
         </HomeContainer>
     );
 };
