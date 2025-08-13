@@ -3,7 +3,7 @@ import bgImage from '../../../assets/images/bg_1.jpg'
 
 export const Wrapper = styled.div`
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
   background-color: #000; /* 여백 검정색 */
   background-image: url(${bgImage});
   background-size: contain;

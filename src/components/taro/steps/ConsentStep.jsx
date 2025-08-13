@@ -8,7 +8,6 @@ import {
   ButtonNext,
 } from '../styles/ConsentStep.style.js'
 import taruSvg from '../../../assets/icons/taru.svg'
-import arrowSvg from '../../../assets/icons/arrow.svg'
 
 function ConsentStep({ next, prev }) {
   return (
@@ -23,9 +22,9 @@ function ConsentStep({ next, prev }) {
 
       <BubbleContent>
         <div className="text">
-          안녕! 난 타로마스터 '타루'라고 해
-          <br />본격적인 상담에 앞서 네가 어떤 고민을 가지고 있는지 들어보고
-          <br />너의 상황에 맞는 추천을 해줄게
+          안녕! 난 타로마스터 <strong>'타루'</strong> 라고 해
+          <br />본격적인 상담에 앞서 네가 어떤 고민을 가지고 있는지 
+          <br />들어보고 너의 상황에 맞는 추천을 해줄게
           <br />너에게 더 적합한 답변을 선택해줘
         </div>
         <div className="next-indicator" onClick={next}>&gt;&gt;</div>
@@ -35,5 +34,3 @@ function ConsentStep({ next, prev }) {
 }
 
 export default ConsentStep
-
-
