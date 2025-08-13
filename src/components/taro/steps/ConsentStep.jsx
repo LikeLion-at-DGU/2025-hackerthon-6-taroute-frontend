@@ -8,7 +8,6 @@ import {
   ButtonNext,
 } from '../styles/ConsentStep.style.js'
 import taruSvg from '../../../assets/icons/taru.svg'
-import arrowSvg from '../../../assets/icons/arrow.svg'
 
 function ConsentStep({ next, prev }) {
   return (
