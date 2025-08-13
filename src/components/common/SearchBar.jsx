@@ -4,6 +4,8 @@ import searchIcon from '../../assets/icons/search.svg';
 
 const Bar = styled.form`
     width: 343px;
+    height: 51px;
+    flex-shrink: 0;        /* 부모가 column flex일 때 눌림 방지 */
 `;
 
 const Box = styled.div`
@@ -18,6 +20,8 @@ const Box = styled.div`
     cursor: ${props => (props.$clickable ? 'pointer' : 'text')};
     font-family: MaruBuri;
     margin: 20px;
+    box-sizing: border-box; /* padding 포함해서 총 높이 51px 유지 */
+    flex: 0 0 auto;         /* flex 줄어듦 방지 */
 `;
 
 const ButtonLike = styled.button`
@@ -32,6 +36,8 @@ const ButtonLike = styled.button`
     cursor: pointer;
     font-family: MaruBuri;
     margin: 20px;
+    box-sizing: border-box; /* padding 포함해서 총 높이 51px 유지 */
+    flex: 0 0 auto;         /* flex 줄어듦 방지 */
 `;
 
 const SearchIconImg = styled.img`

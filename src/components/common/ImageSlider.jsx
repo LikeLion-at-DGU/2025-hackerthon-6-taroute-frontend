@@ -98,11 +98,20 @@ export default function ImageSlider({
         >
             <style>{`
         .slider-wrap { position: relative; }
-        .slider { position: relative; overflow: hidden; }
+        .slider { position: relative; overflow: hidden; border-radius: 12px; }
         .track  { display: flex; transition: transform .35s ease; }
         .slide  { min-width: 100%; height: ${normalizedHeight}; }
         .nav { position:absolute; top:50%; transform:translateY(-50%); width:36px; height:36px; border:0; border-radius:999px; background:rgba(0,0,0,.35); color:#fff; cursor:pointer; }
         .nav.left { left:8px; } .nav.right { right:8px; }
+
+        /* Slide counter (top-right) */
+        .counter {
+          position:absolute; top:8px; right:8px;
+          padding:1px 12px; border-radius:12px;
+          background:rgba(0, 0, 0, 0.358); color:#fff;
+          font-size:12px; font-weight:600; line-height:1.6;
+          pointer-events:none;
+        }
 
         /* Dots base */
         .dots { display:flex; gap:2px; align-items:center; }
@@ -143,6 +152,13 @@ export default function ImageSlider({
                         <button className="nav left" onClick={prev}>‹</button>
                         <button className="nav right" onClick={next}>›</button>
                     </>
+                )}
+
+                {/* 현재 슬라이드 / 전체 */}
+                {len > 0 && (
+                  <div className="counter" aria-live="polite" aria-atomic="true">
+                    {index + 1}/{len}
+                  </div>
                 )}
 
                 {/* 도트 - inside 모드일 때만 오버레이로 출력 */}
