@@ -1,10 +1,25 @@
+import {
+  Wrapper,
+  Background,
+  Overlay,
+  ContentContainer,
+  TaruIcon,
+  Title,
+  ButtonContainer,
+  Button
+} from '../styles/ReadyStep.style'
+import taruIcon from '../../../assets/icons/taru2.svg'
+
 function ReadyStep({ next, prev }) {
   return (
-    <div>
-      <h1>타로 9 — 결과 확인 준비</h1>
-      <button onClick={prev}>이전</button>
-      <button onClick={next}>결과 보기</button>
-    </div>
+    <Wrapper>
+      <Background />
+      <Overlay />
+      <ContentContainer>
+        <TaruIcon src={taruIcon} alt="타루 캐릭터" />
+        <Title>카드 해석 중</Title>
+      </ContentContainer>
+    </Wrapper>
   )
 }
 
