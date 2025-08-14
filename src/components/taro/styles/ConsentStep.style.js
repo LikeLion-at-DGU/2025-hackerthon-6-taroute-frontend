@@ -98,7 +98,6 @@ export const BubbleHeader = styled.div`
 
 export const BubbleContent = styled.div`
   position: absolute;
-
   bottom: 0px;
   width: 375px;
   height: 205px;
@@ -112,12 +111,17 @@ export const BubbleContent = styled.div`
   z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  justify-content: space-between;
+  
   .text {
     font-family: MaruBuriOTF;
     font-size: 14px;
     line-height: 1.8;
     color: #FFFFFF;
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 10px;
   }
 
   .next-indicator {
@@ -127,6 +131,7 @@ export const BubbleContent = styled.div`
     color: #FFFFFF;
     cursor: pointer;
     user-select: none;
+    margin-top: auto;
   }
 `;
 

@@ -92,6 +92,18 @@ function SpreadStep({ next, prev }) {
     }
   }, [isDragging, startX, translateX, currentIndex])
 
+  // 7장이 모두 선택되면 자동으로 ReadyStep으로 이동
+  useEffect(() => {
+    if (selectedCards.length === 7) {
+      // 1초 후에 자동으로 다음 단계로 이동
+      const timer = setTimeout(() => {
+        next()
+      }, 1000)
+      
+      return () => clearTimeout(timer)
+    }
+  }, [selectedCards.length, next])
+
   const calculateSelectedCardPosition = (index) => {
     const cardWidth = 122
     const placeholderWidth = 343
