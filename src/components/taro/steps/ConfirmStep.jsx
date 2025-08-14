@@ -1,10 +1,21 @@
+import CommonStep from './CommonStep'
+
 function ConfirmStep({ next, prev }) {
+  const contentText = `
+    질문에 답해줘서 고마워!
+    <br />너의 답변을 바탕으로 카드를 만들어볼게 
+    <br />잠시만 기다려줘
+  `
+
   return (
-    <div>
-      <h1>타로 4 — 확인</h1>
-      <button onClick={prev}>이전</button>
-      <button onClick={next}>다음</button>
-    </div>
+    <CommonStep
+      next={next}
+      prev={prev}
+      headerText="타루"
+      roleText="타로마스터"
+      contentText={contentText}
+      showPrevButton={false}
+    />
   )
 }
 
