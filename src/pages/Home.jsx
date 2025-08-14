@@ -5,14 +5,14 @@ import Navbar from '../components/common/Navbar';
 import SearchBar from '../components/common/SearchBar';
 import Ads from '../components/Home/Ads';
 import WhiteBox from '../components/Home/WhiteBox';
-import taru from '../assets/icons/taru.svg';
+import taru from '../assets/icons/taru.png';
 
 const HomeContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    height: 100%;
+    height: fit-content;
     background-color: #271932;
     color: #F0F0F0;
 `;

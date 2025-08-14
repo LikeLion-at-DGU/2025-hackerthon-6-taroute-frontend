@@ -2,11 +2,11 @@ import Ads from "./Ads";
 import SelectCategory from "./SelectCategory";
 import styled from "styled-components";
 import title from '../../assets/icons/title.svg';
-import restaurant from '../../assets/icons/category/restaurant.svg'
-import cafe from '../../assets/icons/category/cafe.svg'
-import culture from '../../assets/icons/category/culture.svg'
-import tour from '../../assets/icons/category/tour.svg'
-import wikibook from '../../assets/icons/wikibook.svg'
+import restaurant from '../../assets/icons/category/restaurant.png'
+import cafe from '../../assets/icons/category/cafe.png'
+import culture from '../../assets/icons/category/culture.png'
+import tour from '../../assets/icons/category/tour.png'
+import wikibook from '../../assets/icons/wikibook.png'
 import { useNavigate } from 'react-router-dom';
 
 const WhiteBoxContainer = styled.div`
@@ -15,10 +15,15 @@ const WhiteBoxContainer = styled.div`
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     background-color: white;
-    height: 100%;
+    /* ⬇️ 화면 맨밑까지 항상 꽉 채움 (모바일 주소창 변동 대응) */
+    min-height: 100vh;
+    min-height: 100svh;
+    min-height: 100dvh;
+    height: auto;
     width: 100%;
     align-items: center;
     padding-bottom: 40px;
+    box-sizing: border-box;   /* 패딩 포함 높이 계산 */
 `;
 
 const WhatWonder = styled.div`
@@ -81,6 +86,7 @@ const Label = styled.span`
     margin: 0;
     font: inherit;
     line-height: 1.2;
+    color: black;
 `;
 
 
