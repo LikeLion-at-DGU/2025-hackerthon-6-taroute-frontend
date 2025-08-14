@@ -10,9 +10,9 @@ const AdsContainer = styled.section`
     margin: 20px 0;
     display: flex;
     justify-content: center;
-    overflow: hidden;
     box-sizing: border-box;
     position: relative;
+    margin-bottom: 50px;
 `;
 
 const AdCard = styled.div`
@@ -53,7 +53,7 @@ const Ads = () => {
                 autoplay /* 자동 재생 on/off */
                 interval={3000}
                 width="343px"
-                height="114px"
+                height="124px"
                 showArrows={false} /* 넘김 화살표 on/off */
                 dotsPlacement="below" //dots를 슬라이더 안에 할건지 밑에할건지
             />

@@ -48,18 +48,26 @@
 }
 
 * { box-sizing: border-box; }
-html, body, #root { margin: 0; padding: 0; height: 100%; }
+html, body { margin: 0; padding: 0; height: 100%; }
 
 body {
   display: flex;
   justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  overflow: hidden; /* lock window scroll; scroll only inside #root */
 }
 
 #root {
   width: 375px;
-  height: 812px;
+  height: 812px; /* fixed frame height for internal scrolling */
   border: 1px solid black; /* optional visual frame */
-  overflow: hidden; /* avoid accidental scroll and device toolbar shifts */
+  overflow-y: scroll; /* allow vertical scrolling when content exceeds 812px */
+  overflow-x: hidden; /* prevent horizontal scroll */
+  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+  overscroll-behavior: contain; /* avoid page bounce/gesture conflicts */
 }
 
-
+button, input, select, textarea {
+  font: inherit;
+}
