@@ -5,7 +5,7 @@ import Navbar from '../components/common/Navbar';
 import SearchBar from '../components/common/SearchBar';
 import Ads from '../components/Home/Ads';
 import WhiteBox from '../components/Home/WhiteBox';
-import taru from '../assets/icons/taru.svg';
+import taru from '../assets/icons/taru.png';
 
 const HomeContainer = styled.div`
     display: flex;
