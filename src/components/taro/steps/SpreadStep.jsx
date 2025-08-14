@@ -48,7 +48,7 @@ function SpreadStep({ next, prev }) {
     setIsDragging(false)
     
     // 스와이프 방향과 거리에 따라 카드 이동
-    if (Math.abs(translateX) > 30) { // 더 민감하게
+    if (Math.abs(translateX) > 50) { // 더 민감하게
       if (translateX > 0) {
         // 오른쪽으로 스와이프 - 이전 카드들
         if (currentIndex > 0) {
@@ -61,24 +61,42 @@ function SpreadStep({ next, prev }) {
         }
       }
     }
-    setTranslateX(0)
+    // 스와이프 후 translateX를 0으로 리셋하지 않음 - 카드가 그 위치에 유지되도록
   }
 
   // 카드 선택 처리
   const handleCardSelect = (cardIndex) => {
-    if (selectedCards.length < 7 && !selectedCards.includes(cardIndex)) {
+    if (selectedCards.includes(cardIndex)) {
+      // 이미 선택된 카드를 클릭하면 선택 해제
+      setSelectedCards(prev => prev.filter(index => index !== cardIndex))
+    } else if (selectedCards.length < 7) {
+      // 선택되지 않은 카드를 클릭하면 선택 추가
       setSelectedCards(prev => [...prev, cardIndex])
     }
   }
 
   // 화살표 클릭으로 카드 이동
   const handleArrowClick = (direction) => {
+    console.log('Arrow clicked:', direction, 'Current index before:', currentIndex)
+    
     if (direction === 'left' && currentIndex > 0) {
       // 왼쪽 화살표 - 이전 카드들
-      setCurrentIndex(prev => prev - 1)
+      setCurrentIndex(prev => {
+        const newIndex = prev - 1
+        console.log('Moving left, new index:', newIndex)
+        return newIndex
+      })
+      // 화살표 클릭 시 translateX를 0으로 리셋하여 깔끔하게 이동
+      setTranslateX(0)
     } else if (direction === 'right' && currentIndex < totalCards - cardsPerView) {
       // 오른쪽 화살표 - 다음 카드들
-      setCurrentIndex(prev => prev + 1)
+      setCurrentIndex(prev => {
+        const newIndex = prev + 1
+        console.log('Moving right, new index:', newIndex)
+        return newIndex
+      })
+      // 화살표 클릭 시 translateX를 0으로 리셋하여 깔끔하게 이동
+      setTranslateX(0)
     }
   }
 
@@ -175,7 +193,7 @@ function SpreadStep({ next, prev }) {
           onTouchEnd={handleTouchEnd}
           style={{
             transform: `translateX(${translateX}px)`,
-            transition: isDragging ? 'none' : 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+            transition: isDragging ? 'none' : 'transform 0.3s ease-out'
           }}
         >
           {Array.from({ length: totalCards }, (_, index) => {
@@ -183,7 +201,7 @@ function SpreadStep({ next, prev }) {
             const adjustedIndex = index - currentIndex
             const centerIndex = Math.floor(cardsPerView / 2)
             const distanceFromCenter = adjustedIndex - centerIndex
-            const rotation = distanceFromCenter * 3 // 부채꼴 각도 조정
+            const rotation = distanceFromCenter * 5 // 부채꼴 각도 조정
             
             const isVisible = index >= currentIndex && index < currentIndex + cardsPerView
             const isSelected = selectedCards.includes(index)
@@ -199,13 +217,13 @@ function SpreadStep({ next, prev }) {
                 rotation={rotation}
                 onClick={() => handleCardSelect(index)}
                 style={{ 
-                  marginLeft: index === currentIndex ? 0 : '-18px', // 카드 간격 조정으로 덜 겹치도록
+                  marginLeft: index === currentIndex ? 0 : '-25px', // 카드 간격 조정
                   zIndex: cardsPerView - Math.abs(distanceFromCenter), // 중앙 카드가 위에 오도록
-                  opacity: isSelected ? 0.6 : 1,
+                  opacity: isSelected ? 0.4 : 1, // 선택된 카드를 더 어둡게
                   transform: `rotate(${rotation}deg)`,
-                  cursor: isSelected ? 'not-allowed' : 'pointer',
+                  cursor: 'pointer', // 모든 카드를 클릭 가능하게
                   border: 'none', // 선택된 카드의 테두리 제거
-                  filter: isSelected ? 'brightness(0.7)' : 'none'
+                  filter: isSelected ? 'brightness(0.5)' : 'none' // 선택된 카드를 더 어둡게
                 }}
               />
             )
