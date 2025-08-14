@@ -12,7 +12,7 @@ export const Wrapper = styled.div`
   justify-content: flex-start;
   color: #ffffff;
   overflow: hidden;
-  padding: 40px 20px;
+  padding: 50px 20px;
 `;
 
 export const Background = styled.div`
@@ -44,12 +44,19 @@ export const ContentContainer = styled.div`
 export const CardPlaceholder = styled.div`
   width: 343px;
   height: 177px;
-  margin-bottom: 30px;
+  margin-bottom: 60px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+`;
+
+export const CardBackgroundImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 15px;
 `;
 
 export const SelectedCardsOverlay = styled.div`
@@ -65,6 +72,18 @@ export const SelectedCard = styled.div`
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   transition: all 0.3s ease;
+  position: absolute;
+  z-index: ${props => props.zIndex || 1};
+  top: ${props => props.top || '0'}px;
+  left: ${props => props.left || '0'}px;
+  opacity: 0.9;
+  transform: rotate(0deg);
+`;
+
+export const SelectedCardImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 `;
 
 export const InstructionText = styled.h2`
@@ -82,10 +101,12 @@ export const CardSpread = styled.div`
   align-items: center;
   margin-bottom: 40px;
   width: 100%;
-  max-width: 1200px; /* 카드들이 더 여유롭게 펼쳐질 수 있도록 너비 증가 */
+  max-width: 1200px;
   overflow: visible;
   position: relative;
-  min-height: 200px; /* 카드가 제대로 보이도록 최소 높이 설정 */
+  min-height: 200px;
+  transform: ${props => `translateX(${props.translateX}px)`};
+  transition: ${props => props.isDragging ? 'none' : 'transform 0.3s ease-out'};
 `;
 
 export const TarotCard = styled.img`
@@ -94,9 +115,15 @@ export const TarotCard = styled.img`
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   cursor: pointer;
   filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+  margin-left: ${props => props.marginLeft || '0'}px;
+  z-index: ${props => props.zIndex || 1};
+  opacity: ${props => props.opacity || 1};
+  transform: ${props => `rotate(${props.rotation}deg)`};
+  border: none;
+  filter: ${props => props.isSelected ? 'brightness(0.5)' : 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))'};
   
   &:hover {
-    transform: scale(1.15);
+    transform: ${props => `rotate(${props.rotation}deg) scale(1.15)`};
     z-index: 50;
     filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
   }
@@ -115,6 +142,16 @@ export const ArrowContainer = styled.div`
   font-size: 2rem;
   color: #ffffff;
   margin-bottom: 10px;
+`;
+
+export const ArrowButton = styled.span`
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  opacity: ${props => props.disabled ? 0.5 : 1};
+  user-select: none;
+  
+  &:hover {
+    opacity: ${props => props.disabled ? 0.5 : 0.8};
+  }
 `;
 
 export const SwipeInstruction = styled.p`
