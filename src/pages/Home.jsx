@@ -12,7 +12,7 @@ const HomeContainer = styled.div`
     flex-direction: column;
     align-items: center;
     width: 100%;
-    height: 100%;
+    height: fit-content;
     background-color: #271932;
     color: #F0F0F0;
 `;
