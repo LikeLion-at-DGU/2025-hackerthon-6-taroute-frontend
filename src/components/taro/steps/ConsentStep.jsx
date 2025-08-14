@@ -41,7 +41,7 @@ function ConsentStep({ next, prev }) {
           style={{ cursor: 'pointer' }}
         />
         {alwaysShowArrow && (
-          <div className="next-indicator" onClick={next}>&gt;&gt;</div>
+          <div className="next-indicator">&gt;&gt;</div>
         )}
       </BubbleContent>
     </Wrapper>
