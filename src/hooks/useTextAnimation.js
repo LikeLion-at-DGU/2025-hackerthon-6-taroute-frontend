@@ -43,6 +43,7 @@ export default function useTextAnimation(lines, next) {
         displayText,
         isAnimating,
         showComplete,
-        handleTextClick
+        handleTextClick,
+        alwaysShowArrow: true
     }
 }
