@@ -17,9 +17,12 @@ const Box = styled.div`
     padding: 6px 22px 6px 15px;
     border-radius: 30px;
     background: #fff;
+    border: ${({ $bordered, $borderColor, $borderWidth }) => (
+        $bordered ? `${$borderWidth || '1px'} solid ${$borderColor || '#000'}` : 'none'
+    )};
     cursor: ${props => (props.$clickable ? 'pointer' : 'text')};
     font-family: MaruBuri;
-    margin: 20px;
+    margin: 20px auto;
     box-sizing: border-box; /* padding 포함해서 총 높이 51px 유지 */
     flex: 0 0 auto;         /* flex 줄어듦 방지 */
 `;
@@ -33,6 +36,9 @@ const ButtonLike = styled.button`
     padding: 6px 22px 6px 15px;
     border-radius: 30px;
     background: #fff;
+    border: ${({ $bordered, $borderColor, $borderWidth }) => (
+        $bordered ? `${$borderWidth || '1px'} solid ${$borderColor || '#000'}` : 'none'
+    )};
     cursor: pointer;
     font-family: MaruBuri;
     margin: 20px;
@@ -48,16 +54,17 @@ const SearchIconImg = styled.img`
 
 const PlaceholderText = styled.span`
   color: gray;
-  font-size: 13px;
+  font-size: 14px;
 `;
 
 const Input = styled.input`
   flex: 1 1 auto;
   border: none;
   outline: none;
-  font-size: 15px;
+  font-size: 14px;
   background: transparent;
   &::placeholder { color: #9ca3af; } /* gray-400 */
+  color: black;
 `;
 
 export default function SearchBar({
@@ -71,6 +78,9 @@ export default function SearchBar({
     name,
     asButton = false,
     readOnly = false,
+    bordered = false,
+    borderColor = '#000',
+    borderWidth = '1px',
 }) {
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -79,7 +89,7 @@ export default function SearchBar({
 
     if (asButton) {
         return (
-            <ButtonLike type="button" onClick={onClick} aria-label="검색 열기">
+            <ButtonLike type="button" onClick={onClick} aria-label="검색 열기" $bordered={bordered} $borderColor={borderColor} $borderWidth={borderWidth}>
                 <PlaceholderText>{placeholder}</PlaceholderText>
                 <SearchIconImg src={searchIcon} />
             </ButtonLike>
@@ -88,8 +98,7 @@ export default function SearchBar({
 
     return (
         <Bar role="search" onSubmit={handleSubmit}>
-            <Box $clickable={readOnly} onClick={readOnly ? onClick : undefined}>
-                <SearchIconImg src={searchIcon}/>
+            <Box $clickable={readOnly} onClick={readOnly ? onClick : undefined} $bordered={bordered} $borderColor={borderColor} $borderWidth={borderWidth}>
                 <Input
                     type="text"
                     name={name}
@@ -100,6 +109,7 @@ export default function SearchBar({
                     autoFocus={autoFocus}
                     inputMode="search"
                 />
+                <SearchIconImg src={searchIcon} onClick={handleSubmit} style={{ cursor: "pointer" }} />
             </Box>
         </Bar>
     );
