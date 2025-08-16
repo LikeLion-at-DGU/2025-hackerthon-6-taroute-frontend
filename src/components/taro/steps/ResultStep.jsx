@@ -21,8 +21,9 @@ import cardBg from '../../../assets/icons/taro/ResultTaroCard.svg'
 import { useState, useMemo } from 'react'
 import heartIcon from '../../../assets/icons/Heart.svg'
 import blackHeartIcon from '../../../assets/icons/BlackHeart.svg'
+import retryCard from '../../../assets/icons/taro/RetryCard.svg'
 
-function ResultStep({ prev }) {
+function ResultStep({ prev, goTo }) {
   const [cards, setCards] = useState(() => ([
     { id: 'I', title: '진아네 떡볶이', img: sampleImg, liked: true },
     { id: 'II', title: '진아네 떡볶이', img: sampleImg, liked: false },
@@ -31,7 +32,7 @@ function ResultStep({ prev }) {
     { id: 'V', title: '진아네 떡볶이', img: sampleImg, liked: false },
     { id: 'VI', title: '진아네 떡볶이', img: sampleImg, liked: false },
     { id: 'VII', title: '진아네 떡볶이', img: sampleImg, liked: false },
-    { id: 'VIII', title: '진아네 떡볶이', img: sampleImg, liked: false },
+    { id: 'VIII', title: '다시 뽑기', img: undefined, liked: false, isRetry: true },
   ]))
 
   const [page, setPage] = useState(0)
@@ -50,12 +51,23 @@ function ResultStep({ prev }) {
 
         <Grid>
           {pageCards.map((c, idx) => (
-            <Card key={c.id} bg={cardBg}>
-              <CardBadge>{c.id}</CardBadge>
-              <CardImage src={c.img} alt={c.title} />
-              <CardFooter>
-                <FooterLabel>{c.title}</FooterLabel>
-                <HeartButton
+            <Card
+              key={c.id}
+              bg={c.isRetry ? retryCard : cardBg}
+              onClick={() => {
+                if (c.isRetry && typeof goTo === 'function') {
+                  goTo(0) // Intro로 이동
+                }
+              }}
+              style={{ cursor: c.isRetry ? 'pointer' : 'default' }}
+            >
+              {!c.isRetry && (
+                <>
+                  <CardBadge>{c.id}</CardBadge>
+                  <CardImage src={c.img} alt={c.title} />
+                  <CardFooter>
+                    <FooterLabel>{c.title}</FooterLabel>
+                  <HeartButton
                   onClick={() => {
                     const globalIndex = page * pageSize + idx
                     setCards(prev => prev.map((card, i) => i === globalIndex ? { ...card, liked: !card.liked } : card))
@@ -65,8 +77,10 @@ function ResultStep({ prev }) {
                     src={c.liked ? blackHeartIcon : heartIcon}
                     alt={c.liked ? '찜 취소' : '찜'}
                   />
-                </HeartButton>
-              </CardFooter>
+                  </HeartButton>
+                  </CardFooter>
+                </>
+              )}
             </Card>
           ))}
           {page > 0 && (
