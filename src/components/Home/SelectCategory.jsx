@@ -63,21 +63,46 @@ const CategoryBar = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-around;
-  border-bottom: 1px solid #F0F0F0;
   gap: 20px;
-  font-size: 11px;
+  font-size: 13px;
   width: 343px;
+  position: relative;
+  font-weight: 500;
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    width: 100%;
+    background-color: white;
+    z-index: 0;
+  }
 `;
 
 const Category = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  border-bottom: ${(props) => (props.$active ? "2px solid black" : "2px solid transparent")};
-  color: ${(props) => (props.$active ? "black" : "gray")};
+  color: ${(props) => (props.$active ? "#FFC500" : "gray")};
   padding: 6px 2px;
   cursor: pointer;
   user-select: none;
+  position: relative;
+  background: transparent;
+
+  &::after {
+    content: "";
+    display: ${(props) => (props.$active ? "block" : "none")};
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background-color: #FFC500;
+    z-index: 1;
+  }
+
   p {
     font-weight: ${(props) => (props.$active ? "bold" : "normal")};
     margin: 0;

@@ -21,8 +21,7 @@ const Box = styled.div`
         $bordered ? `${$borderWidth || '1px'} solid ${$borderColor || '#000'}` : 'none'
     )};
     cursor: ${props => (props.$clickable ? 'pointer' : 'text')};
-    font-family: MaruBuri;
-    margin: 20px auto;
+    margin: 24px auto;
     box-sizing: border-box; /* padding 포함해서 총 높이 51px 유지 */
     flex: 0 0 auto;         /* flex 줄어듦 방지 */
 `;
@@ -40,8 +39,7 @@ const ButtonLike = styled.button`
         $bordered ? `${$borderWidth || '1px'} solid ${$borderColor || '#000'}` : 'none'
     )};
     cursor: pointer;
-    font-family: MaruBuri;
-    margin: 20px;
+    margin: 24px;
     box-sizing: border-box; /* padding 포함해서 총 높이 51px 유지 */
     flex: 0 0 auto;         /* flex 줄어듦 방지 */
 `;
@@ -53,18 +51,19 @@ const SearchIconImg = styled.img`
 `;
 
 const PlaceholderText = styled.span`
-  color: gray;
+  color: #8A8A8A;
   font-size: 14px;
 `;
 
 const Input = styled.input`
-  flex: 1 1 auto;
-  border: none;
-  outline: none;
-  font-size: 14px;
-  background: transparent;
-  &::placeholder { color: #9ca3af; } /* gray-400 */
-  color: black;
+    flex: 1 1 auto;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background: transparent;
+    &::placeholder { color: #8A8A8A; } /* gray-400 */
+    color: black;
+    font-weight: 400;
 `;
 
 export default function SearchBar({
