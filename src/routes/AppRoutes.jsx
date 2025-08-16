@@ -5,12 +5,20 @@ import Taro from '../pages/Taro.jsx'
 import NotFound from '../pages/NotFound.jsx'
 import Search from '../pages/Search.jsx'
 import SearchResults from '../pages/SearchResults.jsx'
+import MainLayout from '../layouts/MainLayout.jsx'
+import Plan from '../pages/Plan.jsx'
+import Wiki from '../pages/Wiki.jsx'
+
 
 function AppRoutes() {
     return (
         <Routes>
+            <Route element={<MainLayout />}>
+                <Route index element={<Home />} />     {/* "/" */}
+                <Route path="plan" element={<Plan />} />
+                <Route path="wiki" element={<Wiki />} />
+            </Route>
             <Route element={<Layout />}>
-                <Route path="/" element={<Home />} />
                 <Route path="/taro" element={<Taro />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/results" element={<SearchResults />} />

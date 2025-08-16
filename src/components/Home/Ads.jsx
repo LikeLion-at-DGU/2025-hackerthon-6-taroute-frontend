@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 import ImageSlider from '../common/ImageSlider.jsx';
-import ad2 from '../../assets/images/ads_temp/temp2.JPG';
-import ad3 from '../../assets/images/ads_temp/temp3.jpg';
+import ad1 from '../../assets/images/ads1.png';
+import ad2 from '../../assets/images/ads2.png';
+import ad3 from '../../assets/images/ads3.png';
 import image2 from '../../assets/images/ads_temp/image2.png';
 
 const AdsContainer = styled.section`
@@ -12,7 +13,7 @@ const AdsContainer = styled.section`
     justify-content: center;
     box-sizing: border-box;
     position: relative;
-    margin-bottom: 50px;
+    margin-bottom: 25px;
 `;
 
 const AdCard = styled.div`
@@ -40,8 +41,8 @@ const FirstAd = (
 
 // 원하는 순서로 자유롭게 배치
 const slides = [
+    ad1,
     ad2,       // 1번째: 이미지2
-    FirstAd,   // 2번째: 커스텀 박스 (이미지 말고 만들어놓은 컨테이너도 넣을 수 있음)
     ad3,       // 3번째: 이미지3
 ];
 

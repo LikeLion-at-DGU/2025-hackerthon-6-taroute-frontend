@@ -12,8 +12,7 @@ const NavbarContainer = styled.div`
     height: 33px;
     justify-content: space-between;
     margin-top: 28px;
-    margin-left: 9px;
-    margin-right: 9px;
+    margin-left: 16px;
     font-size: 18px;
 `;
 
@@ -35,8 +34,8 @@ const ButtonBar = styled.div`
 `;
 
 const NowLocation = styled.div`
-    font-weight: 700;
-    font-size: 17px;
+    font-weight: 600;
+    font-size: 20px;
 `;
 
 const Navbar = ({ LocationBarColor }) => {

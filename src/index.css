@@ -1,7 +1,8 @@
 :root {
-  font-family: 'MaruBuri', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Paperlogy', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  color: #2A2A2A;
 
   color-scheme: light dark;
 
@@ -18,6 +19,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'MaruBuri';
   src: url('./assets/fonts/MaruBuri-Light.woff2') format('woff2');
@@ -25,6 +27,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'MaruBuri';
   src: url('./assets/fonts/MaruBuri-Regular.woff2') format('woff2');
@@ -32,6 +35,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'MaruBuri';
   src: url('./assets/fonts/MaruBuri-SemiBold.woff2') format('woff2');
@@ -39,6 +43,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'MaruBuri';
   src: url('./assets/fonts/MaruBuri-Bold.woff2') format('woff2');
@@ -47,27 +52,50 @@
   font-display: swap;
 }
 
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; height: 100%; }
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
 
 body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
-  overflow: hidden; /* lock window scroll; scroll only inside #root */
+  overflow: hidden;
+  /* lock window scroll; scroll only inside #root */
+  background: white;
 }
 
 #root {
   width: 375px;
-  height: 812px; /* fixed frame height for internal scrolling */
-  border: 1px solid black; /* optional visual frame */
-  overflow-y: scroll; /* allow vertical scrolling when content exceeds 812px */
-  overflow-x: hidden; /* prevent horizontal scroll */
-  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
-  overscroll-behavior: contain; /* avoid page bounce/gesture conflicts */
+  height: 812px;
+  /* fixed frame height for internal scrolling */
+  overflow-y: hidden;
+  /* allow vertical scrolling when content exceeds 812px */
+  overflow-x: hidden;
+  /* prevent horizontal scroll */
+  -webkit-overflow-scrolling: touch;
+  /* smooth scrolling on iOS */
+  overscroll-behavior: contain;
+  /* avoid page bounce/gesture conflicts */
+  background: linear-gradient(
+    180deg,
+    #2C2A4A 10%,
+    #3d3570df 60%,
+    #9B84EC 90%
+  );
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font: inherit;
 }
