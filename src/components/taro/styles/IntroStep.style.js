@@ -18,10 +18,11 @@ export const Wrapper = styled.div`
 export const Background = styled.div`
   position: absolute;
   inset: 0;
-  background-image: url(${bgImage});
+  background-image:
+  linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
+  url(${bgImage});
   background-size: cover;
   background-position: center top;
-  filter: brightness(0.80);
 `;
 
 export const Overlay = styled.div`

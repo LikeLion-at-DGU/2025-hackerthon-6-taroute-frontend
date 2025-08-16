@@ -6,7 +6,9 @@ export const CommonWrapper = styled.div`
   position: relative;
   height: 100vh;
   background-color: #000;
-  background-image: url(${bgImage});
+  background-image:
+  linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
+  url(${bgImage});
   background-size: contain;
   background-position: center top;
   background-repeat: no-repeat;
