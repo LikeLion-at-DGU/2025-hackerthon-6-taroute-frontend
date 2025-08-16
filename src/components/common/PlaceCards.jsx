@@ -84,12 +84,17 @@ export function getDummyByCategory(category = "all") {
  * @param {{ place: Place }} props
  */
 export const PlaceCard = ({ place }) => {
+  const displayName =
+    (place?.name?.length || 0) > 9
+      ? (place?.name || "").slice(0, 9) + "..."
+      : (place?.name || "");
+
   return (
     <Card>
-      <Cover $src={place.image} role="img" aria-label={place.name} />
+      <Cover $src={place?.image || bg1} role="img" aria-label={place?.name || ""} />
       <Body>
-        <Title>{place.name}</Title>
-        <Address>{place.location}</Address>
+        <Title>{displayName}</Title>
+        <Address>{place?.location || ""}</Address>
       </Body>
       <Location>
         <img src={maapin} alt="map pin" />
@@ -108,6 +113,7 @@ const Card = styled.div`
   background: #F0F0F0;
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 137px;
   height: 186px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.06), 2px 3px 6px -4px rgba(0,0,0,0.12);
@@ -126,12 +132,20 @@ const Cover = styled.div`
 
 const Body = styled.div`
   padding: 5px 8px 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const Title = styled.h3`
   font-size: 12px;
-  margin: 0 0 4px;
+  margin: 0 0 2px;
   color: black;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 2px;
 `;
 
 const Address = styled.p`
@@ -144,7 +158,6 @@ const Location = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 8px;
-  margin-left: 7px;
   margin-top: 2px;
   gap: 4px;
   p{

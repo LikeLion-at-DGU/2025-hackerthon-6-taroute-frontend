@@ -23,6 +23,7 @@ const LocationBar = styled.div`
     height: 100%;
     gap: 7px;
     align-items: center;
+    color: ${({ $color }) => $color || "white"};
 `;
 
 const ButtonBar = styled.div`
@@ -38,13 +39,13 @@ const NowLocation = styled.div`
     font-size: 17px;
 `;
 
-const Navbar = () => {
+const Navbar = ({ LocationBarColor }) => {
     return (
         <NavbarContainer>
-            <LocationBar>
+            <LocationBar $color={LocationBarColor}>
                 <img src={LocationIcon} alt="Location" />
                 {/*}나중에 API 연결 필요*/}
-                <NowLocation>충무로 3가</NowLocation>
+                <NowLocation >충무로 3가</NowLocation>
                 <FontAwesomeIcon icon={faChevronDown} />
             </LocationBar>
             <ButtonBar>

@@ -149,7 +149,7 @@ const WhiteBox = () => {
                 </CategoryContainer>
                 <GoWikiButton onClick={() => navigate('/Taro')}>
                     <img src={wikibook} />
-                    <div class="text">
+                    <div className="text">
                         <p>식당의 리얼 후기가 궁금하다면?</p>
                         <p style={{color:'#C6F62C', fontWeight:'600'}}>푸드 위키 보러가기 &gt;</p>
                     </div>
