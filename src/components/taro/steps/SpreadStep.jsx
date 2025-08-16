@@ -29,7 +29,7 @@ function SpreadStep({ next, prev }) {
   const cardSpreadRef = useRef(null)
 
   const totalCards = 25
-  const cardsPerView = 25
+  const cardsPerView = 25 //카드 퍼짐 넓이 조절
 
   const handleTouchStart = (e) => {
     setIsDragging(true)
@@ -119,7 +119,7 @@ function SpreadStep({ next, prev }) {
     const adjustedIndex = index - currentIndex
     const centerIndex = Math.floor(cardsPerView / 2)
     const distanceFromCenter = adjustedIndex - centerIndex
-    return distanceFromCenter * 5
+    return distanceFromCenter * 3 //카드 회전 각도 조절
   }
 
   return (
@@ -177,9 +177,9 @@ function SpreadStep({ next, prev }) {
                 src={tarocard}
                 alt={`타로 카드 ${index + 1}`}
                 rotation={rotation}
-                marginLeft={index === currentIndex ? 0 : -25}
+                marginLeft={index === currentIndex ? 0 : -60}
                 zIndex={cardsPerView - Math.abs(distanceFromCenter)}
-                opacity={isSelected ? 0.4 : 1}
+                opacity={1}
                 isSelected={isSelected}
                 onClick={() => handleCardSelect(index)}
               />

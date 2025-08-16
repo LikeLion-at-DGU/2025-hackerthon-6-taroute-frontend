@@ -41,7 +41,14 @@ function ConsentStep({ next, prev }) {
           style={{ cursor: 'pointer' }}
         />
         {alwaysShowArrow && (
-          <div className="next-indicator">&gt;&gt;</div>
+          <div
+            className="next-indicator"
+            role="button"
+            tabIndex={0}
+            style={{ opacity: showComplete ? 1 : 0.4, pointerEvents: showComplete ? 'auto' : 'none' }}
+            onClick={() => { if (showComplete) { next(); } }}
+            onKeyDown={(e) => { if (showComplete && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); next(); } }}
+          >&gt;&gt;</div>
         )}
       </BubbleContent>
     </Wrapper>

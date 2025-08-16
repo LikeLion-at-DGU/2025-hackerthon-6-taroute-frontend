@@ -6,7 +6,9 @@ export const CommonWrapper = styled.div`
   position: relative;
   height: 100vh;
   background-color: #000;
-  background-image: url(${bgImage});
+  background-image:
+  linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
+  url(${bgImage});
   background-size: contain;
   background-position: center top;
   background-repeat: no-repeat;
@@ -28,10 +30,10 @@ export const CommonOverlay = styled.div`
 export const CommonTaruMascot = styled.img`
   position: absolute;
   top: 53%;
-  left: 80%;
-  transform: translateX(-50%);
-  width: 180px;
-  height: auto;
+  left: 60%;
+  transform: rotate(2.781deg);
+  width: 147px;
+  height: 188px;
   aspect-ratio: 114 / 127;
   flex-shrink: 0;
   object-fit: contain;

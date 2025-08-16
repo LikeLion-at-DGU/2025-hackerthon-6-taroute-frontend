@@ -112,7 +112,7 @@ export const CardSpread = styled.div`
 export const TarotCard = styled.img`
   width: 126px;
   height: 177px;
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 0.2s ease; /* 선택 시 색변경은 즉시 반영되도록 filter/opacity는 전환하지 않음 */
   cursor: pointer;
   filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
   margin-left: ${props => props.marginLeft || '0'}px;
@@ -121,11 +121,16 @@ export const TarotCard = styled.img`
   transform: ${props => `rotate(${props.rotation}deg)`};
   border: none;
   filter: ${props => props.isSelected ? 'brightness(0.5)' : 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))'};
+  /* 선택 후에도 다시 눌러 해제할 수 있도록 항상 클릭 가능 */
+  pointer-events: auto;
+  transform-origin: center bottom;
+  user-select: none;
+  will-change: transform;
   
   &:hover {
-    transform: ${props => `rotate(${props.rotation}deg) scale(1.15)`};
-    z-index: 50;
-    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
+    /* 선택 상태에서도 어두운 상태를 유지하도록 hover 필터를 분기 */
+    transform: ${props => `rotate(${props.rotation}deg)`};
+    filter: ${props => props.isSelected ? 'brightness(0.5)' : 'drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5))'};
   }
 `;
 
