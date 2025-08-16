@@ -15,7 +15,7 @@ function CommonStep({
   headerText = "타루",
   roleText = "타로마스터",
   contentText,
-  showPrevButton = false 
+  showPrevButton = false,
 }) {
   return (
     <Wrapper>

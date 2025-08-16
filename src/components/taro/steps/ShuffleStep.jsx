@@ -7,7 +7,7 @@ import {
   TaruIcon,
   Title
 } from '../styles/ShuffleStep.style'
-import taruIcon from '../../../assets/icons/taru.svg'
+import taruIcon from '../../../assets/icons/ShuffleTaru.svg'
 
 function ShuffleStep({ next, prev }) {
   useEffect(() => {
