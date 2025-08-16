@@ -179,7 +179,7 @@ function SpreadStep({ next, prev }) {
                 rotation={rotation}
                 marginLeft={index === currentIndex ? 0 : -60}
                 zIndex={cardsPerView - Math.abs(distanceFromCenter)}
-                opacity={isSelected ? 0.4 : 1}
+                opacity={1}
                 isSelected={isSelected}
                 onClick={() => handleCardSelect(index)}
               />
