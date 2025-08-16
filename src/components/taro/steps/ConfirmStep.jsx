@@ -7,7 +7,7 @@ import {
   BubbleContent,
   ButtonPrev,
   ButtonNext,
-} from '../styles/ConsentStep.style.js'
+} from '../styles/ConfirmStep.style.js'
 import taruSvg from '../../../assets/icons/taru.svg'
 import useTextAnimation from '../../../hooks/useTextAnimation'
 
