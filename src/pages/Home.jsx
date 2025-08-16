@@ -13,14 +13,18 @@ const HomeContainer = styled.div`
     align-items: center;
     width: 100%;
     height: fit-content;
-    background-color: #271932;
+    background: linear-gradient(
+        180deg,
+        #23213a 0%,
+        #3d3570 50%,
+        #7062b2 100%
+    );
     color: #F0F0F0;
 `;
 
 const GoTaro = styled.div`
     display: flex;
     width: 100%;
-    background-color: #271932;
     justify-content: space-around;
     padding: 10px 10px 32px 10px;
     font-weight: 600;

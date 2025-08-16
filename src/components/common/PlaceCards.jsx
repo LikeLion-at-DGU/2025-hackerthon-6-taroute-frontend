@@ -79,22 +79,52 @@ export function getDummyByCategory(category = "all") {
   return filterByCategory(DUMMY_PLACES, category);
 }
 
+// 영어 대문자는 한글 1글자와 동일하게 취급, 영어 소문자만 2글자=한글 1글자
+function getCustomLength(str) {
+  let len = 0;
+  for (const ch of str) {
+    if (/[A-Z]/.test(ch)) {
+      len += 1; // 대문자는 한글과 동일하게 1
+    } else if (/[a-z]/.test(ch)) {
+      len += 0.5; // 소문자만 0.5
+    } else {
+      len += 1;
+    }
+  }
+  return len;
+}
+
 /**
  * 단일 카드 컴포넌트 (개별 카드 UI만 담당)
  * @param {{ place: Place }} props
  */
 export const PlaceCard = ({ place }) => {
-  const displayName =
-    (place?.name?.length || 0) > 9
-      ? (place?.name || "").slice(0, 9) + "..."
-      : (place?.name || "");
+  const name = place?.name || "";
+  // 최대 표시 길이(한글 기준 8, 영어 대문자 8, 영어 소문자 16)
+  const maxLen = 8;
+  let displayName = "";
+  let accLen = 0;
+  for (const ch of name) {
+    accLen += /[A-Z]/.test(ch) ? 1 : /[a-z]/.test(ch) ? 0.5 : 1;
+    if (accLen > maxLen) break;
+    displayName += ch;
+  }
+  if (accLen > maxLen || displayName.length < name.length) displayName += "...";
+
+  // 주소도 최대 18글자까지만 표시, 초과시 ... 붙임
+  const address = place?.location || "";
+  const maxAddressLen = 18;
+  let displayAddress = address;
+  if (address.length > maxAddressLen) {
+    displayAddress = address.slice(0, maxAddressLen) + "...";
+  }
 
   return (
     <Card>
       <Cover $src={place?.image || bg1} role="img" aria-label={place?.name || ""} />
       <Body>
         <Title>{displayName}</Title>
-        <Address>{place?.location || ""}</Address>
+        <Address>{displayAddress}</Address>
       </Body>
       <Location>
         <img src={maapin} alt="map pin" />
@@ -108,7 +138,7 @@ export default PlaceCard;
 
 // ---------------- styled-components (카드 UI) ----------------
 const Card = styled.div`
-  border-radius: 12px;
+  border-radius: 20px;
   overflow: hidden;
   background: #F0F0F0;
   display: flex;
@@ -117,6 +147,7 @@ const Card = styled.div`
   width: 137px;
   height: 186px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.06), 2px 3px 6px -4px rgba(0,0,0,0.12);
+  flex: 0 0 auto;   // 카드가 줄어들지 않게 추가!
 `;
 
 const Cover = styled.div`
