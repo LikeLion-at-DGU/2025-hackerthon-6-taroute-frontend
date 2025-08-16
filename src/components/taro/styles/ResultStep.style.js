@@ -177,3 +177,101 @@ export const Instruction = styled.p`
   opacity: 0.95;
 `
 
+// Detail modal styles
+export const DetailOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+`
+
+export const DetailCard = styled.div`
+  position: relative;
+  width: 263px;
+  max-width: calc(100% - 40px);
+  border-radius: 16px;
+  background-color: transparent;
+  background-image: url(${props => props.bg || 'none'});
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+  padding: 16px 16px 20px;
+`
+
+export const DetailInner = styled.div`
+  background: transparent;
+  border-radius: 14px;
+  padding: 16px;
+`
+
+export const DetailImage = styled.img`
+  width: 100%;
+  
+width: 213px;
+height: 199px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+`
+
+export const DetailTitle = styled.h3`
+  margin: 16px 0 8px;
+  font-family: MaruBuriOTF;
+  font-size: 22px;
+  color: #271932;
+`
+
+export const DetailDesc = styled.p`
+  margin: 0 0 12px;
+  font-family: MaruBuriOTF;
+  font-size: 14px;
+  color: #2A2A2A;
+  line-height: 1.6;
+`
+
+export const DetailFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+`
+
+export const SmallButton = styled.button`
+  flex: 1;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: #271932;
+  color: #FFF;
+  font-family: MaruBuriOTF;
+  font-size: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  cursor: pointer;
+`
+
+export const DetailClose = styled.button`
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.9);
+  color: #271932;
+  font-size: 20px;
+  cursor: pointer;
+`
+
+export const DetailPager = styled.div`
+  width: 100%;
+  text-align: center;
+  color: #FFF;
+  font-family: MaruBuriOTF;
+  font-size: 18px;
+  margin-top: 10px;
+`
