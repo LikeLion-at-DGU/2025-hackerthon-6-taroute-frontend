@@ -6,9 +6,6 @@ import QuestionStep from '../components/taro/steps/QuestionStep.jsx'
 import ConfirmStep from '../components/taro/steps/ConfirmStep.jsx'
 import ShuffleStep from '../components/taro/steps/ShuffleStep.jsx'
 import SpreadStep from '../components/taro/steps/SpreadStep.jsx'
-import FlipStep from '../components/taro/steps/FlipStep.jsx'
-import SelectStep from '../components/taro/steps/SelectStep.jsx'
-import AnalyzeStep from '../components/taro/steps/AnalyzeStep.jsx'
 import ReadyStep from '../components/taro/steps/ReadyStep.jsx'
 import ResultStep from '../components/taro/steps/ResultStep.jsx'
 
@@ -19,9 +16,6 @@ const stepComponents = [
   ConfirmStep,
   ShuffleStep,
   SpreadStep,
-  FlipStep,
-  SelectStep,
-  AnalyzeStep,
   ReadyStep,
   ResultStep,
 ]
