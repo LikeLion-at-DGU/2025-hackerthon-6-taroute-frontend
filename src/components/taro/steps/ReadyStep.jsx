@@ -8,7 +8,7 @@ import {
   ButtonContainer,
   Button
 } from '../styles/ReadyStep.style'
-import taruIcon from '../../../assets/icons/taru2.svg'
+import taruIcon from '../../../assets/icons/ReadTaru.svg'
 
 function ReadyStep({ next, prev }) {
   return (
