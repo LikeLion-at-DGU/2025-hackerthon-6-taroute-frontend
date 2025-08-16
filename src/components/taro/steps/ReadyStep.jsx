@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import {
   Wrapper,
   Background,
@@ -11,6 +12,13 @@ import {
 import taruIcon from '../../../assets/icons/ReadTaru.svg'
 
 function ReadyStep({ next, prev }) {
+  // 해석중에서 2초 후 결과확인하기로 이동하는 타이머
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (typeof next === 'function') next()
+    }, 2000)
+    return () => clearTimeout(timer)
+  }, [next])      
   return (
     <Wrapper>
       <Background />

@@ -8,6 +8,7 @@ import ShuffleStep from '../components/taro/steps/ShuffleStep.jsx'
 import SpreadStep from '../components/taro/steps/SpreadStep.jsx'
 import ReadyStep from '../components/taro/steps/ReadyStep.jsx'
 import ResultStep from '../components/taro/steps/ResultStep.jsx'
+import GoStep from '../components/taro/steps/GoStep.jsx'
 
 const stepComponents = [
   IntroStep,
@@ -17,6 +18,7 @@ const stepComponents = [
   ShuffleStep,
   SpreadStep,
   ReadyStep,
+  GoStep,
   ResultStep,
 ]
 
