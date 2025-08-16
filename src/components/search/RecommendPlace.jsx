@@ -6,17 +6,18 @@ const RecommendPlaceContainer = styled.div`
     flex-direction: column;
     gap: 10px;
     margin-top: 10px;
-    color: black;
+    color: white;
     width: 343px;
     font-weight: 600;
 `;
 
 const CardsContainer = styled.div`
     display: flex;
-    gap: 10px;
+    gap: 16px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 20px;
+    scrollbar-color: #a18ae6 #f0f0f0;
     & > * {
     flex: 0 0 auto;           /* 줄바꿈 없이 가로로 나열 */
     scroll-snap-align: start; /* 카드 단위 스냅 */

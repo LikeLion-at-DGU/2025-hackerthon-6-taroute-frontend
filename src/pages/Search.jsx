@@ -10,7 +10,12 @@ import ads3 from "../assets/images/ads3.png";
 const SearchContainer = styled.div`
     display: flex;
     flex-direction: column;
-    background-color: white;
+    background: linear-gradient(
+        180deg,
+        #23213a 0%,
+        #3d3570 50%,
+        #7062b2 100%
+    );
     height: 100%;
     width: 100%;
     align-items: center;
@@ -19,7 +24,7 @@ const SearchContainer = styled.div`
 const TrendKeyword = styled.div`
     display: flex;
     flex-direction: column;
-    color: black;
+    color: white;
     margin-top: 30px;
     align-items: flex-start;
     width: 343px;
@@ -47,7 +52,7 @@ const Search = () => {
 
     return (
         <SearchContainer>
-            <Navbar LocationBarColor="black" />
+            <Navbar LocationBarColor="white" />
             <SearchBar
                 value={q}
                 onChange={setQ}

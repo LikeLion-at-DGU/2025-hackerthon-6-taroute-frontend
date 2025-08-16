@@ -8,7 +8,7 @@ const SortBarContainer = styled.div`
     justify-content: space-between;
     width: 343px;
     align-items: center;
-    color: black;
+    color: white;
     font-size: 14px;
     font-weight: 600;
     padding: 0 10px;

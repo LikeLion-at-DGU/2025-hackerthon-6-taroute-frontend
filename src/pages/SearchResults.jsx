@@ -12,7 +12,7 @@ import { SortBar } from "../components/search/SortBar";
 const SearchContainer = styled.div`
     display: flex;
     flex-direction: column;
-    background-color: white;
+    background: linear-gradient(180deg, #23213a 0%, #a18ae6 100%);
     height: 100%;
     width: 100%;
     align-items: center;
@@ -20,11 +20,13 @@ const SearchContainer = styled.div`
 
 const ResultsContainer = styled.div`
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: row;
     gap: 16px;
-    justify-content: flex-start;
-    margin-top: 20px;
-    background-color: white;
+    overflow-x: auto;
+    width: 343px;          // 카드 컨테이너 너비 고정
+    padding: 20px 0;
+    scrollbar-width: thin;
+    scrollbar-color: #a18ae6 #f0f0f0;
 `;
 
 const NoResultContainer = styled.div`
@@ -33,11 +35,12 @@ const NoResultContainer = styled.div`
     align-items: center;
     margin-top: 80px;
     h3{
-        color: black;
+        color: white;
         font-weight: 500;
         font-size: 24px;
     }
 `;
+
 
 export default function SearchResults() {
     const [params] = useSearchParams();
@@ -88,7 +91,7 @@ export default function SearchResults() {
 
     return (
         <SearchContainer>
-            <Navbar LocationBarColor="black" />
+            <Navbar LocationBarColor="white" />
             <SearchBar
                 value={q}
                 onChange={setQ}
