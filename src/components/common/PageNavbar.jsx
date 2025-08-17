@@ -11,7 +11,6 @@ const NavbarWrapper = styled.div`
     justify-content: space-between;
     padding: 0 14px;
     background: linear-gradient(180deg, #25213B 100%, #655AA1 0%);
-    border-bottom: 1px solid #eee;
     padding-top: 5px;
 `;
 

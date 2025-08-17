@@ -9,6 +9,7 @@ import MainLayout from '../layouts/MainLayout.jsx'
 import Plan from '../pages/Plan.jsx'
 import Wiki from '../pages/Wiki.jsx'
 import Location from '../pages/Location.jsx'
+import LocationMap from '../pages/LocationMap.jsx'
 
 function AppRoutes() {
     return (
@@ -24,6 +25,7 @@ function AppRoutes() {
                 <Route path="/results" element={<SearchResults />} />
                 <Route path="*" element={<NotFound />} />
                 <Route path="/location" element={<Location />} />
+                <Route path="/location-map" element={<LocationMap />} />
             </Route>
         </Routes>
     )

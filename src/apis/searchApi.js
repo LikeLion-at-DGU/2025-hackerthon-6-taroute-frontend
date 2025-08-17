@@ -25,3 +25,22 @@ export const getSearchPlace = async ({ q, x, y } = {}) => {
         throw err;
     }
 };
+
+/**
+ * 위치 검색 API 호출
+ * @param {string} query - 검색할 위치명
+ * @returns {Promise<any>} - 서버에서 내려주는 위치 데이터
+ */
+export const getLocationSearch = async (query) => {
+    if (!query) throw new Error("query is required");
+
+    try {
+        const res = await instance.get("/places/locate", {
+            params: { query },
+        });
+        return res.data;
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+};
