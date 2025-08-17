@@ -42,6 +42,8 @@ function Category() {
         borderColor="#E2E2E2"
       />
 
+      <Spacer />
+
       <FilterBar
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
@@ -79,6 +81,11 @@ const Content = styled.div`
 const Bleed = styled.div`
   margin-left: -16px;
   margin-right: -16px;
+`
+
+// SearchBar와 FilterBar가 겹치지 않도록 간격 확보
+const Spacer = styled.div`
+  height: 14px;
 `
 
 

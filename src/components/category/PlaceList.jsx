@@ -1,6 +1,10 @@
 import styled from 'styled-components'
 import { useEffect, useState } from 'react'
 import { fetchCategoryPlaces } from '../../apis/categoryApi.js'
+import mapPin from '../../assets/icons/mappin.svg'
+import timeIcon from '../../assets/icons/time.svg'
+import checkBox from '../../assets/icons/category/CheckBox.svg'
+import checkedBox from '../../assets/icons/category/CheckedBox.svg'
 
 export function PlaceList({ query }) {
   const [items, setItems] = useState([])
@@ -23,15 +27,41 @@ export function PlaceList({ query }) {
   return (
     <List>
       {items.map((p) => (
-        <Card key={p.id}>
-          <Thumb src={p.thumbnail} alt={p.name} />
-          <Info>
-            <Name>{p.name}</Name>
-            <Meta>{p.meta}</Meta>
-          </Info>
-        </Card>
+        <PlaceCard key={p.id} place={p} />
       ))}
     </List>
+  )
+}
+
+function PlaceCard({ place }) {
+  const [liked, setLiked] = useState(place.liked || false)
+
+  return (
+    <Card>
+      <Gallery>
+        <ThumbList>
+          {(place.images || []).map((src, i) => (
+            <ThumbItem key={i}>
+              <Slide src={src} alt={`${place.name} ${i + 1}`} />
+            </ThumbItem>
+          ))}
+        </ThumbList>
+      </Gallery>
+      <Info>
+        <Name>{place.name}</Name>
+        <Row>
+          <IconMap />
+          <Text $ml="-4px">{place.location}</Text>
+        </Row>
+        <Row>
+          <IconTime src={timeIcon} alt="시간" />
+          <Text>{place.time}</Text>
+        </Row>
+      </Info>
+      <LikeButton onClick={() => setLiked(v => !v)}>
+        <img src={liked ? checkedBox : checkBox} alt={liked ? '찜됨' : '찜'} />
+      </LikeButton>
+    </Card>
   )
 }
 
@@ -42,35 +72,118 @@ const List = styled.div`
 `
 
 const Card = styled.div`
-  display: flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 12px;
-  padding: 10px;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  background: #fff;
+  padding: 12px;
 `
 
-const Thumb = styled.img`
-  width: 88px;
-  height: 88px;
+const Gallery = styled.div`
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f4f4f4;
+`
+
+const ThumbList = styled.div`
+  --gap: 10px;
+  --cols: 3;
+  display: flex;
+  gap: var(--gap);
+  padding: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+`
+
+const ThumbItem = styled.div`
+  flex: 0 0 calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols));
+  height: 150px;
+  border-radius: 12px;
+  overflow: hidden;
+  scroll-snap-align: start;
+`
+
+const Slide = styled.img`
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 8px;
+  display: block;
 `
 
 const Info = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  
 `
 
 const Name = styled.div`
-  font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
+
+  color: var(--color-neutral-black, #2A2A2A);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 17px;
+  letter-spacing: -0.5px;
 `
 
 const Meta = styled.div`
   color: #666;
   font-size: 12px;
+`
+
+const Row = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`
+
+const IconBase = styled.img`
+  display: block;
+  object-fit: contain;
+`
+
+const IconMap = styled(({ className }) => (
+  <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M9.55769 7.24998C9.55769 7.59681 9.41992 7.92942 9.17468 8.17466C8.92944 8.4199 8.59682 8.55768 8.25 8.55768C7.90318 8.55768 7.57056 8.4199 7.32532 8.17466C7.08008 7.92942 6.94231 7.59681 6.94231 7.24998C6.94231 6.90316 7.08008 6.57055 7.32532 6.32531C7.57056 6.08007 7.90318 5.94229 8.25 5.94229C8.59682 5.94229 8.92944 6.08007 9.17468 6.32531C9.41992 6.57055 9.55769 6.90316 9.55769 7.24998Z" fill="currentColor"/>
+    <path d="M7.72235 12.9136C7.09405 12.474 6.51023 11.974 5.97919 11.4209C5.04615 10.4447 4 8.97939 4 7.24997C4 5.1217 5.72681 2.99997 8.25 2.99997C10.7732 2.99997 12.5 5.1217 12.5 7.24997C12.5 8.97939 11.4538 10.4447 10.5208 11.4209C9.98977 11.974 9.40595 12.474 8.77765 12.9136C8.60569 13.0332 8.42719 13.1431 8.25 13.2555C8.07346 13.1431 7.89431 13.0332 7.72235 12.9136ZM8.25 4.30766C6.52319 4.30766 5.30769 5.76705 5.30769 7.24997C5.30769 8.46285 6.05962 9.61297 6.92465 10.5166C7.33278 10.9421 7.77614 11.3323 8.25 11.683C8.72383 11.3325 9.1672 10.9425 9.57535 10.5172C10.4404 9.61297 11.1923 8.46351 11.1923 7.24997C11.1923 5.76705 9.97681 4.30766 8.25 4.30766Z" fill="currentColor"/>
+  </svg>
+))`
+  margin-left: -3px; /* 위치 아이콘만 좌측으로 살짝 이동 */
+  color: #8A8A8A;
+`
+
+const IconTime = styled(IconBase)`
+  width: 10px; /* 시계 아이콘이 시각적으로 더 커 보여 살짝 축소 */
+  height: 10px;
+  
+`
+
+const Text = styled.span`
+  color: #2A2A2A;
+
+  color: var(--color-neutral-black, #2A2A2A);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 17px;
+  letter-spacing: -0.5px;
+  margin-left: ${p => p.$ml || '0'};
+`
+
+const LikeButton = styled.button`
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background-color: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
 `
 
 const Empty = styled.div`
