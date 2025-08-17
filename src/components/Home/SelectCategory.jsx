@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import styled from "styled-components";
 import { PlaceCard, CATEGORIES, DUMMY_PLACES, filterByCategory } from "../common/PlaceCards.jsx";
+import { useNavigate } from 'react-router-dom';
 
 const LABELS = {
   restaurant: "식당",
@@ -11,6 +12,7 @@ const LABELS = {
 
 const SelectCategory = () => {
   const [activeCat, setActiveCat] = useState("restaurant"); // 기본: 식당
+  const navigate = useNavigate();
 
   // 선택된 카테고리의 아이템을 4장으로 복제 (원소가 1~3개여도 순환 복제)
   const base = useMemo(() => filterByCategory(DUMMY_PLACES, activeCat), [activeCat]);
@@ -29,7 +31,13 @@ const SelectCategory = () => {
           <Category
             key={key}
             $active={activeCat === key}
-            onClick={() => setActiveCat(key)}
+            onClick={() => {
+              setActiveCat(key);
+              const label = LABELS[key];
+              navigate(`/category?cat=${encodeURIComponent(label)}`, {
+                state: { initialCategory: label },
+              });
+            }}
             role="button"
             aria-pressed={activeCat === key}
           >

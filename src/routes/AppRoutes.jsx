@@ -5,6 +5,7 @@ import Taro from '../pages/Taro.jsx'
 import NotFound from '../pages/NotFound.jsx'
 import Search from '../pages/Search.jsx'
 import SearchResults from '../pages/SearchResults.jsx'
+import Category from '../pages/Category.jsx'
 import MainLayout from '../layouts/MainLayout.jsx'
 import Plan from '../pages/Plan.jsx'
 import Wiki from '../pages/Wiki.jsx'
@@ -21,6 +22,7 @@ function AppRoutes() {
             </Route>
             <Route element={<Layout />}>
                 <Route path="/taro" element={<Taro />} />
+                <Route path="/category" element={<Category />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/results" element={<SearchResults />} />
                 <Route path="*" element={<NotFound />} />

@@ -173,25 +173,25 @@ const WhiteBox = ({ expandedTop = 96, collapsedTop = 360 }) => {
                     <p>카테고리별 장소</p>
                 </Title>
                 <CategoryContainer>
-                    <CategoryItem> {/* 식당 */}
+                    <CategoryItem onClick={() => navigate('/category', { state: { initialCategory: '식당' } })}> {/* 식당 */}
                         <Tile>
                             <Icon src={restaurant} />
                         </Tile>
                         <Label>식당</Label>
                     </CategoryItem>
-                    <CategoryItem> {/* 카페 */}
+                    <CategoryItem onClick={() => navigate('/category', { state: { initialCategory: '카페' } })}> {/* 카페 */}
                         <Tile>
                             <Icon src={cafe} />
                         </Tile>
                         <Label>카페</Label>
                     </CategoryItem>
-                    <CategoryItem> {/* 문화시설 */}
+                    <CategoryItem onClick={() => navigate('/category', { state: { initialCategory: '문화시설' } })}> {/* 문화시설 */}
                         <Tile>
                             <Icon src={culture} />
                         </Tile>
                         <Label>문화시설</Label>
                     </CategoryItem>
-                    <CategoryItem> {/* 관광명소 */}
+                    <CategoryItem onClick={() => navigate('/category', { state: { initialCategory: '관광명소' } })}> {/* 관광명소 */}
                         <Tile>
                             <Icon src={tour} />
                         </Tile>
