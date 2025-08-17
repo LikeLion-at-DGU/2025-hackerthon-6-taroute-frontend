@@ -54,21 +54,21 @@ export function FilterBar({
 
       <Selectors>
         <Select value={distance} onChange={(e) => onChangeDistance(e.target.value)}>
-          <option value="" disabled>거리 ▾</option>
+          <option value="" disabled>거리</option>
           {['1km 이내', '2km 이내', '3km 이내', '5km 이내', '5km 이상'].map((d) => (
             <option key={d} value={d}>{d}</option>
           ))}
         </Select>
 
         <Select value={visitTime} onChange={(e) => onChangeVisitTime(e.target.value)}>
-          <option value="" disabled>방문시간 ▾</option>
+          <option value="" disabled>방문시간</option>
           {['아침', '낮', '저녁', '밤', '새벽'].map((t) => (
             <option key={t} value={t}>{t}</option>
           ))}
         </Select>
 
         <Select value={visitDay} onChange={(e) => onChangeVisitDay(e.target.value)}>
-          <option value="" disabled>방문요일 ▾</option>
+          <option value="" disabled>방문요일</option>
           {['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'].map((d) => (
             <option key={d} value={d}>{d}</option>
           ))}
@@ -88,10 +88,10 @@ const Chips = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 44px;
+  height: 40px;
   border-bottom: 1px solid #c8c8c8;
   padding: 0 16px;
-  gap: 24px;
+  gap: 18px;
   touch-action: pan-y;       /* 수직 스크롤만 허용 → 가로 스와이프 인식 */
   overscroll-behavior-x: contain;
   user-select: none;
@@ -103,28 +103,34 @@ const Chip = styled.button`
   border-bottom: 2px solid ${p => (p.$active ? '#ffc400' : 'transparent')};
   color: ${p => (p.$active ? '#ffc400' : '#2A2A2A')};
   font-weight: 600;
-  padding: 10px 0;
+  font-size: 14px;
+  padding: 8px 0;
   cursor: pointer;
 `
 
 const Selectors = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  justify-content: flex-start;
+  align-items: center;
 `
 
 const Select = styled.select`
-  height: 38px;
-  padding: 0 14px;
-  border: 2px solid #bcbcbc;
+  height: 32px;
+  padding: 0 10px;
+  padding-right: 26px; /* 화살표 공간 */
+  border: 1.5px solid #bcbcbc;
   border-radius: 999px; /* pill 형태 */
   background: rgba(255,255,255,0.7);
   color: #555;
-  appearance: none;
-  background-image: linear-gradient(45deg, transparent 50%, #888 50%),
-                    linear-gradient(135deg, #888 50%, transparent 50%);
-  background-position: right 14px center, right 8px center;
-  background-size: 6px 6px, 6px 6px;
+  font-size: 13px;
+  appearance: none; /* 기본 화살표 제거 */
+  position: relative;
+
+  /* 커스텀 화살표 */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path fill="%23888" d="M1 1l4 4 4-4"/></svg>');
   background-repeat: no-repeat;
+  background-position: right 10px center;
 `
 
 
