@@ -30,7 +30,9 @@ function Category() {
 
   return (
     <Wrapper>
-      <PageNavbar title="카테고리" />
+      <Bleed>
+        <PageNavbar title="카테고리" />
+      </Bleed>
       <SearchBar
         placeholder="검색어를 입력하세요"
         value={keyword}
@@ -64,11 +66,19 @@ const Wrapper = styled.section`
   width: 100%;
   max-width: 420px;
   margin: 0 auto;
-  padding: 12px 16px 24px;
+  padding: 0 16px 24px; /* 상단 여백 제거: 네비를 위쪽에 딱 붙이기 */
+  min-height: 100%;
+  background: var(--bg-3, linear-gradient(90deg, #EBF3FF 0%, #F5F8FF 100%));
 `
 
 const Content = styled.div`
   margin-top: 12px;
+`
+
+/* 부모 패딩을 무시하고 좌우/상단을 꽉 채우는 래퍼 */
+const Bleed = styled.div`
+  margin-left: -16px;
+  margin-right: -16px;
 `
 
 
