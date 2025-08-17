@@ -177,101 +177,106 @@ export const Instruction = styled.p`
   opacity: 0.95;
 `
 
+
 // Detail modal styles
 export const DetailOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0, 0, 0, 0.65);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: 1500;
 `
 
 export const DetailCard = styled.div`
   position: relative;
-  width: 263px;
-  max-width: calc(100% - 40px);
+  width: 360px;
+  max-width: calc(100% - 32px);
   border-radius: 16px;
-  background-color: transparent;
+
   background-image: url(${props => props.bg || 'none'});
   background-repeat: no-repeat;
   background-size: contain;
-  background-position: center;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.5);
-  padding: 16px 16px 20px;
+  background-position: center top;
+  padding: 28px 20px 20px;
 `
 
 export const DetailInner = styled.div`
-  background: transparent;
-  border-radius: 14px;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
 `
 
 export const DetailImage = styled.img`
-  width: 100%;
-  
-width: 213px;
-height: 199px;
+  width: 160px;
+  height: 160px;
   object-fit: cover;
-  border-radius: 10px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
 `
 
-export const DetailTitle = styled.h3`
-  margin: 16px 0 8px;
+export const DetailTitle = styled.h2`
+  margin: 0;
+  color:rgb(0, 0, 0);
   font-family: MaruBuriOTF;
   font-size: 22px;
-  color: #271932;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  text-align: center;
+  line-height: 1.3;
+  max-width: 90%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: keep-all;
+  margin-top: -6px; /* 텍스트 블록을 위로 살짝 올림 */
 `
 
 export const DetailDesc = styled.p`
-  margin: 0 0 12px;
+  margin: 0;
+  color:rgb(0, 0, 0);
   font-family: MaruBuriOTF;
   font-size: 14px;
-  color: #2A2A2A;
   line-height: 1.6;
+  text-align: center;
+  max-width: 60%;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  margin-top: -4px; /* 설명을 조금 더 위로 */
 `
 
 export const DetailFooter = styled.div`
+  margin-top: 2px;
+  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: center;
+  transform: translateY(-12px); /* 버튼을 더 위로 */
 `
 
 export const SmallButton = styled.button`
-  flex: 1;
-  height: 44px;
+  height: 34px;
+  padding: 0 40px;
   border: none;
-  border-radius: 10px;
-  background: #271932;
-  color: #FFF;
-  font-family: MaruBuriOTF;
-  font-size: 16px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-  cursor: pointer;
-`
-
-export const DetailClose = styled.button`
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255,255,255,0.9);
+  border-radius: 8px;
+  background: #EBD8B6;
   color: #271932;
-  font-size: 20px;
+  font-family: MaruBuriOTF;
+  font-size: 14px;
   cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
 `
 
 export const DetailPager = styled.div`
-  width: 100%;
-  text-align: center;
-  color: #FFF;
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  color: #FFFFFF;
   font-family: MaruBuriOTF;
-  font-size: 18px;
-  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.9;
 `
+

@@ -31,7 +31,7 @@ import { useState, useMemo } from 'react'
 import heartIcon from '../../../assets/icons/Heart.svg'
 import blackHeartIcon from '../../../assets/icons/BlackHeart.svg'
 import retryCard from '../../../assets/icons/taro/RetryCard.svg'
-import detailCardBg from '../../../assets/icons/taro/ResultTaroCard.svg'
+import detailCardBg from '../../../assets/icons/taro/ResultDetailCard.svg'
 
 function ResultStep({ prev, goTo }) {
   const [cards, setCards] = useState(() => ([
@@ -121,12 +121,12 @@ function ResultStep({ prev, goTo }) {
               <DetailTitle>{cards[detailIndex].title}</DetailTitle>
               <DetailDesc>{cards[detailIndex].desc}</DetailDesc>
               <DetailFooter>
-                <SmallButton onClick={() => { /* 위치 확인 연결 자리 */ }}>지역위기 확인하기</SmallButton>
+                <SmallButton onClick={() => { /* 위치 확인 연결 자리 */ }}>지역위키 확인하기</SmallButton>
               </DetailFooter>
             </DetailInner>
             <DetailPager>{`${detailIndex + 1} / 7`}</DetailPager>
           </DetailCard>
-        </DetailOverlay>
+        </DetailOverlay> 
       )}
 
       
