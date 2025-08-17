@@ -1,5 +1,7 @@
 import styled from "styled-components";
+import { useNavigate } from 'react-router-dom';
 import gobackIcon from '../../assets/icons/goback.svg';
+import homeIcon from '../../assets/icons/home.svg';
 
 
 const NavbarWrapper = styled.div`
@@ -8,22 +10,46 @@ const NavbarWrapper = styled.div`
     align-items: center;
     justify-content: space-between;
     padding: 0 14px;
-    background: #fff;
+    background: linear-gradient(180deg, #25213B 100%, #655AA1 0%);
     border-bottom: 1px solid #eee;
-    margin-top: 5px;
+    padding-top: 5px;
 `;
 
 const Title = styled.h3`
-    font-size: 17px;
-    font-weight: 500;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+`;
+
+const IconButton = styled.img`
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    
+    &:hover {
+        opacity: 0.7;
+    }
+    
+    &:active {
+        opacity: 0.5;
+    }
 `;
 
 export default function PageNavbar({ title = "" }) {
+    const navigate = useNavigate();
+
+    const handleGoBack = () => {
+        navigate(-1); // 브라우저 히스토리에서 뒤로가기
+    };
+
+    const handleGoHome = () => {
+        navigate('/'); // 홈으로 이동
+    };
+
     return (
         <NavbarWrapper>
-            <img src={gobackIcon} alt="goback" />
+            <IconButton src={gobackIcon} alt="goback" onClick={handleGoBack} />
             <Title>{title}</Title>
-            <p>ㅤ</p> {/* 여기에 공백글자 넣어놨는데 장바구니페이지에선 '삭제'버튼으로 바꾸면됩니다 */}
+            <IconButton src={homeIcon} alt="home" onClick={handleGoHome} /> 
         </NavbarWrapper>
     );
 };
