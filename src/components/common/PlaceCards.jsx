@@ -101,7 +101,7 @@ function getCustomLength(str) {
 export const PlaceCard = ({ place }) => {
   const name = place?.name || "";
   // 최대 표시 길이(한글 기준 8, 영어 대문자 8, 영어 소문자 16)
-  const maxLen = 8;
+  const maxLen = 9;
   let displayName = "";
   let accLen = 0;
   for (const ch of name) {
@@ -140,7 +140,7 @@ export default PlaceCard;
 const Card = styled.div`
   border-radius: 20px;
   overflow: hidden;
-  background: #F0F0F0;
+  background: white;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -177,12 +177,14 @@ const Title = styled.h3`
   display: flex;
   justify-content: center;
   margin-top: 2px;
+  font-weight: 600;
 `;
 
 const Address = styled.p`
   font-size: 7px;
   color: #666;
   margin: 0;
+  font-weight: 300;
 `;
 
 const Location = styled.div`
@@ -195,5 +197,6 @@ const Location = styled.div`
     font-size: 7px;
     color: black;
     margin: 0;
+    font-weight: 300;
   }
 `;
