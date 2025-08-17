@@ -70,11 +70,21 @@ const Wrapper = styled.section`
   margin: 0 auto;
   padding: 0 16px 24px; /* 상단 여백 제거: 네비를 위쪽에 딱 붙이기 */
   min-height: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   background: var(--bg-3, linear-gradient(90deg, #EBF3FF 0%, #F5F8FF 100%));
 `
 
 const Content = styled.div`
   margin-top: 12px;
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 16px;
+  /* 스크롤바 숨기기 (동작은 유지) */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar { display: none; } /* Chrome, Safari, Opera */
 `
 
 /* 부모 패딩을 무시하고 좌우/상단을 꽉 채우는 래퍼 */
@@ -85,7 +95,7 @@ const Bleed = styled.div`
 
 // SearchBar와 FilterBar가 겹치지 않도록 간격 확보
 const Spacer = styled.div`
-  height: 14px;
+  height: 28px;
 `
 
 

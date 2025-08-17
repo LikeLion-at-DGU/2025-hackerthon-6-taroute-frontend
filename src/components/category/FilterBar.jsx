@@ -82,6 +82,7 @@ const Bar = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: 10px; /* SearchBar와 간격 확보 */
 `
 
 const Chips = styled.div`
@@ -89,7 +90,7 @@ const Chips = styled.div`
   align-items: center;
   justify-content: space-between;
   height: 40px;
-  border-bottom: 1px solid #fef4f4;
+  border-bottom: 1px solid #c8c8c8;
   padding: 0 16px;
   gap: 18px;
   touch-action: pan-y;       /* 수직 스크롤만 허용 → 가로 스와이프 인식 */
@@ -101,7 +102,7 @@ const Chip = styled.button`
   background: transparent;
   border: none;
   border-bottom: 2px solid ${p => (p.$active ? '#ffc400' : 'transparent')};
-  color: ${p => (p.$active ? '#ffc400' : '#625858')};
+  color: ${p => (p.$active ? '#ffc400' : '#2A2A2A')};
   font-weight: 600;
   font-size: 14px;
   padding: 8px 0;

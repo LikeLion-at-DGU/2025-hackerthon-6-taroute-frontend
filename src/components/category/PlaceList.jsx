@@ -1,7 +1,6 @@
 import styled from 'styled-components'
 import { useEffect, useState } from 'react'
 import { fetchCategoryPlaces } from '../../apis/categoryApi.js'
-import mapPin from '../../assets/icons/mappin.svg'
 import timeIcon from '../../assets/icons/time.svg'
 import checkBox from '../../assets/icons/category/CheckBox.svg'
 import checkedBox from '../../assets/icons/category/CheckedBox.svg'
@@ -88,10 +87,8 @@ const Gallery = styled.div`
 `
 
 const ThumbList = styled.div`
-  --gap: 10px;
-  --cols: 3;
   display: flex;
-  gap: var(--gap);
+  gap: 10px;
   padding: 0;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -99,9 +96,10 @@ const ThumbList = styled.div`
 `
 
 const ThumbItem = styled.div`
-  flex: 0 0 calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols));
-  height: 150px;
-  border-radius: 12px;
+  width: 130px;
+  height: 130px;
+  flex: 0 0 130px; /* 가로 스크롤에서 고정 폭 유지 */
+  border-radius: 8px;
   overflow: hidden;
   scroll-snap-align: start;
 `
