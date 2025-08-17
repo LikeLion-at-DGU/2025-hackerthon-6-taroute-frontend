@@ -206,7 +206,7 @@ export const DetailInner = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 25px;
 `
 
 export const DetailImage = styled.img`
@@ -245,7 +245,7 @@ export const DetailDesc = styled.p`
   max-width: 60%;
   word-break: keep-all;
   overflow-wrap: anywhere;
-  margin-top: -4px; /* 설명을 조금 더 위로 */
+  margin-top: -25px; /* 설명을 조금 더 위로 */
 `
 
 export const DetailFooter = styled.div`
@@ -254,7 +254,7 @@ export const DetailFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: translateY(-12px); /* 버튼을 더 위로 */
+  transform: translateY(-18px); /* 버튼을 더 위로 */
 `
 
 export const SmallButton = styled.button`
