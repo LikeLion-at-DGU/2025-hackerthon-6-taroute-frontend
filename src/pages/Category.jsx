@@ -1,10 +1,11 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import styled from 'styled-components'
 import SearchBar from '../components/common/SearchBar.jsx'
 import PageNavbar from '../components/common/PageNavbar.jsx'
 import { FilterBar } from '../components/category/FilterBar.jsx'
 import { PlaceList } from '../components/category/PlaceList.jsx'
 import { useCategoryFilters } from '../hooks/category/useCategoryFilters.js'
+import { useLocation, useSearchParams } from 'react-router-dom'
 
 function Category() {
   const {
@@ -27,6 +28,20 @@ function Category() {
     visitTime,
     visitDay,
   }), [keyword, selectedCategory, distance, visitTime, visitDay])
+
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
+
+  useEffect(() => {
+    const fromState = location.state?.initialCategory
+    const fromQuery = searchParams.get('cat')
+    const initCat = fromState || fromQuery
+    const allowed = ['식당', '카페', '문화시설', '관광명소']
+    if (initCat && allowed.includes(initCat)) {
+      setSelectedCategory(initCat)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <Wrapper>
