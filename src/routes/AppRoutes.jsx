@@ -8,7 +8,7 @@ import SearchResults from '../pages/SearchResults.jsx'
 import MainLayout from '../layouts/MainLayout.jsx'
 import Plan from '../pages/Plan.jsx'
 import Wiki from '../pages/Wiki.jsx'
-
+import Location from '../pages/Location.jsx'
 
 function AppRoutes() {
     return (
@@ -23,6 +23,7 @@ function AppRoutes() {
                 <Route path="/search" element={<Search />} />
                 <Route path="/results" element={<SearchResults />} />
                 <Route path="*" element={<NotFound />} />
+                <Route path="/location" element={<Location />} />
             </Route>
         </Routes>
     )
