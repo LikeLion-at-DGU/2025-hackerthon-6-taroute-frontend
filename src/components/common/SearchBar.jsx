@@ -6,6 +6,7 @@ const Bar = styled.form`
     width: 343px;
     height: 51px;
     flex-shrink: 0;        /* 부모가 column flex일 때 눌림 방지 */
+    margin: 0 auto;        /* 가운데 정렬 */
 `;
 
 const Box = styled.div`
@@ -39,7 +40,7 @@ const ButtonLike = styled.button`
         $bordered ? `${$borderWidth || '1px'} solid ${$borderColor || '#000'}` : 'none'
     )};
     cursor: pointer;
-    margin: 24px;
+    margin: 24px auto; /* 가운데 정렬 */
     box-sizing: border-box; /* padding 포함해서 총 높이 51px 유지 */
     flex: 0 0 auto;         /* flex 줄어듦 방지 */
 `;
