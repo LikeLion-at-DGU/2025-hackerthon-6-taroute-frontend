@@ -1,6 +1,11 @@
 import styled from "styled-components";
+import { useState, useEffect } from "react";
+import { useSavedPlaceContext } from "../../contexts/SavedPlaceContext";
 import bg1 from '../../assets/images/bg_1.jpg';
 import maapin from "../../assets/icons/mappin.svg";
+import heartIcon from "../../assets/icons/Heart.svg"; // 빈 하트
+import blackHeartIcon from "../../assets/icons/BlackHeart.svg"; // 찜한 하트
+import { savePlaceToServer } from "../../apis/savePlaceApi";
 
 // 카테고리: restaurant, cafe, culture, tour
 export const CATEGORIES = ["restaurant", "cafe", "culture", "tour"];
@@ -79,62 +84,240 @@ export function getDummyByCategory(category = "all") {
   return filterByCategory(DUMMY_PLACES, category);
 }
 
-// 영어 대문자는 한글 1글자와 동일하게 취급, 영어 소문자만 2글자=한글 1글자
-function getCustomLength(str) {
-  let len = 0;
-  for (const ch of str) {
-    if (/[A-Z]/.test(ch)) {
-      len += 1; // 대문자는 한글과 동일하게 1
-    } else if (/[a-z]/.test(ch)) {
-      len += 0.5; // 소문자만 0.5
-    } else {
-      len += 1;
-    }
+// 텍스트를 특정 길이로 자르고 말줄임표 추가하는 함수
+function truncateText(text, maxLength = 10) {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+}
+
+// 두 위치 간의 거리를 계산하는 함수 (Haversine 공식)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // 지구 반지름 (km)
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const distance = R * c; // km
+  
+  // km를 m로 변환하고 적절한 단위로 표시
+  if (distance < 1) {
+    return `${Math.round(distance * 1000)}m`;
+  } else {
+    return `${distance.toFixed(1)}km`;
   }
-  return len;
+}
+
+// 사용자 위치를 가져오는 커스텀 훅
+function useUserLocation() {
+  const [userLocation, setUserLocation] = useState(null);
+  const [locationError, setLocationError] = useState(null);
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocationError('위치 서비스를 지원하지 않습니다');
+      return;
+    }
+
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 300000 // 5분간 캐시
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        });
+        setLocationError(null);
+      },
+      (error) => {
+        console.error('위치 정보 가져오기 실패:', error);
+        setLocationError('위치 정보를 가져올 수 없습니다');
+      },
+      options
+    );
+  }, []);
+
+  return { userLocation, locationError };
 }
 
 /**
  * 단일 카드 컴포넌트 (개별 카드 UI만 담당)
- * @param {{ place: Place }} props
+ * @param {{ place: Place, isFavorited?: boolean }} props
  */
-export const PlaceCard = ({ place }) => {
-  const name = place?.name || "";
-  // 최대 표시 길이(한글 기준 8, 영어 대문자 8, 영어 소문자 16)
-  const maxLen = 9;
-  let displayName = "";
-  let accLen = 0;
-  for (const ch of name) {
-    accLen += /[A-Z]/.test(ch) ? 1 : /[a-z]/.test(ch) ? 0.5 : 1;
-    if (accLen > maxLen) break;
-    displayName += ch;
-  }
-  if (accLen > maxLen || displayName.length < name.length) displayName += "...";
+const PlaceCard = ({ place, category }) => {
+  const { savedPlaces, addPlace, removePlace } = useSavedPlaceContext();
+  const { userLocation, locationError } = useUserLocation();
+  
+  // 각 카드마다 개별적으로 저장 상태 계산
+  const isSaved = savedPlaces.some(savedPlace => {
+    // 더 정확한 매칭을 위해 여러 필드 확인
+    const nameMatch = (savedPlace.place_name || savedPlace.name) === (place.place_name || place.name);
+    const addressMatch = (savedPlace.address_name || savedPlace.location) === (place.address_name || place.location);
+    const idMatch = savedPlace.id && place.id && savedPlace.id === place.id;
+    
+    return idMatch || (nameMatch && addressMatch);
+  });
 
-  // 주소도 최대 18글자까지만 표시, 초과시 ... 붙임
-  const address = place?.location || "";
-  const maxAddressLen = 18;
-  let displayAddress = address;
-  if (address.length > maxAddressLen) {
-    displayAddress = address.slice(0, maxAddressLen) + "...";
-  }
+  // 거리 계산
+  const getDistanceText = () => {
+    if (!userLocation) return '위치 확인중...';
+    if (locationError) return '위치 정보 없음';
+    
+    // 장소의 위치 정보 추출
+    let placeLat, placeLon;
+    
+    // API 응답 구조에 맞게 위치 정보 추출
+    if (place.location && typeof place.location === 'object') {
+      // API에서 받은 location 객체의 경우
+      placeLat = place.location.latitude || place.location.lat;
+      placeLon = place.location.longitude || place.location.lng;
+    } else if (place.geometry && place.geometry.location) {
+      // Google Places API 형태의 경우
+      placeLat = place.geometry.location.lat;
+      placeLon = place.geometry.location.lng;
+    }
+    
+    if (!placeLat || !placeLon) {
+      return '거리 정보 없음';
+    }
+    
+    const distance = calculateDistance(
+      userLocation.latitude,
+      userLocation.longitude,
+      placeLat,
+      placeLon
+    );
+    
+    return `내 위치에서 ${distance}`;
+  };
+
+  const handleFavoriteClick = async (e) => {
+    e.stopPropagation();
+    
+    if (isSaved) {
+      // 찜 해제
+      removePlace(place);
+    } else {
+      // 찜하기 - Google Place ID를 savePlaceAPI에 전달
+      const googlePlaceId = place.id;
+      
+      if (!googlePlaceId) {
+        console.error('❌ Google Place ID가 없어서 저장할 수 없습니다:', place);
+        return;
+      }
+      
+      try {
+        console.log('💾 SavePlaceAPI 호출 시작:', {
+          googlePlaceId: googlePlaceId,
+          originalPlace: place
+        });
+        
+        // SavePlaceAPI로 Google Place ID 전달하여 풍부한 데이터 받기
+        const serverResponse = await savePlaceToServer(googlePlaceId);
+        
+        console.log('✅ SavePlaceAPI 응답:', serverResponse);
+        
+        if (serverResponse && serverResponse.data) {
+          // 서버에서 받은 순수 데이터를 그대로 사용
+          const serverData = serverResponse.data;
+          
+          const enrichedPlace = {
+            id: googlePlaceId,
+            place_name: serverData.place_name,
+            address: serverData.address,
+            location: serverData.location,
+            running_time: serverData.running_time || [],
+            place_photos: serverData.place_photos || [],
+            // 호환성을 위한 추가 필드
+            name: serverData.place_name,
+            address_name: serverData.address,
+            image: serverData.place_photos?.[0] || place.image,
+          };
+          
+          console.log('🔄 Context에 저장할 데이터:', {
+            enrichedPlace,
+            place_photos: enrichedPlace.place_photos,
+            place_photos_length: enrichedPlace.place_photos?.length,
+            running_time: enrichedPlace.running_time,
+            running_time_length: enrichedPlace.running_time?.length
+          });
+          
+          addPlace(enrichedPlace);
+        } else {
+          console.error('❌ SavePlaceAPI 응답에 data가 없습니다:', serverResponse);
+          
+          // 서버 응답이 없으면 기본 SearchAPI 데이터로 대체
+          const fallbackPlace = {
+            id: googlePlaceId,
+            place_name: place.place_name || place.name,
+            address_name: place.address_name || place.location,
+            name: place.place_name || place.name,
+            location: place.address_name || place.location,
+            image: place.image,
+            place_photos: [],
+            running_time: []
+          };
+          
+          addPlace(fallbackPlace);
+        }
+      } catch (error) {
+        console.error('❌ SavePlaceAPI 호출 실패:', error);
+        
+        // API 실패시 기본 SearchAPI 데이터로 대체
+        const fallbackPlace = {
+          id: googlePlaceId,
+          place_name: place.place_name || place.name,
+          address_name: place.address_name || place.location,
+          name: place.place_name || place.name,
+          location: place.address_name || place.location,
+          image: place.image,
+          place_photos: [],
+          running_time: []
+        };
+        
+        addPlace(fallbackPlace);
+      }
+    }
+  };
 
   return (
     <Card>
-      <Cover $src={place?.image || bg1} role="img" aria-label={place?.name || ""} />
+      <CardImageContainer>
+        <Cover $src={place.image || bg1} />
+        <HeartButton onClick={handleFavoriteClick}>
+          <img 
+            src={isSaved ? blackHeartIcon : heartIcon} 
+            alt="찜하기" 
+          />
+        </HeartButton>
+      </CardImageContainer>
       <Body>
-        <Title>{displayName}</Title>
-        <Address>{displayAddress}</Address>
+        <Title>
+          {truncateText(place.place_name || place.name)}
+        </Title>
+        <Address>
+          {place.address || place.address_name || place.location}
+        </Address>
+        <Location>
+          <img src={maapin} width="16" height="16" />
+          <p>{getDistanceText()}</p>
+        </Location>
       </Body>
-      <Location>
-        <img src={maapin} alt="map pin" />
-        <p>내 위치에서 222m</p>
-      </Location>
     </Card>
   );
 };
 
+
+export { PlaceCard };
 export default PlaceCard;
+
 
 // ---------------- styled-components (카드 UI) ----------------
 const Card = styled.div`
@@ -150,15 +333,51 @@ const Card = styled.div`
   flex: 0 0 auto;   // 카드가 줄어들지 않게 추가!
 `;
 
+const CardImageContainer = styled.div`
+  position: relative;
+  width: 100%;
+  height: 123px;
+  flex: 0 0 123px;
+`;
+
 const Cover = styled.div`
   width: 100%;
-  height: 123px;           /* 항상 123px 고정 */
-  flex: 0 0 123px;
+  height: 100%;
   background-image: url(${(props) => props.$src});
   background-size: cover;  /* 이미지를 꽉 채우고 넘치는 부분은 크롭 */
   background-position: center;
   background-repeat: no-repeat;
   overflow: hidden;
+`;
+
+const HeartButton = styled.button`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  img {
+    width: 16px;
+    height: 16px;
+  }
 `;
 
 const Body = styled.div`
@@ -185,6 +404,11 @@ const Address = styled.p`
   color: #666;
   margin: 0;
   font-weight: 300;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
 `;
 
 const Location = styled.div`
@@ -197,6 +421,6 @@ const Location = styled.div`
     font-size: 7px;
     color: black;
     margin: 0;
-    font-weight: 300;
+    font-weight: 400;
   }
 `;

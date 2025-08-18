@@ -4,7 +4,7 @@ import { getSearchPlace } from "../apis/searchApi";
 import styled from "styled-components";
 import PlaceCard from "../components/common/PlaceCards";
 import noresult from "../assets/icons/noresult.png";
-import Navbar from "../components/common/Navbar";
+import PageNavbar from "../components/common/PageNavbar";
 import SearchBar from "../components/common/SearchBar";
 import RecommendPlace from "../components/search/RecommendPlace";
 import { SortBar } from "../components/search/SortBar";
@@ -91,7 +91,7 @@ export default function SearchResults() {
 
     return (
         <SearchContainer>
-            <Navbar LocationBarColor="white" />
+            <PageNavbar title="검색결과" />
             <SearchBar
                 value={q}
                 onChange={setQ}
@@ -115,8 +115,11 @@ export default function SearchResults() {
                         key={place.place_id || place.id || idx}
                         place={{
                             id: place.place_id || place.id || idx,
+                            place_name: place.place_name || place.name || "",
                             name: place.place_name || place.name || "",
-                            location: place.address || (place.location ? `${place.location.latitude},${place.location.longitude}` : ""),
+                            address: place.address || "",
+                            address_name: place.address || "",
+                            location: place.location || null, // 좌표 객체를 그대로 전달
                             image: place.image || "", // 이미지가 없으면 기본 이미지 처리됨
                             category: place.category || "restaurant", // 기본값
                         }}

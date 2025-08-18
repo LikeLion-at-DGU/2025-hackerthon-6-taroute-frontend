@@ -4,9 +4,6 @@ import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import LocationIcon from '../../assets/icons/location.svg';
-import CartIcon from '../../assets/icons/cart.svg';
-import HomeIcon from '../../assets/icons/home.svg';
-
 
 const NavbarContainer = styled.div`
     display: flex;
@@ -16,6 +13,7 @@ const NavbarContainer = styled.div`
     margin-top: 28px;
     margin-left: 16px;
     font-size: 18px;
+    padding-right: 14px;
 `;
 
 const LocationBar = styled.div`
@@ -40,7 +38,7 @@ const LocationBar = styled.div`
 const ButtonBar = styled.div`
     display: flex;
     height: 100%;
-    width: 67px;
+    width: fit-content;
     justify-content: space-between;
     align-items: center;
 `;
@@ -50,9 +48,44 @@ const NowLocation = styled.div`
     font-size: 20px;
 `;
 
+// 언어 전환 스위치 컨테이너
+const LanguageSwitchContainer = styled.div`
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+`;
+
+// 스위치 내부 슬라이더
+const SwitchSlider = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 30px;
+    border-radius: 18px;
+    background: ${props => props.$isActive ? '#FFC500' : 'transparent'};
+    transition: all 0.3s ease;
+    font-size: 11px;
+    font-weight: 600;
+    color: ${props => props.$isActive ? '#333' : 'rgba(255, 255, 255, 0.8)'};
+`;
+
+// 전체 스위치 래퍼
+const LanguageSwitch = styled.div`
+    display: flex;
+    border-radius: 20px;
+    overflow: hidden;
+`;
+
 const Navbar = ({ LocationBarColor }) => {
     const navigate = useNavigate();
     const [currentLocationName, setCurrentLocationName] = useState('충무로 3가');
+    const [isKorean, setIsKorean] = useState(true); // 언어 상태 (true: KOR, false: ENG)
 
     // 컴포넌트 마운트 시 localStorage에서 위치 정보 로드
     useEffect(() => {
@@ -92,6 +125,10 @@ const Navbar = ({ LocationBarColor }) => {
         navigate('/location');
     };
 
+    const handleLanguageSwitch = () => {
+        setIsKorean(!isKorean);
+    };
+
     return (
         <NavbarContainer>
             <LocationBar $color={LocationBarColor} onClick={handleLocationClick}>
@@ -100,8 +137,12 @@ const Navbar = ({ LocationBarColor }) => {
                 <FontAwesomeIcon icon={faChevronDown} />
             </LocationBar>
             <ButtonBar>
-                <img src={CartIcon} alt="Cart" />
-                <img src={HomeIcon} alt="Home" />
+                <LanguageSwitchContainer onClick={handleLanguageSwitch}>
+                    <LanguageSwitch>
+                        <SwitchSlider $isActive={!isKorean}>ENG</SwitchSlider>
+                        <SwitchSlider $isActive={isKorean}>KOR</SwitchSlider>
+                    </LanguageSwitch>
+                </LanguageSwitchContainer>
             </ButtonBar>
         </NavbarContainer>
     );

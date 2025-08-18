@@ -39,7 +39,7 @@ const ButtonLike = styled.button`
         $bordered ? `${$borderWidth || '1px'} solid ${$borderColor || '#000'}` : 'none'
     )};
     cursor: pointer;
-    margin: 24px;
+    margin: 24px auto;
     box-sizing: border-box; /* padding 포함해서 총 높이 51px 유지 */
     flex: 0 0 auto;         /* flex 줄어듦 방지 */
 `;
