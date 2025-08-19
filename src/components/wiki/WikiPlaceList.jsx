@@ -22,17 +22,18 @@ export function WikiPlaceList({ query }) {
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr); /* 2 → 3열로 축소 */
+  gap: 8px; /* 간격도 축소 */
 `
 
 const Card = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   background: #fff;
   border-radius: 10px;
-  padding: 8px;
+  padding: 6px;
+  
 `
 
 const Thumb = styled.img`
@@ -43,9 +44,12 @@ const Thumb = styled.img`
 `
 
 const Name = styled.div`
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   color: #2A2A2A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 
 

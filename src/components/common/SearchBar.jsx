@@ -6,7 +6,7 @@ const Bar = styled.form`
     width: 343px;
     height: 51px;
     flex-shrink: 0;        /* 부모가 column flex일 때 눌림 방지 */
-    margin: 0 auto;        /* 가운데 정렬 */
+    margin: 0 auto 24px;   /* 가운데 정렬 + 바깥쪽 아래 여백 */
 `;
 
 const Box = styled.div`
@@ -22,7 +22,7 @@ const Box = styled.div`
         $bordered ? `${$borderWidth || '1px'} solid ${$borderColor || '#000'}` : 'none'
     )};
     cursor: ${props => (props.$clickable ? 'pointer' : 'text')};
-    margin: 24px auto;
+    margin: 0 auto;        /* 박스 내부 여백 제거, 바깥 여백은 Bar에서 담당 */
     box-sizing: border-box; /* padding 포함해서 총 높이 51px 유지 */
     flex: 0 0 auto;         /* flex 줄어듦 방지 */
 `;
