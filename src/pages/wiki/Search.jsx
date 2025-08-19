@@ -66,7 +66,7 @@ export default function WikiSearch() {
 
 const Wrapper = styled.section`
   width: 100%;
-  max-width: 420px;
+  max-width: 375px;
   margin: 0 auto;
   min-height: 100%;
   height: 100%;

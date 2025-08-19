@@ -332,7 +332,7 @@ const ReviewList = styled.div``
 
 const ReviewRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 10px;
   padding: 14px 0;
@@ -342,13 +342,13 @@ const ReviewText = styled.p`
   margin: 0; color: #2A2A2A; font-size: 16px; line-height: 1.6;
 `
 const ReviewActions = styled.div`
-  display: contents;
+  display: flex; align-items: center; gap: 8px;
 `
 const HeartBtn = styled.button`
   width: 34px; height: 34px; border-radius: 10px; border: none; background: transparent; display: grid; place-items: center; cursor: pointer;
 `
 const LikeCount = styled.span`
-  width: 28px; text-align: center; color: #8A8A8A; font-size: 15px;
+  min-width: 18px; text-align: center; color: #8A8A8A; font-size: 15px;
 `
 
 // 신고 버튼
@@ -417,9 +417,9 @@ const OkBtn = styled.button`
 // Bottom Sheet Styles (Plan 화이트박스 패턴)
 const Sheet = styled.div`
   position: fixed;
-  left: 0; right: 0; top: 0;
+  left: 0; right: 0; top: 0; margin: 0 auto;
   z-index: 40;
-  width: 100%;
+  width: min(375px, 100vw);
   background: var(--bg-3, linear-gradient(90deg, #EBF3FF 0%, #F5F8FF 100%));  
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;

@@ -20,7 +20,7 @@ export default function WikiIndex() {
 
 const Wrap = styled.section`
   width: 100%;
-  max-width: 420px;
+  max-width: 375px;
   margin: 0 auto;
   padding: 0 16px 24px;
   min-height: 100%;
