@@ -2,8 +2,6 @@ import styled from 'styled-components'
 import { useEffect, useState } from 'react'
 import { fetchCategoryPlaces } from '../../apis/categoryApi.js'
 import timeIcon from '../../assets/icons/time.svg'
-import checkBox from '../../assets/icons/category/CheckBox.svg'
-import checkedBox from '../../assets/icons/category/CheckedBox.svg'
 
 export function PlaceList({ query }) {
   const [items, setItems] = useState([])
@@ -33,7 +31,29 @@ export function PlaceList({ query }) {
 }
 
 function PlaceCard({ place }) {
-  const [liked, setLiked] = useState(place.liked || false)
+  const { savedPlaces, addPlace, removePlace } = useSavedPlaceContext()
+  const liked = useMemo(() => {
+    return savedPlaces.some(p => {
+      if (p.id && place.id) return p.id === place.id
+      const pName = p.place_name || p.name
+      const pAddr = p.address || p.address_name || p.location
+      return pName === place.name && pAddr === place.location
+    })
+  }, [savedPlaces, place])
+
+  const toggleLike = () => {
+    const normalized = {
+      id: place.id,
+      name: place.name,
+      place_name: place.name,
+      address: place.location,
+      address_name: place.location,
+      location: place.location,
+      place_photos: place.images,
+    }
+    if (liked) removePlace(normalized)
+    else addPlace(normalized)
+  }
 
   return (
     <Card>
@@ -57,9 +77,11 @@ function PlaceCard({ place }) {
           <Text>{place.time}</Text>
         </Row>
       </Info>
-      <LikeButton onClick={() => setLiked(v => !v)}>
-        <img src={liked ? checkedBox : checkBox} alt={liked ? '찜됨' : '찜'} />
-      </LikeButton>
+      <FavButton onClick={toggleLike} aria-label={liked ? '찜 해제' : '찜하기'} $active={liked}>
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.59C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill={liked ? '#E35A5A' : '#ffffff99'} />
+        </svg>
+      </FavButton>
     </Card>
   )
 }
@@ -171,17 +193,19 @@ const Text = styled.span`
   margin-left: ${p => p.$ml || '0'};
 `
 
-const LikeButton = styled.button`
+const FavButton = styled.button`
   position: absolute;
   right: 14px;
   bottom: 14px;
   width: 44px;
   height: 44px;
   border: none;
-  background-color: transparent;
   display: grid;
   place-items: center;
   cursor: pointer;
+  border-radius: 12px;
+  background: ${p => (p.$active ? 'rgba(0,0,0,0.75)' : 'rgba(0,0,0,0.55)')};
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 `
 
 const Empty = styled.div`

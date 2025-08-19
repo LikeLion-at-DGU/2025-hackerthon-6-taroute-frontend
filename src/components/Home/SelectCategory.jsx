@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import styled from "styled-components";
-import { PlaceCard, CATEGORIES, DUMMY_PLACES, filterByCategory } from "../common/PlaceCards.jsx";
+import { PlaceCard, CATEGORIES, DUMMY_PLACES, filterByCategory } from "../common/PlaceCards";
 import { useNavigate } from 'react-router-dom';
 
 const LABELS = {

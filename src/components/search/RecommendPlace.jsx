@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { PlaceCard, DUMMY_PLACES } from "../common/PlaceCards.jsx";
+import { PlaceCard, DUMMY_PLACES } from "../common/PlaceCards";
 
 const RecommendPlaceContainer = styled.div`
     display: flex;

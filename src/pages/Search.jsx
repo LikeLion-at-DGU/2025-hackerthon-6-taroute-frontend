@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // 추가
-import Navbar from "../components/common/Navbar";
+import PageNavbar from "../components/common/PageNavbar";
 import SearchBar from "../components/common/SearchBar";
 import styled from "styled-components";
 import TrendChart from "../components/search/TrendChart";
@@ -52,7 +52,7 @@ const Search = () => {
 
     return (
         <SearchContainer>
-            <Navbar LocationBarColor="white" />
+            <PageNavbar title="검색하기" />
             <SearchBar
                 value={q}
                 onChange={setQ}
