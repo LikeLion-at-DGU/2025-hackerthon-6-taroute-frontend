@@ -245,7 +245,7 @@ const DeleteButton = styled.button`
     }
 `;
 
-const PlanWhiteBox = ({ expandedTop = 42, collapsedTop = 340 }) => {
+const PlanWhiteBox = ({ expandedTop = 42, collapsedTop = 332 }) => {
     const navigate = useNavigate();
     const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -284,24 +284,16 @@ const PlanWhiteBox = ({ expandedTop = 42, collapsedTop = 340 }) => {
             return;
         }
         // TODO: 동선 계획 페이지로 이동하거나 모달 열기
-        console.log('동선 계획 시작:', savedPlaces);
-        alert(`${savedPlaces.length}개의 장소로 동선을 계획합니다!`);
+        navigate('/spot');
     };
 
     // 찜 취소 토스트 표시 함수
-    const showUndoToast = (place) => {
-        console.log('📋 토스트 표시 함수 호출됨:', {
-            받은place: place,
-            place키목록: Object.keys(place || {}),
-            현재savedPlaces길이: savedPlaces.length
-        });
-        
+    const showUndoToast = (place) => {        
         setRemovedPlace(place);
         setShowToast(true);
 
         // 3초 후 자동으로 토스트 숨기기
         setTimeout(() => {
-            console.log('⏰ 3초 후 토스트 자동 숨김');
             setShowToast(false);
             setRemovedPlace(null);
         }, 3000);

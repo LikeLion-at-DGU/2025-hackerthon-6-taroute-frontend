@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getSavedPlaces } from '../../apis/savePlaceApi';
+import { showToast } from '../common/toast';
 
 /**
  * 저장된 장소들을 관리하는 커스텀 훅
@@ -25,20 +26,28 @@ const useLoadSavedPlace = () => {
             
             // 서버에서 데이터를 가져올 수 있으면 서버 데이터 사용
             if (serverPlaces && Array.isArray(serverPlaces) && serverPlaces.length > 0) {
-                setSavedPlaces(serverPlaces);
-                console.log('📡 서버 데이터 사용');
+                // 상위 10개만 활성화 상태로 설정
+                const processedPlaces = serverPlaces.map((place, index) => ({
+                    ...place,
+                    isEnabled: place.isEnabled !== undefined ? place.isEnabled : (index < 10)
+                }));
+                
+                setSavedPlaces(processedPlaces);
+                console.log('📡 서버 데이터 사용 (활성화 상태 처리 완료)');
             } else {
                 // 서버에 데이터가 없으면 localStorage 확인 (임시 해결책)
                 const localPlaces = JSON.parse(localStorage.getItem('favoritePlaces') || '[]');
                 
-                // localStorage 데이터 필드명 호환성 확보
-                const normalizedPlaces = localPlaces.map(place => ({
+                // localStorage 데이터 필드명 호환성 확보 및 활성화 상태 설정
+                const normalizedPlaces = localPlaces.map((place, index) => ({
                     ...place,
                     // 필드명 통일 (서버 응답 형식에 맞춤)
                     place_name: place.place_name || place.name,
                     address_name: place.address_name || place.location,
                     name: place.name || place.place_name,
                     location: place.location || place.address_name,
+                    // 상위 10개만 활성화, 기존에 isEnabled가 있으면 그 값을 존중
+                    isEnabled: place.isEnabled !== undefined ? place.isEnabled : (index < 10)
                 }));
                 
                 console.log('📱 localStorage 원본 데이터:', localStorage.getItem('favoritePlaces'));
@@ -60,17 +69,19 @@ const useLoadSavedPlace = () => {
             // 서버 실패시 localStorage 사용
             const localPlaces = JSON.parse(localStorage.getItem('favoritePlaces') || '[]');
             
-            // localStorage 데이터 필드명 호환성 확보
-            const normalizedPlaces = localPlaces.map(place => ({
+            // localStorage 데이터 필드명 호환성 확보 및 활성화 상태 설정
+            const normalizedPlaces = localPlaces.map((place, index) => ({
                 ...place,
                 place_name: place.place_name || place.name,
                 address_name: place.address_name || place.location,
                 name: place.name || place.place_name,
                 location: place.location || place.address_name,
+                // 상위 10개만 활성화, 기존에 isEnabled가 있으면 그 값을 존중
+                isEnabled: place.isEnabled !== undefined ? place.isEnabled : (index < 10)
             }));
             
             setSavedPlaces(normalizedPlaces);
-            console.log('🔄 서버 실패 -> localStorage 대체 사용 (정규화):', normalizedPlaces);
+            console.log('🔄 서버 실패 -> localStorage 대체 사용 (정규화 + 활성화 처리):', normalizedPlaces);
         }
     };
 
@@ -86,6 +97,12 @@ const useLoadSavedPlace = () => {
         });
         
         setSavedPlaces(prev => {
+            // 최대 20개 제한 체크
+            if (prev.length >= 20) {
+                showToast('최대 20개 장소까지만 저장할 수 있습니다.');
+                return prev;
+            }
+            
             // 더 정확한 중복 체크
             const isAlreadyExists = prev.some(p => {
                 // ID가 있으면 ID로 매칭
@@ -107,14 +124,23 @@ const useLoadSavedPlace = () => {
                 return prev;
             }
             
-            const updated = [...prev, place];
+            // 새로 추가되는 장소의 활성화 상태 결정
+            // 상위 10개는 활성화, 나머지는 비활성화
+            const newPlace = {
+                ...place,
+                isEnabled: prev.length < 10 // 현재까지 10개 미만이면 활성화
+            };
+            
+            const updated = [...prev, newPlace];
             
             console.log('✅ Context 상태 업데이트 완료:', {
                 이전상태: prev,
-                추가된장소: place,
+                추가된장소: newPlace,
                 업데이트된상태: updated,
-                추가된장소사진: place.place_photos,
-                추가된장소영업시간: place.running_time
+                추가된장소사진: newPlace.place_photos,
+                추가된장소영업시간: newPlace.running_time,
+                총개수: updated.length,
+                활성화상태: newPlace.isEnabled
             });
             
             // localStorage에도 동기화
@@ -188,15 +214,15 @@ const useLoadSavedPlace = () => {
     useEffect(() => {
         loadSavedPlaces();
 
-        // 주기적으로 서버와 동기화 (30초마다로 증가)
-        const interval = setInterval(() => {
-            console.log('⏰ 주기적 동기화...');
-            loadSavedPlaces();
-        }, 30000);
+        // 주기적으로 서버와 동기화 (30초마다로 증가) - 드래그 앤 드롭 기능과 충돌을 피하기 위해 비활성화
+        // const interval = setInterval(() => {
+        //     console.log('⏰ 주기적 동기화...');
+        //     loadSavedPlaces();
+        // }, 30000);
 
-        return () => {
-            clearInterval(interval);
-        };
+        // return () => {
+        //     clearInterval(interval);
+        // };
     }, []);
 
     // 전체 삭제 핸들러
