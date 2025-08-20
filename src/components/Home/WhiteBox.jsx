@@ -200,7 +200,7 @@ const WhiteBox = ({ expandedTop = 96, collapsedTop = 360 }) => {
                 </CategoryContainer>
 
                 {/* 하 이거 혹시 쓰일까봐 일단  킵,,
-                <GoWikiButton onClick={() => navigate('/Taro')}>
+                <GoWikiButton onClick={() => navigate('/taro')}>
                     <img src={wikibook} />
                     <div className="text">
                         <p>식당의 리얼 후기가 궁금하다면?</p>

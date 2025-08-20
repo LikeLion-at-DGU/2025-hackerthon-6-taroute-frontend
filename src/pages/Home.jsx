@@ -60,7 +60,7 @@ const Home = () => {
             </div>
             <GoTaro>
                 <p>오늘의 운명은 <br /> 어디로 향하고 있을까요?</p>
-                <GoTaroButton onClick={() => navigate('/Taro')}>
+                <GoTaroButton onClick={() => navigate('/taro')}>
                     <p>무엇을 할지 모를 때는 <br />
                         <span style={{ fontSize: "24px", color: "#FFC500", fontWeight: "500" }}>
                             타로점 확인하기 &gt;</span></p>
