@@ -13,6 +13,7 @@ export const CommonWrapper = styled.div`
   background-position: center top;
   background-repeat: no-repeat;
   overflow: hidden;
+  font-family: MaruBuriOTF;
 `;
 
 export const CommonOverlay = styled.div`

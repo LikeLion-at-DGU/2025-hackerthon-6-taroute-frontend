@@ -199,6 +199,44 @@ export default function Map({
         };
     }, [sdkLoaded, markerPosition, isDraggable, onMarkerDragEnd]);
 
+    // 5) 지도 클릭으로 마커 위치 이동 지원 (드래그가 어려운 환경 대비)
+    useEffect(() => {
+        const { kakao } = window;
+        const map = mapRef.current;
+        if (!sdkLoaded || !kakao?.maps || !map || !isDraggable) return;
+
+        const handleClick = (e) => {
+            const latlng = e.latLng;
+            const newPos = { lat: latlng.getLat(), lng: latlng.getLng() };
+            if (draggableMarkerRef.current) {
+                draggableMarkerRef.current.setPosition(latlng);
+            }
+            if (onMarkerDragEnd) onMarkerDragEnd(newPos);
+        };
+
+        kakao.maps.event.addListener(map, 'click', handleClick);
+        return () => kakao.maps.event.removeListener(map, 'click', handleClick);
+    }, [sdkLoaded, isDraggable, onMarkerDragEnd]);
+
+    // 5) 지도 클릭으로 마커 위치 이동 지원 (모바일에서 드래그가 어려운 경우 대비)
+    useEffect(() => {
+        const { kakao } = window;
+        const map = mapRef.current;
+        if (!sdkLoaded || !kakao?.maps || !map || !isDraggable) return;
+
+        const handleClick = (e) => {
+            const latlng = e.latLng;
+            const newPos = { lat: latlng.getLat(), lng: latlng.getLng() };
+            if (draggableMarkerRef.current) {
+                draggableMarkerRef.current.setPosition(latlng);
+            }
+            if (onMarkerDragEnd) onMarkerDragEnd(newPos);
+        };
+
+        kakao.maps.event.addListener(map, 'click', handleClick);
+        return () => kakao.maps.event.removeListener(map, 'click', handleClick);
+    }, [sdkLoaded, isDraggable, onMarkerDragEnd]);
+
     // 부모가 height를 지정해줘야 보입니다
     return <div ref={mapEl} style={{ width: "100%", height: "100%" }} />;
-}
+}  

@@ -89,6 +89,7 @@ export const SelectedCardImage = styled.img`
 export const InstructionText = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
+  font-family: MaruBuriOTF;
   color: #ffffff;
   text-align: center;
   margin-bottom: 40px;
@@ -161,6 +162,7 @@ export const ArrowButton = styled.span`
 
 export const SwipeInstruction = styled.p`
   font-size: 1rem;
+  font-family: MaruBuriOTF;
   color: #ffffff;
   text-align: center;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
