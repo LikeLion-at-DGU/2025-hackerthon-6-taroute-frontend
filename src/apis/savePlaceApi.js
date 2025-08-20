@@ -72,6 +72,7 @@ export const getSavedPlaces = async () => {
             status: res.status,
             data: res.data,
             dataType: typeof res.data,
+            dataKeys: res.data ? Object.keys(res.data) : null,
             placesData: res.data.places,
             placesType: typeof res.data.places,
             placesIsArray: Array.isArray(res.data.places),
@@ -80,8 +81,19 @@ export const getSavedPlaces = async () => {
             fullResponse: JSON.stringify(res.data, null, 2)
         });
         
-        // 서버 응답이 {places: {...}} 형태인 경우 처리
-        const placesData = res.data.places;
+        // 서버 응답 전체 구조 확인
+        console.log('🔍 서버 응답 원본:', res.data);
+        console.log('🔍 서버 응답 전체 키:', res.data ? Object.keys(res.data) : null);
+        
+        // 다양한 응답 구조 시도
+        let placesData = res.data.places || res.data.data || res.data.saved_places || res.data;
+        
+        console.log('🔍 추출된 placesData:', {
+            placesData: placesData,
+            type: typeof placesData,
+            isArray: Array.isArray(placesData),
+            keys: placesData && typeof placesData === 'object' ? Object.keys(placesData) : null
+        });
         
         // places가 객체인 경우 배열로 변환
         if (placesData && typeof placesData === 'object' && !Array.isArray(placesData)) {

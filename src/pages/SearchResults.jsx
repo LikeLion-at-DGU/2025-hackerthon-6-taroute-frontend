@@ -12,9 +12,9 @@ import { SortBar } from "../components/search/SortBar";
 const SearchContainer = styled.div`
     display: flex;
     flex-direction: column;
-    background: linear-gradient(180deg, #23213a 0%, #a18ae6 100%);
-    height: 100%;
+    background-color: white;
     width: 100%;
+    height: 812px;
     align-items: center;
 `;
 
@@ -24,7 +24,7 @@ const ResultsContainer = styled.div`
     gap: 16px;
     overflow-x: auto;
     width: 343px;          // 카드 컨테이너 너비 고정
-    padding: 20px 0;
+    padding: 10px 0;
     scrollbar-width: thin;
     scrollbar-color: #a18ae6 #f0f0f0;
 `;
@@ -35,7 +35,7 @@ const NoResultContainer = styled.div`
     align-items: center;
     margin-top: 80px;
     h3{
-        color: white;
+        color: #2A2A2A;
         font-weight: 500;
         font-size: 24px;
     }

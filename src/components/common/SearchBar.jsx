@@ -6,7 +6,7 @@ const Bar = styled.form`
     width: 343px;
     height: 51px;
     flex-shrink: 0;        /* 부모가 column flex일 때 눌림 방지 */
-    margin: 0 auto 24px;   /* 가운데 정렬 + 바깥쪽 아래 여백 */
+    margin: 28px auto 10px;   /* 가운데 정렬 + 바깥쪽 아래 여백 */
 `;
 
 const Box = styled.div`

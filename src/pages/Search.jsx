@@ -4,18 +4,12 @@ import PageNavbar from "../components/common/PageNavbar";
 import SearchBar from "../components/common/SearchBar";
 import styled from "styled-components";
 import TrendChart from "../components/search/TrendChart";
-import ads2 from "../assets/images/ads2.png";
-import ads3 from "../assets/images/ads3.png";
+import Ads from "../components/Home/Ads";
 
 const SearchContainer = styled.div`
     display: flex;
     flex-direction: column;
-    background: linear-gradient(
-        180deg,
-        #23213a 0%,
-        #3d3570 50%,
-        #7062b2 100%
-    );
+    background: white;
     height: 100%;
     width: 100%;
     align-items: center;
@@ -24,12 +18,12 @@ const SearchContainer = styled.div`
 const TrendKeyword = styled.div`
     display: flex;
     flex-direction: column;
-    color: white;
-    margin-top: 30px;
+    color: #2A2A2A;
     align-items: flex-start;
     width: 343px;
     p{
         font-size: 14px;
+        margin: 8px 0;
     }
 `;
 
@@ -67,10 +61,7 @@ const Search = () => {
                 <p>현재 인기있는 검색어</p>
                 <TrendChart />
             </TrendKeyword>
-            <AdContainer>
-                <img src={ads2} />
-                <img src={ads3} />
-            </AdContainer>
+            <Ads />
         </SearchContainer>
     );
 };
