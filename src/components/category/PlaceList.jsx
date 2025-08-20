@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { useEffect, useState, useMemo } from 'react'
 import { fetchCategoryPlaces } from '../../apis/categoryApi.js'
 import timeIcon from '../../assets/icons/time.svg'
-import { useSavedPlaceContext } from '../../contexts/SavedPlaceContext'
+import { useSavedPlaceContext } from '../../contexts/SavedPlaceContext.jsx'
 
 export function PlaceList({ query }) {
   const [items, setItems] = useState([])

@@ -1,6 +1,7 @@
 import styled from 'styled-components'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useSwipeable } from 'react-swipeable'
+import BottomSheetSelect from '../common/BottomSheetSelect.jsx'
 
 const CATEGORIES = ['식당', '카페', '문화시설', '관광명소']
 
@@ -14,6 +15,7 @@ export function FilterBar({
     visitDay,
     onChangeVisitDay,
 }) {
+    const [sheet, setSheet] = useState({ type: null })
     const currentIndex = useMemo(() => {
         const i = CATEGORIES.indexOf(selectedCategory)
         return i === -1 ? 0 : i
@@ -53,27 +55,57 @@ export function FilterBar({
             </Chips>
 
             <Selectors>
-                <Select value={distance} onChange={(e) => onChangeDistance(e.target.value)}>
-                    <option value="" disabled>거리</option>
-                    {['1km 이내', '2km 이내', '3km 이내', '5km 이내', '5km 이상'].map((d) => (
-                        <option key={d} value={d}>{d}</option>
-                    ))}
-                </Select>
-
-                <Select value={visitTime} onChange={(e) => onChangeVisitTime(e.target.value)}>
-                    <option value="" disabled>방문시간</option>
-                    {['아침', '낮', '저녁', '밤', '새벽'].map((t) => (
-                        <option key={t} value={t}>{t}</option>
-                    ))}
-                </Select>
-
-                <Select value={visitDay} onChange={(e) => onChangeVisitDay(e.target.value)}>
-                    <option value="" disabled>방문요일</option>
-                    {['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'].map((d) => (
-                        <option key={d} value={d}>{d}</option>
-                    ))}
-                </Select>
+                <PillButton onClick={() => setSheet({ type: 'distance' })}>{distance || '거리'}</PillButton>
+                <PillButton onClick={() => setSheet({ type: 'visitTime' })}>{visitTime || '방문시간'}</PillButton>
+                <PillButton onClick={() => setSheet({ type: 'visitDay' })}>{visitDay || '방문요일'}</PillButton>
             </Selectors>
+
+            <BottomSheetSelect
+              visible={sheet.type === 'distance'}
+              title="거리"
+              options={[
+                { label: '1km 이내', value: '1km 이내' },
+                { label: '2km 이내', value: '2km 이내' },
+                { label: '3km 이내', value: '3km 이내' },
+                { label: '5km 이내', value: '5km 이내' },
+                { label: '5km 이상', value: '5km 이상' },
+              ]}
+              value={distance}
+              onSelect={(v) => { onChangeDistance(v); setSheet({ type: null }) }}
+              onClose={() => setSheet({ type: null })}
+            />
+
+            <BottomSheetSelect
+              visible={sheet.type === 'visitTime'}
+              title="방문시간"
+              options={[
+                { label: '아침 (6:00 - 12:00)', value: '아침 (6:00 - 12:00)' },
+                { label: '낮 (12:00 - 17:00)', value: '낮 (12:00 - 17:00)' },
+                { label: '저녁 (17:00 - 21:00)', value: '저녁 (17:00 - 21:00)' },
+                { label: '밤 (21:00 ~ 24:00)', value: '밤 (21:00 ~ 24:00)' },
+                { label: '새벽 (00:00 ~ 6:00)', value: '새벽 (00:00 ~ 6:00)' },
+              ]}
+              value={visitTime}
+              onSelect={(v) => { onChangeVisitTime(v); setSheet({ type: null }) }}
+              onClose={() => setSheet({ type: null })}
+            />
+
+            <BottomSheetSelect
+              visible={sheet.type === 'visitDay'}
+              title="방문요일"
+              options={[
+                { label: '월요일', value: '월요일' },
+                { label: '화요일', value: '화요일' },
+                { label: '수요일', value: '수요일' },
+                { label: '목요일', value: '목요일' },
+                { label: '금요일', value: '금요일' },
+                { label: '토요일', value: '토요일' },
+                { label: '일요일', value: '일요일' },
+              ]}
+              value={visitDay}
+              onSelect={(v) => { onChangeVisitDay(v); setSheet({ type: null }) }}
+              onClose={() => setSheet({ type: null })}
+            />
         </Bar>
     )
 }
@@ -116,22 +148,15 @@ const Selectors = styled.div`
   align-items: center;
 `
 
-const Select = styled.select`
+const PillButton = styled.button`
   height: 32px;
-  padding: 0 10px;
-  padding-right: 26px; /* 화살표 공간 */
+  padding: 0 12px;
   border: 1.5px solid #bcbcbc;
-  border-radius: 999px; /* pill 형태 */
-  background: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
   color: #555;
   font-size: 13px;
-  appearance: none; /* 기본 화살표 제거 */
-  position: relative;
-
-  /* 커스텀 화살표 */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path fill="%23888" d="M1 1l4 4 4-4"/></svg>');
-  background-repeat: no-repeat;
-  background-position: right 10px center;
+  cursor: pointer;
 `
 
 

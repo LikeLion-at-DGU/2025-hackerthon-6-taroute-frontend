@@ -1,8 +1,12 @@
 import styled from 'styled-components'
+import { useState } from 'react'
+import BottomSheetSelect from '../common/BottomSheetSelect.jsx'
 
 const CATS = ['식당', '카페', '문화시설', '관광명소']
 
 export function WikiFilterBar({ selectedCategory, onSelectCategory }) {
+  const [open, setOpen] = useState(false)
+
   return (
     <Bar>
       <Tabs>
@@ -11,7 +15,19 @@ export function WikiFilterBar({ selectedCategory, onSelectCategory }) {
             {c}
           </Tab>
         ))}
+        <PillButton onClick={() => setOpen(true)}>
+          {selectedCategory || '카테고리'}
+        </PillButton>
       </Tabs>
+
+      <BottomSheetSelect
+        visible={open}
+        title="카테고리"
+        options={CATS.map((c) => ({ label: c, value: c }))}
+        value={selectedCategory}
+        onSelect={(v) => { onSelectCategory(v); setOpen(false) }}
+        onClose={() => setOpen(false)}
+      />
     </Bar>
   )
 }
@@ -36,6 +52,17 @@ const Tab = styled.button`
   color: ${p => (p.$active ? '#ffc400' : '#2A2A2A')};
   border-bottom: 2px solid ${p => (p.$active ? '#ffc400' : 'transparent')};
   padding: 8px 0;
+  cursor: pointer;
+`
+
+const PillButton = styled.button`
+  height: 28px;
+  padding: 0 12px;
+  border: 1.5px solid #bcbcbc;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #555;
+  font-size: 12px;
   cursor: pointer;
 `
 
