@@ -15,6 +15,7 @@ import Plan from '../pages/Plan.jsx'
 // 중복 import 제거
 import Location from '../pages/Location.jsx'
 import LocationMap from '../pages/LocationMap.jsx'
+import Spot from '../pages/Spot.jsx'
 
 function AppRoutes() {
     return (
@@ -36,6 +37,7 @@ function AppRoutes() {
                 <Route path="*" element={<NotFound />} />
                 <Route path="/location" element={<Location />} />
                 <Route path="/location-map" element={<LocationMap />} />
+                <Route path="/spot" element={<Spot />} />
             </Route>
         </Routes>
     )
