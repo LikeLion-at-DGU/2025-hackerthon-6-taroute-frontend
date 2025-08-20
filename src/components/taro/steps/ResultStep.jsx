@@ -120,6 +120,7 @@ function ResultStep({ prev, goTo }) {
             <Card
               key={c.id}
               bg={c.isRetry ? retryCard : cardBg}
+              isRetry={!!c.isRetry}
               onClick={() => {
                 if (c.isRetry) {
                   if (typeof goTo === 'function') goTo(0)
