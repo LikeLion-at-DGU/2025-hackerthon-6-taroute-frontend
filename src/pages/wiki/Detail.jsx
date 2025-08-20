@@ -50,6 +50,7 @@ export default function WikiDetail() {
   )), [savedPlaces, place])
 
   // 게시판 데모 데이터 및 정렬/좋아요 로직
+  // 게시판 데모 데이터 및 정렬/좋아요 로직
   const [sortKey, setSortKey] = useState('추천순') // 추천순 | 최신순
   const [sortOpen, setSortOpen] = useState(false)
   const [reviews, setReviews] = useState([
@@ -58,6 +59,7 @@ export default function WikiDetail() {
     { id: 3, user: '익명', text: '집 가고 싶고,, 진인데 집 가고 싶고,, 진짜 너무 어렵고,, 하지만 할 수 있죠?', likes: 14, createdAt: '2025-08-15T09:00:00Z' },
     { id: 4, user: '익명', text: '한 번 힘을 내볼까요', likes: 2, createdAt: '2025-08-20T18:30:00Z' },
   ])
+  const [searchKeyword, setSearchKeyword] = useState('')
 
   const toggleReviewLike = (rid) => {
     setReviews(prev => prev.map(r => r.id === rid
@@ -92,10 +94,19 @@ export default function WikiDetail() {
   return (
     <Wrap>
       <Bleed>
-        <PageNavbar title="지역위키" />
+      <PageNavbar title="지역위키" />
       </Bleed>
-        <SearchBar />
-
+        <SearchBar
+          placeholder="검색어를 입력해주세요"
+          value={searchKeyword}
+          onChange={setSearchKeyword}
+          bordered
+          borderColor="#E2E2E2"
+          onSubmit={() => {
+            const q = searchKeyword.trim()
+            if (q) navigate({ pathname: '/wiki/search', search: `?q=${encodeURIComponent(q)}` })
+          }}
+        />
 
       <Header>
         <Title>{place.name}</Title>

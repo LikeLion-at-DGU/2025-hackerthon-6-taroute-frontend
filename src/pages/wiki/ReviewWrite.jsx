@@ -1,19 +1,23 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import styled from 'styled-components'
 import PageNavbar from '../../components/common/PageNavbar.jsx'
 import SearchBar from '../../components/common/SearchBar.jsx'
 import PrimaryButton from '../../components/common/PrimaryButton.jsx'
 
+
 export default function WikiReviewWrite() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [agreeTruth, setAgreeTruth] = useState(true)
   const [confirmPlace, setConfirmPlace] = useState(false)
   const [rating, setRating] = useState(0)
   const [text, setText] = useState('')
   const [files, setFiles] = useState([])
+  const [searchKeyword, setSearchKeyword] = useState('')
   const placeName = '고냉지'
   const address = '서울시 중구 퇴계로'
+
 
   const onPickFiles = (e) => {
     const list = Array.from(e.target.files || [])
@@ -23,24 +27,33 @@ export default function WikiReviewWrite() {
     <Wrap>
       <Bleed>
         <PageNavbar title="지역위키" />
-      </Bleed>
+        </Bleed>
       <Content>
-        <SearchTop>
-          <SearchBar/>
-        </SearchTop>
+          <SearchBar
+            placeholder="검색어를 입력해주세요"
+            value={searchKeyword}
+            onChange={setSearchKeyword}
+            bordered
+            borderColor="#E2E2E2"
+            onSubmit={() => {
+              const q = searchKeyword.trim()
+              if (q) navigate({ pathname: '/wiki/search', search: `?q=${encodeURIComponent(q)}` })
+            }}
+          />
+
         <Header>
           <PlaceTitle>{placeName}</PlaceTitle>
           <Addr>{address}</Addr>
         </Header>
 
         <NoticeCard>
-          <NoticeBar>
-            <Dot />
-            <span>작성 전 아래 내용을 확인해주세요</span>
-          </NoticeBar>
-          <P>푸드 위키는 실제 후기를 바탕으로 정보를 공유하는 서비스입니다.</P>
-          <P>거짓 없이 진실만을 바탕으로 내용을 작성할 것을 약속해주세요</P>
-        </NoticeCard>
+  <HeadingBox>
+    <Dot />
+    <HeadingText>작성 전 아래 내용을 확인해주세요</HeadingText>
+  </HeadingBox>
+  <P>푸드 위키는 실제 후기를 바탕으로 정보를 공유하는 서비스입니다.</P>
+  <P>거짓 없이 진실만을 바탕으로 내용을 작성할 것을 약속해주세요</P>
+</NoticeCard>
 
         <CheckList>
           <CheckRow>
@@ -113,7 +126,6 @@ const Content = styled.div`
   flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 120px;
   -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
 `
-const SearchTop = styled.div`margin: 24px 0;`
 const Header = styled.header`
   margin: 16px 0 8px; display: flex; flex-direction: column; gap: 6px;
 `
@@ -124,7 +136,10 @@ const Addr = styled.p`
   margin: 0; color: #6B7280; font-size: 16px;
 `
 const NoticeCard = styled.section`
-  margin-top: 12px; background: transparent ; border-radius: 12px; padding: 12px; 
+  margin-top: 16px;
+  background: transparent;
+  border: none;
+  padding: 0;
 `
 const NoticeBar = styled.div`
   display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #F4F4F5; border-radius: 8px; color: #2A2A2A; font-weight: 700;
@@ -142,16 +157,26 @@ const CheckBox = styled.button`
 `
 
 const DividerTitle = styled.div`
-  display: flex; align-items: center; gap: 8px; margin: 20px 0 10px; color: #2A2A2A; font-weight: 700;
-  position: relative;
-  &::before { content: ''; position: absolute; left: 0; right: 0; bottom: -8px; border-bottom: 2px dashed #E5E7EB; }
+  display: flex; align-items: center; gap: 8px;
+  margin: 20px 0 10px; padding: 10px 12px;
+  background: #F4F4F5; border-radius: 8px;
 `
-const Dot = styled.span`display:inline-block; width:8px; height:8px; border-radius:50%; background:#FFC500;`
+
+const Dot = styled.span`
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-neutral-black, #2A2A2A);
+
+`
 
 const Stars = styled.div`display:flex; gap: 16px; margin: 8px 2px 2px;`
 const Star = styled.button`
   font-size: 36px; line-height: 1; border: none; background: transparent; cursor: pointer; color: ${p => p.$active ? '#FFC500' : '#D1D5DB'};
 `
+
+
 
 const TextArea = styled.textarea`
   width:100%; border-radius:8px; border:1px solid #E2E2E2; padding:12px; background:#fff; resize: vertical;
@@ -165,8 +190,14 @@ const UploadBox = styled.label`
 const UploadIcon = styled.div`font-size: 36px; color: #FFC500;`
 const UploadText = styled.div`color: #6B7280; margin-top: 6px;`
 const HiddenInput = styled.input`display:none;`
-const AlbumButton = styled.button`
-  height: 40px; padding: 0 14px; border-radius: 10px; border: none; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+
+
+const HeadingBox = styled.div`
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; margin: 24px 0 12px;
+  background: #F4F4F5; border-radius: 8px;
 `
-
-
+const HeadingText = styled.span`
+  font: inherit;
+  color: inherit;
+`
