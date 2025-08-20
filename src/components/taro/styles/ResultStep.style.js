@@ -56,6 +56,11 @@ export const Card = styled.button`
   margin: 0 auto;
   overflow: hidden;
   padding-top: 45px;
+  
+  /* 다시보기 카드만 시각적으로 살짝 축소 (그리드 간격은 유지) */
+  transform: ${props => props.isRetry ? 'scale(0.92)' : 'none'};
+  transform-origin: center center;
+  transition: transform .15s ease;
 
 `
 

@@ -19,6 +19,7 @@ import {
 } from '../styles/SpreadStep.style'
 import tarocardBg from '../../../assets/icons/taro/tarocard_bg.svg'
 import tarocard from '../../../assets/icons/taro/tarocard.svg'
+import { postCardSelect } from '../../../apis/taroApi'
 
 function SpreadStep({ next, prev }) {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -92,17 +93,24 @@ function SpreadStep({ next, prev }) {
     }
   }, [isDragging, startX, translateX, currentIndex])
 
-  // 7장이 모두 선택되면 자동으로 ReadyStep으로 이동
+  // 7장이 모두 선택되면 즉시 ReadyStep으로 이동하고,
+  // 백그라운드에서 카드 선택 결과를 요청해 세션에 저장
   useEffect(() => {
     if (selectedCards.length === 7) {
-      // 1초 후에 자동으로 다음 단계로 이동
-      const timer = setTimeout(() => {
-        next()
-      }, 1000)
-      
-      return () => clearTimeout(timer)
+      // 먼저 다음 단계로 넘어가 로딩 화면(ReadyStep)을 보여준다
+      next()
+
+      // 결과는 백그라운드로 요청하여 세션에 저장
+      ;(async () => {
+        try {
+          const result = await postCardSelect(selectedCards)
+          sessionStorage.setItem('taro_selected_result', JSON.stringify(result))
+        } catch (e) {
+          sessionStorage.setItem('taro_selected_result', JSON.stringify([]))
+        }
+      })()
     }
-  }, [selectedCards.length, next])
+  }, [selectedCards, next])
 
   const calculateSelectedCardPosition = (index) => {
     const cardWidth = 122

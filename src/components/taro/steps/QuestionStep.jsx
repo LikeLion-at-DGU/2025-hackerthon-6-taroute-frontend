@@ -1,6 +1,6 @@
 
 import styled from 'styled-components'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Wrapper,
   Overlay,
@@ -12,50 +12,86 @@ import {
   OptionButton,
 } from '../styles/QuestionStep.style.js'
 import taruSvg from '../../../assets/icons/taru.svg'
+import { fetchSlotQuestions } from '../../../apis/taroApi'
 
 function QuestionStep({ next, prev, goTo }) {
-  const questions = [
-    "현재 방문하고 싶은 지역이 ‘현위치’가 맞아?",
-    "오늘은 실내 활동이 좋아?",
-    "카페보다 식당이 더 끌려?",
-    "조용한 곳이 좋아, 활기찬 곳이 좋아?",
-    "대중교통 접근성이 중요해?",
-    "예산은 부담되지 않는 편이야?",
-  ]
-
+  const [questions, setQuestions] = useState([])
   const [qIdx, setQIdx] = useState(0)
+  const [answers, setAnswers] = useState([])
+
+  const defaultFirstQuestion = {
+    question: "현재 방문하고 싶은 지역이 ‘현재 위치’가 맞아?",
+    options: ["맞아", "아니야"],
+  }
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const qs = await fetchSlotQuestions()
+        if (!mounted) return
+        setQuestions(qs)
+      } catch (e) {
+        // 실패 시 기본 질문 세트로 폴백
+        const fallback = [
+          { question: "네가 꿈꾸는 이상적인 장소의 반경은 어느 정도일까?", options: ["1시간 내외의 짧은 여행지","2시간 정도는 나갈 수 있는 곳","몇 시간을 달려야 할 먼 거리","집 앞에서 바로 갈 수 있는 근처"] },
+          { question: "그곳에서의 하루는 어떤 느낌일까?", options: ["조용하고 아늑한 휴식","활기찬 에너지로 가득한","자연과 함께하는 한가로운","창의력과 영감이 넘치는"] },
+          { question: "예산 계획은 어떻게 할 생각이야?", options: ["가벼운 지출로 여유롭게","적당한 비용으로 맛보는","가끔은 특별하게 투자하는","소중한 경험을 위해 아낌없이"] },
+          { question: "어떤 분위기의 공간에서 더 편안함을 느껴?", options: ["역동적인 활동이 넘치는 곳","조용하고 평화로운 정원","트렌디한 카페와 바","아늑한 독서 공간"] },
+          { question: "너의 시간을 어떻게 사용할 생각이야?", options: ["느긋하게 즐기는 여유","주어진 시간 속 집중","짧은 시간에 많은 활동","오늘 하루의 소중함을 savor"] },
+        ]
+        setQuestions(fallback)
+      }
+    })()
+    return () => { mounted = false }
+  }, [])
+
+  // 위치 설정 후 돌아온 경우, 첫 질문은 건너뛰고 두 번째 질문부터 이어서 진행
+  useEffect(() => {
+    const shouldResume = sessionStorage.getItem('taro_resume_after_location')
+    if (shouldResume) {
+      sessionStorage.removeItem('taro_resume_after_location')
+      setQIdx(1)
+    }
+  }, [])
 
   const getOptionsFor = (index) => {
-    if (index === 0) {
-      return [
-        { key: 1, label: '맞아' },
-        { key: 2, label: '아니야' },
-      ]
-    }
-    return [
-      { key: 1, label: '매우 그렇다' },
-      { key: 2, label: '그런 편이야' },
-      { key: 3, label: '아닌 편이야' },
-      { key: 4, label: '전혀 아니야' },
-    ]
+    if (index === 0) return defaultFirstQuestion.options.map((opt, i) => ({ key: i + 1, label: opt }))
+    const q = questions[index - 1]
+    if (!q || !Array.isArray(q.options)) return []
+    return q.options.map((opt, i) => ({ key: i + 1, label: opt }))
   }
 
   const handleSelect = (label) => {
-    if (qIdx < questions.length - 1) {
-      // 1번 질문(인덱스 0)에서 '아니야' 선택 시 LocationStep으로 분기
-      if (qIdx === 0 && label === '아니야') {
-        // LocationStep이 QuestionStep 바로 다음 인덱스
-        goTo && goTo(3) // Intro(0), Consent(1), Question(2), Location(3)
+    setAnswers(prev => {
+      const nextAnswers = [...prev]
+      nextAnswers[qIdx] = label
+      return nextAnswers
+    })
+
+    // 첫 번째(디폴트) 질문 분기 처리
+    if (qIdx === 0) {
+      if (label === '아니야') {
+        // LocationStep으로 이동 후 돌아오면 두 번째 질문부터 재개
+        sessionStorage.setItem('taro_resume_after_location', '1')
+        goTo && goTo(3)
         return
       }
+      // '맞아'면 다음 질문으로 진행
+      setQIdx(1)
+      return
+    }
+
+    const totalQuestionCount = 1 + (questions?.length || 0) // 디폴트 1 + 서버 질문 N
+    if (qIdx < totalQuestionCount - 1) {
       setQIdx(prev => prev + 1)
+      return
+    }
+    // 모든 질문 종료 -> ShuffleStep으로 이동
+    if (goTo) {
+      goTo(5)
     } else {
-      // 모든 질문이 끝나면 ShuffleStep(인덱스 5)으로 이동
-      if (goTo) {
-        goTo(5)
-      } else {
-        next()
-      }
+      next()
     }
   }
 
@@ -68,7 +104,7 @@ function QuestionStep({ next, prev, goTo }) {
 
       <QuestionBox>
         <QuestionTitle>{qIdx + 1}번째 질문</QuestionTitle>
-        <QuestionText>{questions[qIdx]}</QuestionText>
+        <QuestionText>{qIdx === 0 ? defaultFirstQuestion.question : (questions[qIdx - 1]?.question || '질문을 불러오는 중...')}</QuestionText>
       </QuestionBox>
 
       <Options>

@@ -40,6 +40,7 @@ export const Title = styled.h1`
   margin: 0;
   margin-top: 152px;
   text-align: center;
+  font-family: MaruBuriOTF;
   font-weight: 700;
   font-size: 36px;
   line-height: 1.25;
@@ -53,6 +54,7 @@ export const Title = styled.h1`
 export const Description = styled.p`
   margin: 80px 0 0;
   text-align: center;
+  font-family: MaruBuriOTF;
   font-size: 15px;
   line-height: 1.8;
   color: #FFFFFF;
@@ -73,7 +75,7 @@ export const Button = styled.button`
   background: var(--color-primary-purple, #271932);
   color: var(--color-neutral-white, #FFF);
   text-align: center;
-  font-family: 'MaruBuri';
+  font-family: MaruBuriOTF;
   font-size: 18px;
   font-style: normal;
   font-weight: 600;
