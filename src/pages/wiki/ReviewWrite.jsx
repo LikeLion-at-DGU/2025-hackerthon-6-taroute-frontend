@@ -102,7 +102,7 @@ export default function WikiReviewWrite() {
 const Wrap = styled.section`
   width: 100%; max-width: 375px; margin: 0 auto; padding: 0 16px 0;
   display: flex; flex-direction: column; height: 100%; min-height: 0;
-  background: var(--bg-3, linear-gradient(90deg, #EBF3FF 0%, #F5F8FF 100%));
+  background: var(--color-neutral-white, #FFF);
 `
 
 

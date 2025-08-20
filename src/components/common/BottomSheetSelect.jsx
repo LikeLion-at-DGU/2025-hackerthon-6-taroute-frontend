@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { createPortal } from 'react-dom'
 import checkIcon from '../../assets/icons/check.svg'
 
 export default function BottomSheetSelect({
@@ -10,32 +11,35 @@ export default function BottomSheetSelect({
   onClose,
 }) {
   if (!visible) return null
-  return (
-    <Overlay role="dialog" aria-modal="true" onClick={onClose}>
-      <Sheet onClick={(e) => e.stopPropagation()}>
-        <Header>
-          <HeaderTitle>{title}</HeaderTitle>
-        </Header>
-        <Divider />
-        <List role="listbox" aria-label={title}>
-          {options.map((opt) => {
-            const active = opt.value === value
-            return (
-              <Item
-                key={String(opt.value)}
-                role="option"
-                aria-selected={active}
-                onClick={() => onSelect && onSelect(opt.value)}
-                $active={active}
-              >
-                <Label $active={active}>{opt.label}</Label>
-                {active && <Check src={checkIcon} alt="selected" />}
-              </Item>
-            )
-          })}
-        </List>
-      </Sheet>
-    </Overlay>
+  return createPortal(
+    (
+      <Overlay role="dialog" aria-modal="true" onClick={onClose}>
+        <Sheet onClick={(e) => e.stopPropagation()}>
+          <Header>
+            <HeaderTitle>{title}</HeaderTitle>
+          </Header>
+          <Divider />
+          <List role="listbox" aria-label={title}>
+            {options.map((opt) => {
+              const active = opt.value === value
+              return (
+                <Item
+                  key={String(opt.value)}
+                  role="option"
+                  aria-selected={active}
+                  onClick={() => onSelect && onSelect(opt.value)}
+                  $active={active}
+                >
+                  <Label $active={active}>{opt.label}</Label>
+                  {active && <Check src={checkIcon} alt="selected" />}
+                </Item>
+              )
+            })}
+          </List>
+        </Sheet>
+      </Overlay>
+    ),
+    document.body
   )
 }
 

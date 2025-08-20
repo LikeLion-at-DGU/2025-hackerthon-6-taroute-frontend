@@ -7,6 +7,7 @@ import useSheetDrag from '../../hooks/common/useSheetDrag.js'
 import SearchBar from '../../components/common/SearchBar.jsx'
 import { useSavedPlaceContext } from '../../contexts/SavedPlaceContext.jsx'
 import warningIcon from '../../assets/icons/warning.svg'
+import BottomSheetSelect from '../../components/common/BottomSheetSelect.jsx'
 
 export default function WikiDetail() {
   const { id } = useParams()
@@ -50,6 +51,7 @@ export default function WikiDetail() {
 
   // 게시판 데모 데이터 및 정렬/좋아요 로직
   const [sortKey, setSortKey] = useState('추천순') // 추천순 | 최신순
+  const [sortOpen, setSortOpen] = useState(false)
   const [reviews, setReviews] = useState([
     { id: 1, user: '익명', text: '여기 맛 없어요… 가지 마세요.. 진짜 왜 감', likes: 18, createdAt: '2025-08-01T10:00:00Z' },
     { id: 2, user: '익명', text: '분위기도 좋고, 서비스도 좋고, 맛도 있고,, 저녁 먹기 너무 좋아요', likes: 15, createdAt: '2025-08-12T12:00:00Z' },
@@ -92,9 +94,8 @@ export default function WikiDetail() {
       <Bleed>
         <PageNavbar title="지역위키" />
       </Bleed>
-      <SearchTop>
         <SearchBar />
-      </SearchTop>
+
 
       <Header>
         <Title>{place.name}</Title>
@@ -166,12 +167,16 @@ export default function WikiDetail() {
         <Section>
           <SecTitle>게시판</SecTitle>
           <SortBar>
-            <label htmlFor="review-sort" className="sr-only">정렬</label>
-            <Select id="review-sort" value={sortKey} onChange={(e) => setSortKey(e.target.value)}>
-              <option value="추천순">추천순</option>
-              <option value="최신순">최신순</option>
-            </Select>
+            <PillButton type="button" onClick={() => setSortOpen(true)}>{sortKey} ▾</PillButton>
           </SortBar>
+          <BottomSheetSelect
+            visible={sortOpen}
+            title="정렬 기준"
+            options={[{label:'추천순', value:'추천순'},{label:'최신순', value:'최신순'}]}
+            value={sortKey}
+            onSelect={(v)=>{ setSortKey(v); setSortOpen(false) }}
+            onClose={()=> setSortOpen(false)}
+          />
           <ReviewList>
             {sortedReviews.map(r => (
               <ReviewRow key={r.id}>
@@ -253,9 +258,7 @@ const Bleed = styled.div`
   margin-left: -16px;
   margin-right: -16px;
 `
-const SearchTop = styled.div`
-  margin-top: 24px;
-`
+
 const Header = styled.div`display:flex; flex-direction:column; gap:8px; margin-top:8px;`
 const Title = styled.h1`
   margin-top: 10px;
@@ -325,8 +328,15 @@ const Review = styled.div`padding:12px 0; border-top:1px solid rgba(0,0,0,0.06);
 const SortBar = styled.div`
   display: flex; justify-content: flex-start; margin: 8px 0 6px;
 `
-const Select = styled.select`
-  height: 32px; border-radius: 16px; padding: 0 12px; border: 1px solid #E2E2E2; background: #fff; color: #2A2A2A;
+const PillButton = styled.button`
+  height: 32px;
+  padding: 0 12px;
+  border: 1.5px solid #bcbcbc;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #555;
+  font-size: 13px;
+  cursor: pointer;
 `
 const ReviewList = styled.div``
 
@@ -420,7 +430,7 @@ const Sheet = styled.div`
   left: 0; right: 0; top: 0; margin: 0 auto;
   z-index: 40;
   width: min(375px, 100vw);
-  background: var(--bg-3, linear-gradient(90deg, #EBF3FF 0%, #F5F8FF 100%));  
+  background: var(--color-neutral-white, #FFF);
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   box-shadow: 0 -8px 24px rgba(0,0,0,0.12);

@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import BottomSheetSelect from '../common/BottomSheetSelect.jsx'
 import timeIcon from '../../assets/icons/time.svg'
 
 const SORT_OPTIONS = ['정확도순', '거리순', '후기순', '인기순']
@@ -23,20 +24,17 @@ export function WikiSearchResults({ query }) {
       <Header>
         <h3>검색결과</h3>
         <SortWrap>
-          <SortButton onClick={() => setSortOpen(v => !v)}>{sortKey} ▾</SortButton>
-          {sortOpen && (
-            <SortMenu>
-              {SORT_OPTIONS.map(opt => (
-                <li key={opt}>
-                  <button onClick={() => { setSortKey(opt); setSortOpen(false) }}>
-                    {opt}
-                  </button>
-                </li>
-              ))}
-            </SortMenu>
-          )}
+          <SortButton onClick={() => setSortOpen(true)}>{sortKey} ▾</SortButton>
         </SortWrap>
       </Header>
+      <BottomSheetSelect
+        visible={sortOpen}
+        title="정렬 기준"
+        options={SORT_OPTIONS.map(o => ({ label: o, value: o }))}
+        value={sortKey}
+        onSelect={(v) => { setSortKey(v); setSortOpen(false) }}
+        onClose={() => setSortOpen(false)}
+      />
       <List>
         {items.map((p) => (
           <Row key={p.id} onClick={() => navigate(`/wiki/place/${p.id}`)} role="button" tabIndex={0}>
