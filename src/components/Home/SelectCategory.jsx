@@ -34,9 +34,6 @@ const SelectCategory = () => {
             onClick={() => {
               setActiveCat(key);
               const label = LABELS[key];
-              navigate(`/category?cat=${encodeURIComponent(label)}`, {
-                state: { initialCategory: label },
-              });
             }}
             role="button"
             aria-pressed={activeCat === key}

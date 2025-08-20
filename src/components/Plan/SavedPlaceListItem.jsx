@@ -285,15 +285,6 @@ const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
         };
     }, []);
 
-    console.log('🖼️ SavedPlaceListItem 렌더링:', {
-        placeName: place.place_name || place.name,
-        address: place.address || place.address_name || place.location,
-        selectedDay: selectedDay,
-        todaysRunningTime: todaysRunningTime,
-        place_photos_count: place.place_photos?.length || 0,
-        finalImageUrl: imageUrl,
-        hasRunningTime: !!todaysRunningTime
-    });
 
     return (
         <>

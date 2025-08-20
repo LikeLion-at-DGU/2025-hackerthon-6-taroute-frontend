@@ -23,7 +23,6 @@ export default function WikiSearch() {
     return (
         <Wrapper>
             <PageNavbar title="지역위키" />
-            <SearchTop>
             <SearchBar
                 placeholder="검색어를 입력해주세요"
                 value={keyword}
@@ -48,7 +47,6 @@ export default function WikiSearch() {
                     }
                 }}
             />
-            </SearchTop>
 
             {submitted ? (
                 <Results>
@@ -75,9 +73,6 @@ const Wrapper = styled.section`
   background: var(--bg-3, linear-gradient(90deg, #EBF3FF 0%, #F5F8FF 100%));
 `
 
-const SearchTop = styled.div`
-  margin-top: 24px;
-`
 
 const Hero = styled.div`
   flex: 1;

@@ -8,11 +8,10 @@ const SortBarContainer = styled.div`
     justify-content: space-between;
     width: 343px;
     align-items: center;
-    color: white;
+    color: #2A2a2a;
     font-size: 14px;
     font-weight: 600;
     padding: 0 10px;
-    margin-top: 30px;
 `;
 
 const Barbutton = styled.div`
@@ -49,7 +48,7 @@ const SelectContainer = styled.div`
 
 const Title = styled.p`
     font-weight: 600;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     text-align: center;
     font-size: 18px;
     padding-bottom: 10px;
@@ -99,7 +98,7 @@ export const SortBar = () => {
     return (
         <>
             <SortBarContainer>
-                <p>검색결과</p>
+                <p style={{margin:'0'}}>검색결과</p>
                 <Barbutton onClick={() => setShowSelect(true)}>
                     <BarbuttonInner>
                         <p style={{ fontSize: "10px", fontWeight:"400" }}>{select}</p>

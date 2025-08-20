@@ -394,7 +394,7 @@ const PlanWhiteBox = ({ expandedTop = 42, collapsedTop = 332 }) => {
             {/* 동선 계획하기 버튼 - 화이트박스와 독립적으로 화면에 고정 */}
             {isExpanded && savedPlaces.length > 0 && (
                 <PlanButton onClick={handlePlanRoute}>
-                    동선 계획하기 {/*({savedPlaces.length}개 장소)*/}
+                    동선 계획하기 ({savedPlaces.length}개 장소)
                 </PlanButton>
             )}
 
