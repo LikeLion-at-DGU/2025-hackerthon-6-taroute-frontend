@@ -198,13 +198,13 @@ const FavButton = styled.button`
   position: absolute;
   right: 14px;
   bottom: 14px;
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
   border: none;
   display: grid;
   place-items: center;
   cursor: pointer;
-  border-radius: 12px;
+  border-radius:5px;
   background: ${p => (p.$active ? 'rgba(0,0,0,0.75)' : 'rgba(0,0,0,0.55)')};
   box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 `
