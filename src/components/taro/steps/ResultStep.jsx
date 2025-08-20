@@ -27,21 +27,26 @@ import {
 import PrimaryButton from '../../common/PrimaryButton.jsx'
 import sampleImg from '../../../assets/images/ads_temp/temp1.jpg'
 import cardBg from '../../../assets/icons/taro/ResultTaroCard.svg'
-import { useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import heartIcon from '../../../assets/icons/Heart.svg'
 import blackHeartIcon from '../../../assets/icons/BlackHeart.svg'
 import retryCard from '../../../assets/icons/taro/RetryCard.svg'
 import detailCardBg from '../../../assets/icons/taro/ResultDetailCard.svg'
+import { savePlaceToServer } from '../../../apis/savePlaceApi'
+import { showToast } from '../../../hooks/common/toast'
+
+import { useNavigate } from 'react-router-dom'
 
 function ResultStep({ prev, goTo }) {
+  const navigate = useNavigate()
   const [cards, setCards] = useState(() => ([
-    { id: 'I', title: '진아네 떡볶이', img: sampleImg, liked: false, desc: '충무로에 위치한 떡볶이 노포로 떡볶이가 대표 메뉴이다' },
-    { id: 'II', title: '진아네 떡볶이', img: sampleImg, liked: false, desc: '쫄깃한 떡과 매콤한 양념이 특징이에요' },
-    { id: 'III', title: '진아네 떡볶이', img: sampleImg, liked: false, desc: '근처 직장인들이 즐겨 찾는 숨은 맛집' },
-    { id: 'IV', title: '진아네 떡볶이', img: sampleImg, liked: false, desc: '김밥과 함께 먹으면 더 맛있어요' },
-    { id: 'V', title: '진아네 떡볶이', img: sampleImg, liked: false, desc: '달콤짭짤한 소스가 중독적인 집' },
-    { id: 'VI', title: '진아네 떡볶이', img: sampleImg, liked: false, desc: '늦은 시간에도 손님이 많은 인기 맛집' },
-    { id: 'VII', title: '진아네 떡볶이', img: sampleImg, liked: false, desc: '넉넉한 양과 합리적인 가격' },
+    { id: 'I', title: '로딩 중', img: sampleImg, liked: false, desc: '' },
+    { id: 'II', title: '로딩 중', img: sampleImg, liked: false, desc: '' },
+    { id: 'III', title: '로딩 중', img: sampleImg, liked: false, desc: '' },
+    { id: 'IV', title: '로딩 중', img: sampleImg, liked: false, desc: '' },
+    { id: 'V', title: '로딩 중', img: sampleImg, liked: false, desc: '' },
+    { id: 'VI', title: '로딩 중', img: sampleImg, liked: false, desc: '' },
+    { id: 'VII', title: '로딩 중', img: sampleImg, liked: false, desc: '' },
     { id: 'VIII', title: '다시 뽑기', img: undefined, liked: false, isRetry: true },
   ]))
 
@@ -56,6 +61,53 @@ function ResultStep({ prev, goTo }) {
   const [detailIndex, setDetailIndex] = useState(null) // 0..6 중 하나, retry는 제외
   const openDetail = (globalIndex) => setDetailIndex(globalIndex)
   const closeDetail = () => setDetailIndex(null)
+
+  // 세션에 저장된 20장 추천 결과 중 7장을 무작위로 골라 카드 타이틀/desc를 채움
+  useEffect(() => {
+    const applyFromStorage = (raw) => {
+      try {
+        const select = JSON.parse(raw)
+        const shuffled = Array.isArray(select) ? [...select] : []
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1))
+          ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+        }
+        const picked = shuffled.slice(0, 7)
+        if (picked.length === 0) return false
+        const mapped = picked.map((item, i) => ({
+          id: ['I','II','III','IV','V','VI','VII'][i] || `${i+1}`,
+          title: item.place_name || '추천 장소',
+          img: sampleImg,
+          liked: false,
+          desc: item.place_id || '',
+          place_id: item.place_id,
+        }))
+        setCards(prev => {
+          const stableRetry = prev.find(c => c.isRetry)
+          return [...mapped, stableRetry || { id: 'VIII', title: '다시 뽑기', isRetry: true }]
+        })
+        return true
+      } catch {
+        return false
+      }
+    }
+
+    const rawNow = sessionStorage.getItem('taro_selected_result')
+    if (rawNow && applyFromStorage(rawNow)) return
+
+    // 데이터가 아직 없으면 잠시 폴링 (최대 ~6초)
+    let attempts = 20
+    const timer = setInterval(() => {
+      const raw = sessionStorage.getItem('taro_selected_result')
+      if (raw && applyFromStorage(raw)) {
+        clearInterval(timer)
+      } else if (--attempts <= 0) {
+        clearInterval(timer)
+      }
+    }, 300)
+
+    return () => clearInterval(timer)
+  }, [])
 
   return (
     <Wrapper>
@@ -84,12 +136,24 @@ function ResultStep({ prev, goTo }) {
                   <CardFooter>
                     <FooterLabel>{c.title}</FooterLabel>
                   <HeartButton
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    const globalIndex = page * pageSize + idx
-                    setCards(prev => prev.map((card, i) => i === globalIndex ? { ...card, liked: !card.liked } : card))
-                  }}
-                >
+                    onClick={async (e) => {
+                      e.stopPropagation()
+                      const globalIndex = page * pageSize + idx
+                      const target = cards[globalIndex]
+                      if (!target?.place_id) {
+                        // UI 토글만 수행
+                        setCards(prev => prev.map((card, i) => i === globalIndex ? { ...card, liked: !card.liked } : card))
+                        return
+                      }
+                      try {
+                        await savePlaceToServer(target.place_id)
+                        setCards(prev => prev.map((card, i) => i === globalIndex ? { ...card, liked: !card.liked } : card))
+                        showToast('장소가 저장되었습니다.')
+                      } catch (e) {
+                        showToast('저장 중 오류가 발생했어요.')
+                      }
+                    }}
+                  >
                   <HeartSvg
                     src={c.liked ? blackHeartIcon : heartIcon}
                     alt={c.liked ? '찜 취소' : '찜'}
@@ -111,7 +175,13 @@ function ResultStep({ prev, goTo }) {
         <Instruction>카드를 눌러 자세히 확인해보세요</Instruction>
       </Content>
 
-      <PrimaryButton fixedBottom onClick={prev} zIndex={1200}>타로 종료하기</PrimaryButton>
+      <PrimaryButton
+        fixedBottom
+        onClick={() => navigate('/plan')}
+        zIndex={1200}
+      >
+        타로 종료하기
+      </PrimaryButton>
 
       {detailIndex !== null && cards[detailIndex] && !cards[detailIndex].isRetry && (
         <DetailOverlay onClick={closeDetail}>

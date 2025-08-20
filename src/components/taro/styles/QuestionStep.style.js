@@ -66,7 +66,7 @@ export const Options = styled.div`
   position: absolute;
   color: var(--color-neutral-gray, #8A8A8A);
 text-align: center;
-font-family: Paperlogy;
+font-family: MaruBuriOTF;
 font-size: 17px;
 font-style: normal;
 font-weight: 600;

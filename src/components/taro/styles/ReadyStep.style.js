@@ -49,6 +49,7 @@ export const Title = styled.h1`
   margin: 0;
   margin-bottom: 2rem;
   text-align: center;
+  font-family: MaruBuriOTF;
   font-weight: 700;
   font-size: 2rem;
   line-height: 1.25;
@@ -75,7 +76,7 @@ export const Button = styled.button`
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'MaruBuri';
+  font-family: MaruBuriOTF;
   font-weight: 600;
 
   &:hover {

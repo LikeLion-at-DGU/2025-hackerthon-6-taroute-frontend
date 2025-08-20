@@ -52,6 +52,47 @@
   font-display: swap;
 }
 
+/* MaruBuriOTF 별칭 등록 (요청에 따라 모든 타로 페이지에서 이 이름을 사용) */
+@font-face {
+  font-family: 'MaruBuriOTF';
+  src: url('./assets/fonts/MaruBuri-ExtraLight.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MaruBuriOTF';
+  src: url('./assets/fonts/MaruBuri-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MaruBuriOTF';
+  src: url('./assets/fonts/MaruBuri-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MaruBuriOTF';
+  src: url('./assets/fonts/MaruBuri-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MaruBuriOTF';
+  src: url('./assets/fonts/MaruBuri-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 * {
   box-sizing: border-box;
 }
