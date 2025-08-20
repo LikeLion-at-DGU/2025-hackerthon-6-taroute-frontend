@@ -156,30 +156,33 @@ export default function WikiDetail() {
           onPointerCancel={onPointerUp}
         />
 
-        <Section>
-          <SecTitle>위키 별점</SecTitle>
-          <Stars>★★★☆☆</Stars>
-        </Section>
+<Section>
+  <SecTitle><Dot /><TitleText>위키 별점</TitleText></SecTitle>
+  <Stars>★★★☆☆</Stars>
+</Section>
 
-        <Section>
-          <SecTitle>AI 요약</SecTitle>
-          <Summary>{place.summary}</Summary>
-        </Section>
+<Section>
+  <SecTitle><Dot /><TitleText>AI 요약</TitleText></SecTitle>
+  <Summary>{place.summary}</Summary>
+</Section>
 
-        <Section>
-          <SecTitle>기본 정보</SecTitle>
-          <Info>
-            <div>위치: {place.address}</div>
-            <div>영업 시간: {place.hours}</div>
-            <div>전화번호: {place.phone}</div>
-          </Info>
-        </Section>
+<Section>
+  <SecTitle><Dot /><TitleText>기본 정보</TitleText></SecTitle>
+  <Info>
+    <div>위치: {place.address}</div>
+    <div>영업 시간: {place.hours}</div>
+    <div>전화번호: {place.phone}</div>
+  </Info>
+</Section>
 
-        <Section>
-          <SecTitle>게시판</SecTitle>
-          <SortBar>
-            <PillButton type="button" onClick={() => setSortOpen(true)}>{sortKey} ▾</PillButton>
-          </SortBar>
+
+          <Section>
+  <SecTitle><Dot /><TitleText>게시판</TitleText></SecTitle>
+  <SortBar>
+    <PillButton type="button" onClick={() => setSortOpen(true)}>{sortKey} ▾</PillButton>
+  </SortBar>
+
+          
           <BottomSheetSelect
             visible={sortOpen}
             title="정렬 기준"
@@ -329,10 +332,25 @@ const LikeIconButton = styled.button`
   
 `
 const Section = styled.section`margin-top:16px;`
-const SecTitle = styled.h3`margin:0 0 8px; font-size:16px;`
-const Stars = styled.div``
-const Summary = styled.p``
-const Info = styled.div`display:flex; flex-direction:column; gap:4px;`
+const SecTitle = styled.h3`
+  display: flex; align-items: center; gap: 8px;
+  margin: 16px 0 8px;
+  padding: 10px 12px;
+  background: #F4F4F5; border-radius: 8px;
+`
+const Stars = styled.div`
+  margin-left: 10px;
+  margin-right: 10px;
+`
+    
+const Summary = styled.p`
+  margin-left: 10px;
+  margin-right: 10px;
+`
+const Info = styled.div`display:flex; flex-direction:column; gap:4px;
+margin-left: 10px;
+margin-right: 10px;
+`
 const Review = styled.div`padding:12px 0; border-top:1px solid rgba(0,0,0,0.06);`
 
 // 게시판 정렬/리스트 스타일
@@ -340,7 +358,7 @@ const SortBar = styled.div`
   display: flex; justify-content: flex-start; margin: 8px 0 6px;
 `
 const PillButton = styled.button`
-  height: 32px;
+  height: 22px;
   padding: 0 12px;
   border: 1.5px solid #bcbcbc;
   border-radius: 999px;
@@ -348,25 +366,37 @@ const PillButton = styled.button`
   color: #555;
   font-size: 13px;
   cursor: pointer;
+  margin-top: 9px;
+  padding-bottom: 2px;
+  margin-bottom: 9px;
+  margin-left: 10px;
 `
-const ReviewList = styled.div``
+const ReviewList = styled.div`
+  margin-left: 10px;
+  margin-right: 10px;
+`
 
 const ReviewRow = styled.div`
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 10px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  gap: 3px;
+
 `
 const ReviewText = styled.p`
-  margin: 0; color: #2A2A2A; font-size: 16px; line-height: 1.6;
+color: var(--color-neutral-black, #2A2A2A);
+font-family: Paperlogy;
+font-size: 12px;
+font-style: normal;
+font-weight: 400;
+line-height: 17px; /* 141.667% */
+letter-spacing: -0.5px;
 `
 const ReviewActions = styled.div`
   display: flex; align-items: center; gap: 8px;
 `
 const HeartBtn = styled.button`
-  width: 34px; height: 34px; border-radius: 10px; border: none; background: transparent; display: grid; place-items: center; cursor: pointer;
+  width: 24px; height: 24px; border-radius: 10px; border: none; background: transparent; display: grid; place-items: center; cursor: pointer;
 `
 const LikeCount = styled.span`
   min-width: 18px; text-align: center; color: #8A8A8A; font-size: 15px;
@@ -374,7 +404,7 @@ const LikeCount = styled.span`
 
 // 신고 버튼
 const WarnBtn = styled.button`
-  width: 34px; height: 34px; border-radius: 10px; border: none; background: transparent; display: grid; place-items: center; cursor: pointer;
+  width: 24px; height: 24px; border-radius: 10px; border: none; background: transparent; display: grid; place-items: center; cursor: pointer;
   img { width: 22px; height: 22px; display: block; }
 `
 
@@ -449,6 +479,7 @@ const Sheet = styled.div`
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   padding: 0 16px 24px;
+    
 `
 const Handle = styled.div`
   position: sticky;
@@ -470,3 +501,14 @@ const Handle = styled.div`
 `
 
 
+const Dot = styled.span`display:inline-block; width:4px; height:4px; border-radius:50%; background: var(--color-neutral-black, #2A2A2A);`
+
+const TitleText = styled.span`
+  color: var(--color-neutral-black, #2A2A2A);
+  font-family: Paperlogy;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 17px;
+  letter-spacing: -0.5px;
+`
