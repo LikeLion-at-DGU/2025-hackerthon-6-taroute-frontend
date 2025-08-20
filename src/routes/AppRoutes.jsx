@@ -6,9 +6,13 @@ import NotFound from '../pages/NotFound.jsx'
 import Search from '../pages/Search.jsx'
 import SearchResults from '../pages/SearchResults.jsx'
 import Category from '../pages/Category.jsx'
+import Wiki from '../pages/wiki/Index.jsx'
 import MainLayout from '../layouts/MainLayout.jsx'
+import WikiSearch from '../pages/wiki/Search.jsx'
+import WikiDetail from '../pages/wiki/Detail.jsx'
+import WikiReviewWrite from '../pages/wiki/ReviewWrite.jsx'
 import Plan from '../pages/Plan.jsx'
-import Wiki from '../pages/Wiki.jsx'
+// 중복 import 제거
 import Location from '../pages/Location.jsx'
 import LocationMap from '../pages/LocationMap.jsx'
 
@@ -25,6 +29,10 @@ function AppRoutes() {
                 <Route path="/category" element={<Category />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/results" element={<SearchResults />} />
+                {/* 메인 레이아웃 영역에서 이미 /wiki 라우팅 처리됨 */}
+                <Route path="/wiki/search" element={<WikiSearch />} />
+                <Route path="/wiki/place/:id" element={<WikiDetail />} />
+                <Route path="/wiki/place/:id/review/new" element={<WikiReviewWrite />} />
                 <Route path="*" element={<NotFound />} />
                 <Route path="/location" element={<Location />} />
                 <Route path="/location-map" element={<LocationMap />} />
