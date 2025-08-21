@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { showToast } from '../common/toast';
+import { getSavedPlaces, savePlaceToServer } from '../../apis/savePlaceApi';
+import { getSessionKey, clearSessionKey } from '../../utils/sessionUtils';
 
 /**
  * 저장된 장소들을 관리하는 커스텀 훅
@@ -8,25 +10,47 @@ import { showToast } from '../common/toast';
 const useLoadSavedPlace = () => {
     const [savedPlaces, setSavedPlaces] = useState([]);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
-
-    // localStorage에서 저장된 장소들 로드
-    const loadSavedPlaces = () => {
+    // 서버에서 저장된 장소들 로드
+    const loadSavedPlaces = async () => {
         try {
             console.log('🔄 저장된 장소 로딩 시작...');
-            console.log('� localStorage에서 저장된 장소 조회 시도...');
+            setIsLoading(true);
+
+            const sessionKey = getSessionKey();
+            console.log('🔍 현재 localStorage 상태:', {
+                sessionKey: sessionKey,
+                sessionKeyType: typeof sessionKey,
+                sessionKeyLength: sessionKey ? sessionKey.length : 0,
+                storageContent: localStorage.getItem('taroute_session_key')
+            });
             
-            // localStorage에서 데이터 가져오기
-            const localPlaces = JSON.parse(localStorage.getItem('favoritePlaces') || '[]');
+            if (!sessionKey) {
+                console.log('🔑 세션 키가 없어서 빈 배열로 초기화');
+                setSavedPlaces([]);
+                return;
+            }
+
+            console.log('🌐 서버에서 저장된 장소 조회 시도...', { sessionKey });
             
-            // localStorage 데이터 필드명 호환성 확보 및 활성화 상태 설정
-            const normalizedPlaces = localPlaces.map((place, index) => ({
+            // 서버에서 데이터 가져오기
+            const serverPlaces = await getSavedPlaces();
+            
+            console.log('✅ 서버에서 가져온 장소들:', {
+                count: serverPlaces.length,
+                places: serverPlaces
+            });
+            
+            // 서버 데이터 필드명 호환성 확보 및 활성화 상태 설정
+            const normalizedPlaces = serverPlaces.map((place, index) => ({
                 ...place,
                 // 필드명 통일
                 place_name: place.place_name || place.name,
-                address_name: place.address_name || place.location,
+                address_name: place.address || place.address_name || place.location,
                 name: place.name || place.place_name,
-                location: place.location || place.address_name,
+                location: place.location || place.address || place.address_name,
+                address: place.address || place.address_name,
                 // 상위 10개만 활성화, 기존에 isEnabled가 있으면 그 값을 존중
                 isEnabled: place.isEnabled !== undefined ? place.isEnabled : (index < 10)
             }));
@@ -34,14 +58,17 @@ const useLoadSavedPlace = () => {
             setSavedPlaces(normalizedPlaces);
             
         } catch (error) { 
+            console.error('❌ 서버에서 장소 로딩 실패:', error);
             // 에러 발생시 빈 배열로 초기화
             setSavedPlaces([]);
             console.log('🔄 에러 발생으로 빈 배열로 초기화');
+        } finally {
+            setIsLoading(false);
         }
     };
 
     // 새로운 장소를 추가하는 함수 (찜하기 성공 후 호출용)
-    const addPlace = (place) => {
+    const addPlace = async (place) => {
         console.log('🔧 Context addPlace 함수 호출:', {
             받은장소데이터: place,
             place_photos존재: !!place.place_photos,
@@ -50,16 +77,10 @@ const useLoadSavedPlace = () => {
             running_time길이: place.running_time?.length,
             모든키목록: Object.keys(place || {})
         });
-        
-        setSavedPlaces(prev => {
-            // 최대 20개 제한 체크
-            if (prev.length >= 20) {
-                showToast('최대 20개 장소까지만 저장할 수 있습니다.');
-                return prev;
-            }
-            
-            // 더 정확한 중복 체크
-            const isAlreadyExists = prev.some(p => {
+
+        try {
+            // 1. 먼저 로컬 상태에서 중복 체크
+            const isAlreadyExists = savedPlaces.some(p => {
                 // ID가 있으면 ID로 매칭
                 if (p.id && place.id) {
                     return p.id === place.id;
@@ -76,31 +97,45 @@ const useLoadSavedPlace = () => {
             
             if (isAlreadyExists) {
                 console.log('⚠️ 이미 존재하는 장소:', place.id || place.place_name || place.name);
-                return prev;
+                showToast('이미 저장된 장소입니다.');
+                return;
+            }
+
+            // 2. 최대 20개 제한 체크
+            if (savedPlaces.length >= 20) {
+                showToast('최대 20개 장소까지만 저장할 수 있습니다.');
+                return;
+            }
+
+            // 3. 서버에 저장 요청
+            const googlePlaceId = place.id;
+            if (!googlePlaceId) {
+                throw new Error('Google Place ID가 없습니다.');
+            }
+
+            console.log('💾 서버에 장소 저장 요청...');
+            const serverResponse = await savePlaceToServer(googlePlaceId);
+            
+            if (serverResponse && serverResponse.data) {
+                // 서버에서 받은 풍부한 데이터 사용
+                const serverPlace = {
+                    ...serverResponse.data,
+                    id: googlePlaceId, // Google Place ID 유지
+                    place_id: googlePlaceId,
+                    isEnabled: savedPlaces.length < 10 // 상위 10개는 활성화
+                };
+
+                console.log('✅ 서버 저장 성공, 로컬 상태 업데이트');
+                setSavedPlaces(prev => [...prev, serverPlace]);
+                showToast('장소가 저장되었습니다.');
+            } else {
+                throw new Error('서버 응답에 데이터가 없습니다.');
             }
             
-            // 새로 추가되는 장소의 활성화 상태 결정
-            // 상위 10개는 활성화, 나머지는 비활성화
-            const newPlace = {
-                ...place,
-                isEnabled: prev.length < 10 // 현재까지 10개 미만이면 활성화
-            };
-            
-            const updated = [...prev, newPlace];
-            
-            // localStorage에도 동기화
-            try {
-                localStorage.setItem('favoritePlaces', JSON.stringify(updated));
-                console.log('💾 localStorage 동기화 완료');
-                
-                // 동기화 후 실제 localStorage 내용 확인
-                const savedInStorage = JSON.parse(localStorage.getItem('favoritePlaces') || '[]');
-            } catch (error) {
-                console.error('❌ localStorage 동기화 실패:', error);
-            }
-            
-            return updated;
-        });
+        } catch (error) {
+            console.error('❌ 장소 저장 실패:', error);
+            showToast('장소 저장에 실패했습니다.');
+        }
     };
 
     // 장소를 제거하는 함수 (찜 해제 시 호출용)
@@ -129,15 +164,9 @@ const useLoadSavedPlace = () => {
                     return !(placeName === targetName && placeAddress === targetAddress);
                 });
             }
-
-            // localStorage에도 동기화
-            try {
-                localStorage.setItem('favoritePlaces', JSON.stringify(updated));
-                console.log('💾 localStorage 동기화 완료 (제거)');
-            } catch (error) {
-                console.error('❌ localStorage 동기화 실패 (제거):', error);
-            }
             
+            console.log('✅ 로컬 상태에서 장소 제거 완료');
+            showToast('장소를 찜 목록에서 제거했습니다.');
             return updated;
         });
     };
@@ -145,30 +174,32 @@ const useLoadSavedPlace = () => {
     // useEffect로 초기 데이터 로드
     useEffect(() => {
         if (isInitialLoad) {
-            console.log('� 초기 로드 useEffect 실행 - 서버에서 데이터 가져오기');
+            console.log('🚀 초기 로드 useEffect 실행 - 서버에서 데이터 가져오기');
             setIsInitialLoad(false);
             loadSavedPlaces();
         }
     }, [isInitialLoad]);
 
-    // 컴포넌트 마운트 시 useEffect 실행 보장
-    useEffect(() => {
-    }, []);
-
     // 전체 삭제 핸들러
     const handleClearAll = () => {
         try {
-            
-            // 로컬 상태와 localStorage 모두 비우기
+            // 로컬 상태 비우기
             setSavedPlaces([]);
-            localStorage.removeItem('favoritePlaces');
-            console.log('✅ 전체 삭제 완료 (로컬 상태 + localStorage)');
+            // 세션 키도 삭제 (새로 시작)
+            clearSessionKey();
+            console.log('✅ 전체 삭제 완료 (로컬 상태 + 세션 키)');
+            showToast('모든 찜한 장소를 삭제했습니다.');
         } catch (error) {
             console.error('❌ 전체 삭제 실패:', error);
+            showToast('전체 삭제에 실패했습니다.');
         }
     };
 
-    console.log('🎁 useLoadSavedPlace return 준비:', { savedPlacesCount: savedPlaces.length });
+    console.log('🎁 useLoadSavedPlace return 준비:', { 
+        savedPlacesCount: savedPlaces.length,
+        isLoading,
+        sessionKey: getSessionKey() 
+    });
     
     return {
         savedPlaces,
@@ -176,7 +207,8 @@ const useLoadSavedPlace = () => {
         loadSavedPlaces,
         handleClearAll,
         addPlace,
-        removePlace
+        removePlace,
+        isLoading
     };
 };
 

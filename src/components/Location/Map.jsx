@@ -54,17 +54,35 @@ export default function Map({
         let center;
         if (centerLocation) {
             center = new kakao.maps.LatLng(centerLocation.lat, centerLocation.lng);
+            console.log('지도 중심 설정 (centerLocation):', centerLocation);
         } else if (markerPosition) {
             center = new kakao.maps.LatLng(markerPosition.lat, markerPosition.lng);
+            console.log('지도 중심 설정 (markerPosition):', markerPosition);
         } else if (currentLocation) {
             center = new kakao.maps.LatLng(currentLocation.lat, currentLocation.lng);
+            console.log('지도 중심 설정 (currentLocation):', currentLocation);
         } else {
             center = new kakao.maps.LatLng(37.566826, 126.9786567); // 기본값 (서울시청)
+            console.log('지도 중심 설정 (기본값): 서울시청');
         }
 
+        console.log('지도 초기화 시작, 중심 좌표:', center.getLat(), center.getLng());
         const map = new kakao.maps.Map(mapEl.current, { center, level: 3 });
         mapRef.current = map;
         infoRef.current = new kakao.maps.InfoWindow({ zIndex: 1 });
+
+        // 지도 크기 강제 재조정
+        setTimeout(() => {
+            map.relayout();
+            map.setCenter(center);
+            console.log('지도 relayout 및 중심 재설정 완료');
+        }, 100);
+
+        // 지도 초기화 완료 후 중심점 확인
+        setTimeout(() => {
+            const currentCenter = map.getCenter();
+            console.log('지도 초기화 완료 후 실제 중심 좌표:', currentCenter.getLat(), currentCenter.getLng());
+        }, 200);
 
         return () => {
             // 언마운트 시 마커 정리
@@ -170,6 +188,10 @@ export default function Map({
 
         draggableMarkerRef.current = draggableMarker;
 
+        // 지도 중심을 마커 위치로 이동
+        map.setCenter(position);
+        console.log('드래그 가능한 마커 생성 완료, 지도 중심 이동:', markerPosition);
+
         // 마커 드래그 이벤트 리스너
         kakao.maps.event.addListener(draggableMarker, 'dragend', () => {
             const position = draggableMarker.getPosition();
@@ -198,25 +220,6 @@ export default function Map({
             }
         };
     }, [sdkLoaded, markerPosition, isDraggable, onMarkerDragEnd]);
-
-    // 5) 지도 클릭으로 마커 위치 이동 지원 (드래그가 어려운 환경 대비)
-    useEffect(() => {
-        const { kakao } = window;
-        const map = mapRef.current;
-        if (!sdkLoaded || !kakao?.maps || !map || !isDraggable) return;
-
-        const handleClick = (e) => {
-            const latlng = e.latLng;
-            const newPos = { lat: latlng.getLat(), lng: latlng.getLng() };
-            if (draggableMarkerRef.current) {
-                draggableMarkerRef.current.setPosition(latlng);
-            }
-            if (onMarkerDragEnd) onMarkerDragEnd(newPos);
-        };
-
-        kakao.maps.event.addListener(map, 'click', handleClick);
-        return () => kakao.maps.event.removeListener(map, 'click', handleClick);
-    }, [sdkLoaded, isDraggable, onMarkerDragEnd]);
 
     // 5) 지도 클릭으로 마커 위치 이동 지원 (모바일에서 드래그가 어려운 경우 대비)
     useEffect(() => {

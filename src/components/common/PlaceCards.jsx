@@ -204,7 +204,7 @@ const PlaceCard = ({ place, category }) => {
       // 찜 해제
       removePlace(place);
     } else {
-      // 찜하기 - Google Place ID를 savePlaceAPI에 전달
+      // 찜하기 - Google Place ID를 addPlace에 전달하면 자동으로 서버 저장 처리
       const googlePlaceId = place.id;
       
       if (!googlePlaceId) {
@@ -213,75 +213,16 @@ const PlaceCard = ({ place, category }) => {
       }
       
       try {
-        console.log('💾 SavePlaceAPI 호출 시작:', {
+        console.log('💾 장소 저장 시작:', {
           googlePlaceId: googlePlaceId,
           originalPlace: place
         });
         
-        // SavePlaceAPI로 Google Place ID 전달하여 풍부한 데이터 받기
-        const serverResponse = await savePlaceToServer(googlePlaceId);
+        // addPlace 함수가 자동으로 서버 저장 및 로컬 상태 업데이트 처리
+        await addPlace(place);
         
-        console.log('✅ SavePlaceAPI 응답:', serverResponse);
-        
-        if (serverResponse && serverResponse.data) {
-          // 서버에서 받은 순수 데이터를 그대로 사용
-          const serverData = serverResponse.data;
-          
-          const enrichedPlace = {
-            id: googlePlaceId,
-            place_name: serverData.place_name,
-            address: serverData.address,
-            location: serverData.location,
-            running_time: serverData.running_time || [],
-            place_photos: serverData.place_photos || [],
-            // 호환성을 위한 추가 필드
-            name: serverData.place_name,
-            address_name: serverData.address,
-            image: serverData.place_photos?.[0] || place.image,
-          };
-          
-          console.log('🔄 Context에 저장할 데이터:', {
-            enrichedPlace,
-            place_photos: enrichedPlace.place_photos,
-            place_photos_length: enrichedPlace.place_photos?.length,
-            running_time: enrichedPlace.running_time,
-            running_time_length: enrichedPlace.running_time?.length
-          });
-          
-          addPlace(enrichedPlace);
-        } else {
-          console.error('❌ SavePlaceAPI 응답에 data가 없습니다:', serverResponse);
-          
-          // 서버 응답이 없으면 기본 SearchAPI 데이터로 대체
-          const fallbackPlace = {
-            id: googlePlaceId,
-            place_name: place.place_name || place.name,
-            address_name: place.address_name || place.location,
-            name: place.place_name || place.name,
-            location: place.address_name || place.location,
-            image: place.image,
-            place_photos: [],
-            running_time: []
-          };
-          
-          addPlace(fallbackPlace);
-        }
       } catch (error) {
-        console.error('❌ SavePlaceAPI 호출 실패:', error);
-        
-        // API 실패시 기본 SearchAPI 데이터로 대체
-        const fallbackPlace = {
-          id: googlePlaceId,
-          place_name: place.place_name || place.name,
-          address_name: place.address_name || place.location,
-          name: place.place_name || place.name,
-          location: place.address_name || place.location,
-          image: place.image,
-          place_photos: [],
-          running_time: []
-        };
-        
-        addPlace(fallbackPlace);
+        console.error('❌ 장소 저장 실패:', error);
       }
     }
   };
