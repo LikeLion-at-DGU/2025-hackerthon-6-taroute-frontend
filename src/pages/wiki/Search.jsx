@@ -70,7 +70,7 @@ const Wrapper = styled.section`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--bg-3, linear-gradient(90deg, #EBF3FF 0%, #F5F8FF 100%));
+  background: var(--color-neutral-white, #FFF);
 `
 
 

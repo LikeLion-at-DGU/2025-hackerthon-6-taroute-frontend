@@ -7,6 +7,7 @@ import useSheetDrag from '../../hooks/common/useSheetDrag.js'
 import SearchBar from '../../components/common/SearchBar.jsx'
 import { useSavedPlaceContext } from '../../contexts/SavedPlaceContext.jsx'
 import warningIcon from '../../assets/icons/warning.svg'
+import BottomSheetSelect from '../../components/common/BottomSheetSelect.jsx'
 
 export default function WikiDetail() {
   const { id } = useParams()
@@ -49,13 +50,16 @@ export default function WikiDetail() {
   )), [savedPlaces, place])
 
   // 게시판 데모 데이터 및 정렬/좋아요 로직
+  // 게시판 데모 데이터 및 정렬/좋아요 로직
   const [sortKey, setSortKey] = useState('추천순') // 추천순 | 최신순
+  const [sortOpen, setSortOpen] = useState(false)
   const [reviews, setReviews] = useState([
     { id: 1, user: '익명', text: '여기 맛 없어요… 가지 마세요.. 진짜 왜 감', likes: 18, createdAt: '2025-08-01T10:00:00Z' },
     { id: 2, user: '익명', text: '분위기도 좋고, 서비스도 좋고, 맛도 있고,, 저녁 먹기 너무 좋아요', likes: 15, createdAt: '2025-08-12T12:00:00Z' },
     { id: 3, user: '익명', text: '집 가고 싶고,, 진인데 집 가고 싶고,, 진짜 너무 어렵고,, 하지만 할 수 있죠?', likes: 14, createdAt: '2025-08-15T09:00:00Z' },
     { id: 4, user: '익명', text: '한 번 힘을 내볼까요', likes: 2, createdAt: '2025-08-20T18:30:00Z' },
   ])
+  const [searchKeyword, setSearchKeyword] = useState('')
 
   const toggleReviewLike = (rid) => {
     setReviews(prev => prev.map(r => r.id === rid
@@ -90,11 +94,19 @@ export default function WikiDetail() {
   return (
     <Wrap>
       <Bleed>
-        <PageNavbar title="지역위키" />
+      <PageNavbar title="지역위키" />
       </Bleed>
-      <SearchTop>
-        <SearchBar />
-      </SearchTop>
+        <SearchBar
+          placeholder="검색어를 입력해주세요"
+          value={searchKeyword}
+          onChange={setSearchKeyword}
+          bordered
+          borderColor="#E2E2E2"
+          onSubmit={() => {
+            const q = searchKeyword.trim()
+            if (q) navigate({ pathname: '/wiki/search', search: `?q=${encodeURIComponent(q)}` })
+          }}
+        />
 
       <Header>
         <Title>{place.name}</Title>
@@ -144,34 +156,41 @@ export default function WikiDetail() {
           onPointerCancel={onPointerUp}
         />
 
-        <Section>
-          <SecTitle>위키 별점</SecTitle>
-          <Stars>★★★☆☆</Stars>
-        </Section>
+<Section>
+  <SecTitle><Dot /><TitleText>위키 별점</TitleText></SecTitle>
+  <Stars>★★★☆☆</Stars>
+</Section>
 
-        <Section>
-          <SecTitle>AI 요약</SecTitle>
-          <Summary>{place.summary}</Summary>
-        </Section>
+<Section>
+  <SecTitle><Dot /><TitleText>AI 요약</TitleText></SecTitle>
+  <Summary>{place.summary}</Summary>
+</Section>
 
-        <Section>
-          <SecTitle>기본 정보</SecTitle>
-          <Info>
-            <div>위치: {place.address}</div>
-            <div>영업 시간: {place.hours}</div>
-            <div>전화번호: {place.phone}</div>
-          </Info>
-        </Section>
+<Section>
+  <SecTitle><Dot /><TitleText>기본 정보</TitleText></SecTitle>
+  <Info>
+    <div>위치: {place.address}</div>
+    <div>영업 시간: {place.hours}</div>
+    <div>전화번호: {place.phone}</div>
+  </Info>
+</Section>
 
-        <Section>
-          <SecTitle>게시판</SecTitle>
-          <SortBar>
-            <label htmlFor="review-sort" className="sr-only">정렬</label>
-            <Select id="review-sort" value={sortKey} onChange={(e) => setSortKey(e.target.value)}>
-              <option value="추천순">추천순</option>
-              <option value="최신순">최신순</option>
-            </Select>
-          </SortBar>
+
+          <Section>
+  <SecTitle><Dot /><TitleText>게시판</TitleText></SecTitle>
+  <SortBar>
+    <PillButton type="button" onClick={() => setSortOpen(true)}>{sortKey} ▾</PillButton>
+  </SortBar>
+
+          
+          <BottomSheetSelect
+            visible={sortOpen}
+            title="정렬 기준"
+            options={[{label:'추천순', value:'추천순'},{label:'최신순', value:'최신순'}]}
+            value={sortKey}
+            onSelect={(v)=>{ setSortKey(v); setSortOpen(false) }}
+            onClose={()=> setSortOpen(false)}
+          />
           <ReviewList>
             {sortedReviews.map(r => (
               <ReviewRow key={r.id}>
@@ -253,9 +272,7 @@ const Bleed = styled.div`
   margin-left: -16px;
   margin-right: -16px;
 `
-const SearchTop = styled.div`
-  margin-top: 24px;
-`
+
 const Header = styled.div`display:flex; flex-direction:column; gap:8px; margin-top:8px;`
 const Title = styled.h1`
   margin-top: 10px;
@@ -315,37 +332,71 @@ const LikeIconButton = styled.button`
   
 `
 const Section = styled.section`margin-top:16px;`
-const SecTitle = styled.h3`margin:0 0 8px; font-size:16px;`
-const Stars = styled.div``
-const Summary = styled.p``
-const Info = styled.div`display:flex; flex-direction:column; gap:4px;`
+const SecTitle = styled.h3`
+  display: flex; align-items: center; gap: 8px;
+  margin: 16px 0 8px;
+  padding: 10px 12px;
+  background: #F4F4F5; border-radius: 8px;
+`
+const Stars = styled.div`
+  margin-left: 10px;
+  margin-right: 10px;
+`
+    
+const Summary = styled.p`
+  margin-left: 10px;
+  margin-right: 10px;
+`
+const Info = styled.div`display:flex; flex-direction:column; gap:4px;
+margin-left: 10px;
+margin-right: 10px;
+`
 const Review = styled.div`padding:12px 0; border-top:1px solid rgba(0,0,0,0.06);`
 
 // 게시판 정렬/리스트 스타일
 const SortBar = styled.div`
   display: flex; justify-content: flex-start; margin: 8px 0 6px;
 `
-const Select = styled.select`
-  height: 32px; border-radius: 16px; padding: 0 12px; border: 1px solid #E2E2E2; background: #fff; color: #2A2A2A;
+const PillButton = styled.button`
+  height: 22px;
+  padding: 0 12px;
+  border: 1.5px solid #bcbcbc;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #555;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 9px;
+  padding-bottom: 2px;
+  margin-bottom: 9px;
+  margin-left: 10px;
 `
-const ReviewList = styled.div``
+const ReviewList = styled.div`
+  margin-left: 10px;
+  margin-right: 10px;
+`
 
 const ReviewRow = styled.div`
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 10px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  gap: 3px;
+
 `
 const ReviewText = styled.p`
-  margin: 0; color: #2A2A2A; font-size: 16px; line-height: 1.6;
+color: var(--color-neutral-black, #2A2A2A);
+font-family: Paperlogy;
+font-size: 12px;
+font-style: normal;
+font-weight: 400;
+line-height: 17px; /* 141.667% */
+letter-spacing: -0.5px;
 `
 const ReviewActions = styled.div`
   display: flex; align-items: center; gap: 8px;
 `
 const HeartBtn = styled.button`
-  width: 34px; height: 34px; border-radius: 10px; border: none; background: transparent; display: grid; place-items: center; cursor: pointer;
+  width: 24px; height: 24px; border-radius: 10px; border: none; background: transparent; display: grid; place-items: center; cursor: pointer;
 `
 const LikeCount = styled.span`
   min-width: 18px; text-align: center; color: #8A8A8A; font-size: 15px;
@@ -353,7 +404,7 @@ const LikeCount = styled.span`
 
 // 신고 버튼
 const WarnBtn = styled.button`
-  width: 34px; height: 34px; border-radius: 10px; border: none; background: transparent; display: grid; place-items: center; cursor: pointer;
+  width: 24px; height: 24px; border-radius: 10px; border: none; background: transparent; display: grid; place-items: center; cursor: pointer;
   img { width: 22px; height: 22px; display: block; }
 `
 
@@ -420,7 +471,7 @@ const Sheet = styled.div`
   left: 0; right: 0; top: 0; margin: 0 auto;
   z-index: 40;
   width: min(375px, 100vw);
-  background: var(--bg-3, linear-gradient(90deg, #EBF3FF 0%, #F5F8FF 100%));  
+  background: var(--color-neutral-white, #FFF);
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   box-shadow: 0 -8px 24px rgba(0,0,0,0.12);
@@ -428,6 +479,7 @@ const Sheet = styled.div`
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   padding: 0 16px 24px;
+    
 `
 const Handle = styled.div`
   position: sticky;
@@ -449,3 +501,14 @@ const Handle = styled.div`
 `
 
 
+const Dot = styled.span`display:inline-block; width:4px; height:4px; border-radius:50%; background: var(--color-neutral-black, #2A2A2A);`
+
+const TitleText = styled.span`
+  color: var(--color-neutral-black, #2A2A2A);
+  font-family: Paperlogy;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 17px;
+  letter-spacing: -0.5px;
+`

@@ -57,7 +57,6 @@ function Category() {
         borderColor="#E2E2E2"
       />
 
-      <Spacer />
 
       <FilterBar
         selectedCategory={selectedCategory}
@@ -88,7 +87,7 @@ const Wrapper = styled.section`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--bg-3, linear-gradient(90deg, #EBF3FF 0%, #F5F8FF 100%));
+  background: var(--color-neutral-white, #FFF);
 `
 
 const Content = styled.div`
@@ -106,11 +105,6 @@ const Content = styled.div`
 const Bleed = styled.div`
   margin-left: -16px;
   margin-right: -16px;
-`
-
-// SearchBar와 FilterBar가 겹치지 않도록 간격 확보
-const Spacer = styled.div`
-  height: 28px;
 `
 
 
