@@ -157,7 +157,6 @@ const PlaceCard = ({ place, category }) => {
   
   // 각 카드마다 개별적으로 저장 상태 계산
   const isSaved = savedPlaces.some(savedPlace => {
-    // 더 정확한 매칭을 위해 여러 필드 확인
     const nameMatch = (savedPlace.place_name || savedPlace.name) === (place.place_name || place.name);
     const addressMatch = (savedPlace.address_name || savedPlace.location) === (place.address_name || place.location);
     const idMatch = savedPlace.id && place.id && savedPlace.id === place.id;
@@ -290,7 +289,21 @@ const PlaceCard = ({ place, category }) => {
   return (
     <Card>
       <CardImageContainer>
-        <Cover $src={place.image || bg1} />
+        <Cover>
+          <img 
+            src={place.place_photos?.[0] || place.image || bg1}
+            alt={place.place_name || place.name || '장소 이미지'}
+            onError={(e) => {
+              e.target.src = bg1; // 폴백 이미지로 변경
+            }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center'
+            }}
+          />
+        </Cover>
         <HeartButton onClick={handleFavoriteClick}>
           <img 
             src={isSaved ? blackHeartIcon : heartIcon} 
@@ -343,11 +356,10 @@ const CardImageContainer = styled.div`
 const Cover = styled.div`
   width: 100%;
   height: 100%;
-  background-image: url(${(props) => props.$src});
-  background-size: cover;  /* 이미지를 꽉 채우고 넘치는 부분은 크롭 */
-  background-position: center;
-  background-repeat: no-repeat;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const HeartButton = styled.button`

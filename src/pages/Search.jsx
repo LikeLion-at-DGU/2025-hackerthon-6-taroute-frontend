@@ -27,12 +27,6 @@ const TrendKeyword = styled.div`
     }
 `;
 
-const AdContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    margin: 25px 0;
-    gap: 25px;
-`;
 
 
 const Search = () => {

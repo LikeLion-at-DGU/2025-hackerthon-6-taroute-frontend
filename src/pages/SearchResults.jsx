@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getSearchPlace } from "../apis/searchApi";
+import { useSelectedLocation } from "../hooks/useSelectedLocation";
 import styled from "styled-components";
 import PlaceCard from "../components/common/PlaceCards";
 import noresult from "../assets/icons/noresult.png";
@@ -25,6 +26,7 @@ const ResultsContainer = styled.div`
     overflow-x: auto;
     width: 343px;          // 카드 컨테이너 너비 고정
     padding: 10px 0;
+    margin-top: 5px;
     scrollbar-width: thin;
     scrollbar-color: #a18ae6 #f0f0f0;
 `;
@@ -50,16 +52,15 @@ export default function SearchResults() {
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    //임시더미좌표
-    const x = 126.9780;
-    const y = 37.5665;
+    // 사용자 선택 위치 정보 훅 사용
+    const { location: selectedLocation } = useSelectedLocation();
 
     const handleSubmit = () => {
         // 검색어가 바뀌면 useEffect가 실행되어 자동으로 검색됩니다.
         // 필요하다면 여기서 추가 동작(예: 페이지 이동)도 구현 가능
         setRows([]); // 이전 결과 초기화
         setLoading(true);
-        getSearchPlace({ q, x, y })
+        getSearchPlace({ q, x: selectedLocation.x, y: selectedLocation.y, radius:2000 })
             .then((data) => {
                 console.log("API 응답:", data); // 응답 구조 확인
                 // data.results, data.items, data가 배열이 아니면 빈 배열로 처리
@@ -76,7 +77,7 @@ export default function SearchResults() {
     useEffect(() => {
         if (!q) return;
         setLoading(true);
-        getSearchPlace({ q, x, y })
+        getSearchPlace({ q, x: selectedLocation.x, y: selectedLocation.y })
             .then((data) => {
                 console.log("API 응답:", data); // 응답 구조 확인
                 const arr =
@@ -87,7 +88,7 @@ export default function SearchResults() {
                 setRows(arr);
             })
             .finally(() => setLoading(false));
-    }, [initialQ]);
+    }, [initialQ, selectedLocation?.x, selectedLocation?.y]); // 위치 좌표가 변경되면 재검색
 
     return (
         <SearchContainer>
@@ -121,6 +122,7 @@ export default function SearchResults() {
                             address_name: place.address || "",
                             location: place.location || null, // 좌표 객체를 그대로 전달
                             image: place.image || "", // 이미지가 없으면 기본 이미지 처리됨
+                            place_photos: place.place_photos || [], // ✅ Google Places API 이미지 배열 추가!
                             category: place.category || "restaurant", // 기본값
                         }}
                     />

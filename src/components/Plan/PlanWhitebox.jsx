@@ -21,17 +21,39 @@ const WhiteBoxContainer = styled.div`
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     background: linear-gradient(90deg, #EBF3FF 0%, #F5F8FF 80%);
-    /* 높이는 런타임에서 y에 따라 동적으로 설정 (height: calc(100dvh - y)) */
     width: 100%;
     align-items: center;
     box-sizing: border-box;
     box-shadow: 0 -8px 24px rgba(0,0,0,0.12);
     will-change: transform;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    margin-top: 60px;
-    padding-bottom: 150px;
+    overflow-x: hidden;
+    max-width: 375px;
+    margin: 0 auto;
+    /* 812px 프레임 기준으로 최대 높이 제한 */
+    max-height: 712px;
+    /* 스크롤바를 강제로 표시 */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.5) transparent;
+    /* WebKit 스크롤바 스타일 */
+    &::-webkit-scrollbar {
+        width: 6px;
+        display: block !important;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.1);
+        border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba(0,0,0,0.5);
+        border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(0,0,0,0.7);
+    }
 `;
 
 const DragHandle = styled.div`
@@ -74,7 +96,7 @@ const Title = styled.div`
     & > p { margin: 0; }
      /* 이미지의 베이스라인 여백 제거 */
     & > img { display: block; }
-    border-bottom: 0.5px solid #2d2d2d;
+    border-bottom: 0.5px solid #8A8A8A;
 `;
 
 
@@ -108,13 +130,14 @@ const ButtonBar = styled.div`
 
 const SavedPlaceContainer = styled.div`
     width: 343px;
-    margin-bottom: 100px;
+    padding-bottom: 150px;
 `;
 
 const SavedPlaceList = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
+    padding-bottom: 70px;
 `;
 
 const EmptyMessage = styled.div`
@@ -126,7 +149,7 @@ const EmptyMessage = styled.div`
 
 const PlanButton = styled.button`
     position: fixed;
-    bottom: -230px; /* 812px 화면 기준으로 하단에서 30px 위 */
+    bottom: -230px; 
     left: 50%;
     transform: translateX(-50%);
     width: 349px;
@@ -141,7 +164,7 @@ const PlanButton = styled.button`
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000; /* 화이트박스보다 높은 z-index로 항상 위에 표시 */
+    z-index: 50;
 `;
 
 const ToastMessage = styled.div`
@@ -245,7 +268,7 @@ const DeleteButton = styled.button`
     }
 `;
 
-const PlanWhiteBox = ({ expandedTop = 42, collapsedTop = 332 }) => {
+const PlanWhiteBox = ({ expandedTop = 105, collapsedTop = 390 }) => {
     const navigate = useNavigate();
     const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());

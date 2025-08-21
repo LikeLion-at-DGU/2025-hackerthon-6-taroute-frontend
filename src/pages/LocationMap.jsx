@@ -2,6 +2,7 @@ import PageNavbar from "../components/common/PageNavbar";
 import styled from "styled-components";
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { triggerLocationUpdate } from "../hooks/useSelectedLocation";
 import Map from "../components/Location/Map";
 
 const Background = styled.div`
@@ -129,6 +130,9 @@ const LocationMap = () => {
                 coordinates: markerPosition,
                 timestamp: Date.now()
             }));
+            
+            // 다른 컴포넌트들에게 위치 업데이트 알림
+            triggerLocationUpdate();
             
             // 홈으로 이동
             navigate('/', { 

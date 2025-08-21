@@ -7,12 +7,14 @@ import WhiteBox from '../components/Home/WhiteBox';
 import taru from '../assets/icons/taru/taruHome.png';
 
 const HomeContainer = styled.div`
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
     height: fit-content;
     color: #F0F0F0;
+    min-height: 100%;
 `;
 
 
@@ -68,7 +70,7 @@ const Home = () => {
                 </GoTaroButton>
             </GoTaro>
 
-            <WhiteBox expandedTop={36} collapsedTop={330} />
+            <WhiteBox expandedTop={105} collapsedTop={390} />
         </HomeContainer>
     );
 };

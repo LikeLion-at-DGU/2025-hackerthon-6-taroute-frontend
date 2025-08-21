@@ -68,7 +68,7 @@ const TrendChart = () => {
     return (
         <TrendChartContainer>
             <Standard>
-                <p>{formattedDate} 기준</p>
+                <p style={{margin:'0'}}>{formattedDate} 기준</p>
                 <img
                     src={rotateLeft}
                     alt="새로고침"
