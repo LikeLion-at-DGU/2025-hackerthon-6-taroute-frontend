@@ -18,13 +18,39 @@ function QuestionStep({ next, prev, goTo }) {
   const [questions, setQuestions] = useState([])
   const [qIdx, setQIdx] = useState(0)
   const [answers, setAnswers] = useState([])
+  const [currentLocationLabel, setCurrentLocationLabel] = useState('현재 위치')
 
   const defaultFirstQuestion = {
-    question: "현재 방문하고 싶은 지역이 ‘현재 위치’가 맞아?",
+    question: `현재 방문하고 싶은 지역이 ‘${currentLocationLabel}’가 맞아?`,
     options: ["맞아", "아니야"],
   }
 
   useEffect(() => {
+    // 메인에서 설정한 위치명 우선
+    try {
+      const saved = JSON.parse(localStorage.getItem('selectedLocation') || '{}')
+      if (saved?.address) setCurrentLocationLabel(saved.address)
+    } catch {}
+
+    // 좌표만 있을 경우 역지오코딩으로 보정
+    try {
+      const raw = sessionStorage.getItem('user_selected_location')
+      if (raw) {
+        const pos = JSON.parse(raw)
+        const { kakao } = window
+        if (kakao?.maps?.services && typeof pos?.lat === 'number' && typeof pos?.lng === 'number') {
+          const geocoder = new kakao.maps.services.Geocoder()
+          geocoder.coord2RegionCode(pos.lng, pos.lat, (result, status) => {
+            if (status === kakao.maps.services.Status.OK) {
+              const region = result?.find(r => r.region_type === 'H') || result?.[0]
+              const label = region?.region_3depth_name || region?.region_2depth_name
+              if (label) setCurrentLocationLabel(label)
+            }
+          })
+        }
+      }
+    } catch {}
+
     let mounted = true
     ;(async () => {
       try {
@@ -68,6 +94,14 @@ function QuestionStep({ next, prev, goTo }) {
       nextAnswers[qIdx] = label
       return nextAnswers
     })
+
+    // 세션에 누적 저장 (card_select input_text 용)
+    try {
+      const prevSaved = JSON.parse(sessionStorage.getItem('taro_answers') || '[]')
+      const nextSaved = [...prevSaved]
+      nextSaved[qIdx] = label
+      sessionStorage.setItem('taro_answers', JSON.stringify(nextSaved))
+    } catch {}
 
     // 첫 번째(디폴트) 질문 분기 처리
     if (qIdx === 0) {

@@ -34,11 +34,13 @@ import retryCard from '../../../assets/icons/taro/RetryCard.svg'
 import detailCardBg from '../../../assets/icons/taro/ResultDetailCard.svg'
 import { savePlaceToServer } from '../../../apis/savePlaceApi'
 import { showToast } from '../../../hooks/common/toast'
+import { useSavedPlaceContext } from '../../../contexts/SavedPlaceContext'
 
 import { useNavigate } from 'react-router-dom'
 
 function ResultStep({ prev, goTo }) {
   const navigate = useNavigate()
+  const { addPlace, removePlace } = useSavedPlaceContext()
   const [cards, setCards] = useState(() => ([
     { id: 'I', title: '로딩 중', img: sampleImg, liked: false, desc: '' },
     { id: 'II', title: '로딩 중', img: sampleImg, liked: false, desc: '' },
@@ -66,7 +68,8 @@ function ResultStep({ prev, goTo }) {
   useEffect(() => {
     const applyFromStorage = (raw) => {
       try {
-        const select = JSON.parse(raw)
+        const parsed = JSON.parse(raw)
+        const select = Array.isArray(parsed) ? parsed : (parsed?.select || parsed?.data?.select || [])
         const shuffled = Array.isArray(select) ? [...select] : []
         for (let i = shuffled.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1))
@@ -77,10 +80,12 @@ function ResultStep({ prev, goTo }) {
         const mapped = picked.map((item, i) => ({
           id: ['I','II','III','IV','V','VI','VII'][i] || `${i+1}`,
           title: item.place_name || '추천 장소',
-          img: sampleImg,
+          img: (Array.isArray(item.place_photos) && item.place_photos.length > 0) ? item.place_photos[0] : sampleImg,
           liked: false,
-          desc: item.place_id || '',
+          desc: item.address || item.place_id || '',
           place_id: item.place_id,
+          address: item.address,
+          place_photos: item.place_photos,
         }))
         setCards(prev => {
           const stableRetry = prev.find(c => c.isRetry)
@@ -146,9 +151,27 @@ function ResultStep({ prev, goTo }) {
                         setCards(prev => prev.map((card, i) => i === globalIndex ? { ...card, liked: !card.liked } : card))
                         return
                       }
+                      // 토글 동작: 이미 찜 상태면 해제, 아니면 저장
+                      if (target.liked) {
+                        try {
+                          removePlace(target.place_id)
+                          setCards(prev => prev.map((card, i) => i === globalIndex ? { ...card, liked: false } : card))
+                          showToast('찜을 해제했어요.')
+                        } catch {
+                          // 로컬 해제만 수행
+                          setCards(prev => prev.map((card, i) => i === globalIndex ? { ...card, liked: false } : card))
+                          showToast('찜을 해제했어요.')
+                        }
+                        return
+                      }
                       try {
-                        await savePlaceToServer(target.place_id)
-                        setCards(prev => prev.map((card, i) => i === globalIndex ? { ...card, liked: !card.liked } : card))
+                        const res = await savePlaceToServer(target.place_id)
+                        const placeData = res?.data ?? res
+                        if (placeData) {
+                          const toSave = { ...placeData, id: placeData.id || target.place_id }
+                          try { addPlace(toSave) } catch {}
+                        }
+                        setCards(prev => prev.map((card, i) => i === globalIndex ? { ...card, liked: true } : card))
                         showToast('장소가 저장되었습니다.')
                       } catch (e) {
                         showToast('저장 중 오류가 발생했어요.')
