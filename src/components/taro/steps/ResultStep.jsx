@@ -66,7 +66,8 @@ function ResultStep({ prev, goTo }) {
   useEffect(() => {
     const applyFromStorage = (raw) => {
       try {
-        const select = JSON.parse(raw)
+        const parsed = JSON.parse(raw)
+        const select = Array.isArray(parsed) ? parsed : (parsed?.select || parsed?.data?.select || [])
         const shuffled = Array.isArray(select) ? [...select] : []
         for (let i = shuffled.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1))
@@ -77,10 +78,12 @@ function ResultStep({ prev, goTo }) {
         const mapped = picked.map((item, i) => ({
           id: ['I','II','III','IV','V','VI','VII'][i] || `${i+1}`,
           title: item.place_name || '추천 장소',
-          img: sampleImg,
+          img: (Array.isArray(item.place_photos) && item.place_photos.length > 0) ? item.place_photos[0] : sampleImg,
           liked: false,
-          desc: item.place_id || '',
+          desc: item.address || item.place_id || '',
           place_id: item.place_id,
+          address: item.address,
+          place_photos: item.place_photos,
         }))
         setCards(prev => {
           const stableRetry = prev.find(c => c.isRetry)

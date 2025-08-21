@@ -26,27 +26,42 @@ export const fetchSlotQuestions = async () => {
  * @param {number[]} selectedCards - 사용자가 선택한 카드 인덱스(0-based)
  * @returns {Promise<Array>} select 배열 (20개)
  */
-export const postCardSelect = async (selectedCards = []) => {
-  // 1차: 선택 카드 배열을 바디로 보냄
+export const postCardSelect = async () => {
+  // 위치(x: lng, y: lat)와 질문 응답 텍스트를 조합해 전송
+  let x, y
   try {
-    const res = await instance.post("/chats/card_select", { selected_cards: selectedCards });
-    const select = res?.data?.select;
-    if (Array.isArray(select)) return select;
-  } catch (err1) {
-    // 2차: 빈 바디로 재시도 (백엔드가 바디 미사용일 수 있음)
-    try {
-      const res2 = await instance.post("/chats/card_select", {});
-      const select2 = res2?.data?.select;
-      return Array.isArray(select2) ? select2 : [];
-    } catch (err2) {
-      console.error("❌ postCardSelect 실패", {
-        firstTry: { message: err1.message, status: err1.response?.status, data: err1.response?.data },
-        secondTry: { message: err2.message, status: err2.response?.status, data: err2.response?.data },
-      });
-      throw err2;
+    // 1) 타로 플로우에서 방금 설정한 세션 값을 우선 사용 (아니야 → 위치 재설정 케이스 반영)
+    const locRaw = sessionStorage.getItem('user_selected_location')
+    if (locRaw) {
+      const loc = JSON.parse(locRaw)
+      if (typeof loc?.lng === 'number' && typeof loc?.lat === 'number') {
+        x = loc.lng; y = loc.lat
+      }
     }
+    // 2) 세션이 없으면 메인에서 설정한 최신 위치(LocalStorage) 사용
+    if (x === undefined || y === undefined) {
+      const saved = JSON.parse(localStorage.getItem('selectedLocation') || '{}')
+      if (typeof saved?.coordinates?.lng === 'number' && typeof saved?.coordinates?.lat === 'number') {
+        x = saved.coordinates.lng; y = saved.coordinates.lat
+      }
+    }
+  } catch {}
+
+  let inputText = ''
+  try {
+    const answers = JSON.parse(sessionStorage.getItem('taro_answers') || '[]')
+    if (Array.isArray(answers) && answers.length > 0) inputText = answers.join(',')
+  } catch {}
+
+  const payload = { x, y, radius: 2000, input_text: inputText, lang: 'ko' }
+  try {
+    const res = await instance.post('/chats/card_select', payload)
+    const select = res?.data?.select || res?.data?.data?.select || (Array.isArray(res?.data) ? res.data : undefined)
+    return Array.isArray(select) ? select : []
+  } catch (err) {
+    console.error('❌ postCardSelect 실패', { message: err.message, status: err.response?.status, data: err.response?.data, sent: payload })
+    throw err
   }
-  return [];
 };
 
 

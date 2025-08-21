@@ -28,6 +28,7 @@ function SpreadStep({ next, prev }) {
   const [translateX, setTranslateX] = useState(0)
   const [selectedCards, setSelectedCards] = useState([])
   const cardSpreadRef = useRef(null)
+  const hasRequestedRef = useRef(false)
 
   const totalCards = 25
   const cardsPerView = 25 //카드 퍼짐 넓이 조절
@@ -102,11 +103,15 @@ function SpreadStep({ next, prev }) {
 
       // 결과는 백그라운드로 요청하여 세션에 저장
       ;(async () => {
+        if (hasRequestedRef.current) return
+        hasRequestedRef.current = true
         try {
-          const result = await postCardSelect(selectedCards)
-          sessionStorage.setItem('taro_selected_result', JSON.stringify(result))
+          // 서버는 카드 인덱스 대신 위치/텍스트를 사용하므로 바로 호출
+          const result = await postCardSelect()
+          const payload = Array.isArray(result) ? { select: result } : result
+          sessionStorage.setItem('taro_selected_result', JSON.stringify(payload))
         } catch (e) {
-          sessionStorage.setItem('taro_selected_result', JSON.stringify([]))
+          sessionStorage.setItem('taro_selected_result', JSON.stringify({ select: [] }))
         }
       })()
     }

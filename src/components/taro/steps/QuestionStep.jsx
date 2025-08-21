@@ -95,6 +95,14 @@ function QuestionStep({ next, prev, goTo }) {
       return nextAnswers
     })
 
+    // 세션에 누적 저장 (card_select input_text 용)
+    try {
+      const prevSaved = JSON.parse(sessionStorage.getItem('taro_answers') || '[]')
+      const nextSaved = [...prevSaved]
+      nextSaved[qIdx] = label
+      sessionStorage.setItem('taro_answers', JSON.stringify(nextSaved))
+    } catch {}
+
     // 첫 번째(디폴트) 질문 분기 처리
     if (qIdx === 0) {
       if (label === '아니야') {
