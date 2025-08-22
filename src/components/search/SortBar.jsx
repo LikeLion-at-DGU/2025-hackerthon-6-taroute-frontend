@@ -86,13 +86,16 @@ const sortOptions = [
     "가격높은순"
 ];
 
-export const SortBar = () => {
+export const SortBar = ({ onSortChange, selectedSort = "정확도순" }) => {
     const [showSelect, setShowSelect] = useState(false);
-    const [select, setSelect] = useState("정확도순");
 
     const handleSelect = (option) => {
-        setSelect(option);
         setShowSelect(false);
+        
+        // 상위 컴포넌트에 정렬 변경 알림
+        if (onSortChange) {
+            onSortChange(option);
+        }
     };
 
     return (
@@ -101,7 +104,7 @@ export const SortBar = () => {
                 <p style={{margin:'0', fontSize:'17px'}}>검색결과</p>
                 <Barbutton onClick={() => setShowSelect(true)}>
                     <BarbuttonInner>
-                        <p style={{ fontSize: "10px", fontWeight:"400" }}>{select}</p>
+                        <p style={{ fontSize: "10px", fontWeight:"400" }}>{selectedSort}</p>
                         <img src={arrow_down} style={{ width: 10 }} />
                     </BarbuttonInner>
                 </Barbutton>
@@ -111,7 +114,7 @@ export const SortBar = () => {
                     <Overlay onClick={() => setShowSelect(false)} />
                     <SelectSort
                         onSelect={handleSelect}
-                        selected={select}
+                        selected={selectedSort}
                     />
                 </>
             )}
