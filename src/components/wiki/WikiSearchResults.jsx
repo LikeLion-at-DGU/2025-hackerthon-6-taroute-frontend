@@ -1,23 +1,62 @@
 import styled from 'styled-components'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import BottomSheetSelect from '../common/BottomSheetSelect.jsx'
 import timeIcon from '../../assets/icons/time.svg'
+import { searchWikiPlaces } from '../../apis/wikiApi.js'
+import { useSelectedLocation } from '../../hooks/useSelectedLocation.js'
 
 const SORT_OPTIONS = ['정확도순', '거리순', '후기순', '인기순']
 
 export function WikiSearchResults({ query }) {
   const navigate = useNavigate()
-  // TODO: Replace with real API. Demo list for now
-  const items = Array.from({ length: 8 }).map((_, i) => ({
-    id: i + 1,
-    name: '진식당',
-    address: '서울 중구 필동로 7-11층',
-    time: '목요일 11:00 - 22:00',
-    thumb: `https://picsum.photos/seed/wikir-${i}/240/160`,
-  }))
+  const { location } = useSelectedLocation()
+  const [items, setItems] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
   const [sortOpen, setSortOpen] = useState(false)
   const [sortKey, setSortKey] = useState(SORT_OPTIONS[0])
+
+  const rankPreference = useMemo(() => {
+    if (sortKey === '정확도순') return 'RELEVANCE'
+    if (sortKey === '거리순') return 'DISTANCE'
+    return undefined
+  }, [sortKey])
+
+  useEffect(() => {
+    let aborted = false
+    const fetch = async () => {
+      if (!query?.keyword) {
+        setItems([])
+        return
+      }
+      setLoading(true)
+      setError(null)
+      try {
+        const results = await searchWikiPlaces({
+          latitude: location?.y,
+          longitude: location?.x,
+          place_name: query.keyword,
+          radius: 20000,
+          rankPreference,
+        })
+        if (aborted) return
+        let arr = Array.isArray(results) ? results : []
+        // Client-side sort for 후기순/인기순 when no rankPreference
+        if (!rankPreference) {
+          if (sortKey === '후기순') arr = [...arr].sort((a, b) => (b.review_count || 0) - (a.review_count || 0))
+          if (sortKey === '인기순') arr = [...arr].sort((a, b) => (b.click_num || 0) - (a.click_num || 0))
+        }
+        setItems(arr)
+      } catch (e) {
+        if (!aborted) setError(e)
+      } finally {
+        if (!aborted) setLoading(false)
+      }
+    }
+    fetch()
+    return () => { aborted = true }
+  }, [query?.keyword, location?.x, location?.y, rankPreference, sortKey])
 
   return (
     <Wrap>
@@ -35,22 +74,29 @@ export function WikiSearchResults({ query }) {
         onSelect={(v) => { setSortKey(v); setSortOpen(false) }}
         onClose={() => setSortOpen(false)}
       />
-      <List>
-        {items.map((p) => (
-          <Row key={p.id} onClick={() => navigate(`/wiki/place/${p.id}`)} role="button" tabIndex={0}>
-            <Left>
-              <Title>{p.name}</Title>
-              <Address>{p.address}</Address>
-              <Meta>
-                <img src={timeIcon} alt="time" />
-                <span>{p.time}</span>
-                <Caret>▾</Caret>
-              </Meta>
-            </Left>
-            <Thumb src={p.thumb} alt={p.name} />
-          </Row>
-        ))}
-      </List>
+      {loading && <Empty>불러오는 중…</Empty>}
+      {error && <Empty>문제가 발생했어요. 잠시 후 다시 시도해주세요.</Empty>}
+      {!loading && !error && (
+        <List>
+          {items.map((p) => (
+            <Row key={p.place_id} onClick={() => navigate(`/wiki/place/${encodeURIComponent(p.place_id)}`)} role="button" tabIndex={0}>
+              <Left>
+                <Title>{p.place_name}</Title>
+                <Address>{p.address}</Address>
+                <Meta>
+                  <img src={timeIcon} alt="time" />
+                  <span>{Array.isArray(p.running_time) && p.running_time.length > 0 ? p.running_time[0] : p.distance_text || '정보 없음'}</span>
+                  <Caret>▾</Caret>
+                </Meta>
+              </Left>
+              <Thumb src={`https://picsum.photos/seed/${encodeURIComponent(p.place_id)}/240/160`} alt={p.place_name} />
+            </Row>
+          ))}
+          {items.length === 0 && (
+            <Empty>검색 결과가 없습니다.</Empty>
+          )}
+        </List>
+      )}
     </Wrap>
   )
 }
@@ -114,6 +160,13 @@ const SortMenu = styled.ul`
 const List = styled.div`
   display: flex;
   flex-direction: column;
+`
+
+const Empty = styled.div`
+  padding: 24px 0;
+  color: #7a7a7a;
+  text-align: center;
+  font-size: 14px;
 `
 
 const Row = styled.div`

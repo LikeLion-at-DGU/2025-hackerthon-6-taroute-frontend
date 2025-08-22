@@ -1,9 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import PageNavbar from '../../components/common/PageNavbar.jsx'
 import SearchBar from '../../components/common/SearchBar.jsx'
 import PrimaryButton from '../../components/common/PrimaryButton.jsx'
+import { getWikiDetail, postWikiReview } from '../../apis/wikiApi.js'
+import { showToast } from '../../hooks/common/toast.js'
 
 
 export default function WikiReviewWrite() {
@@ -15,13 +17,59 @@ export default function WikiReviewWrite() {
   const [text, setText] = useState('')
   const [files, setFiles] = useState([])
   const [searchKeyword, setSearchKeyword] = useState('')
-  const placeName = '고냉지'
-  const address = '서울시 중구 퇴계로'
+  const [placeName, setPlaceName] = useState('')
+  const [address, setAddress] = useState('')
 
 
   const onPickFiles = (e) => {
     const list = Array.from(e.target.files || [])
     setFiles(list)
+  }
+
+  useEffect(() => {
+    let aborted = false
+    const load = async () => {
+      try {
+        const data = await getWikiDetail({ place_id: id })
+        if (aborted) return
+        setPlaceName(data?.search_detail?.place_name || '')
+        setAddress(data?.search_detail?.address || '')
+      } catch (e) {
+        // ignore
+      }
+    }
+    load()
+    return () => { aborted = true }
+  }, [id])
+
+  const onSubmitReview = async () => {
+    if (!agreeTruth || !confirmPlace) {
+      showToast('체크리스트를 확인해주세요')
+      return
+    }
+    if (rating <= 0) {
+      showToast('별점을 선택해주세요')
+      return
+    }
+    if (!text.trim()) {
+      showToast('내용을 입력해주세요')
+      return
+    }
+
+    try {
+      const body = {
+        review_content: text.trim(),
+        review_score: String(rating),
+        review_image: null,
+        place_name: placeName,
+        gplace_id: id,
+      }
+      await postWikiReview(body)
+      showToast('작성 완료!')
+      navigate(`/wiki/place/${id}`)
+    } catch (e) {
+      showToast('작성에 실패했어요')
+    }
   }
   return (
     <Wrap>
@@ -105,7 +153,7 @@ export default function WikiReviewWrite() {
         </UploadWrap>
       </Content>
 
-      <PrimaryButton fixedBottom onClick={() => { /* TODO: submit */ }}>
+      <PrimaryButton fixedBottom onClick={onSubmitReview}>
         게시판 작성
       </PrimaryButton>
     </Wrap>

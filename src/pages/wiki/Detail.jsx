@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useParams, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
@@ -7,32 +7,19 @@ import useSheetDrag from '../../hooks/common/useSheetDrag.js'
 import SearchBar from '../../components/common/SearchBar.jsx'
 import { useSavedPlaceContext } from '../../contexts/SavedPlaceContext.jsx'
 import warningIcon from '../../assets/icons/warning.svg'
+import { getWikiDetail, likeWikiReview } from '../../apis/wikiApi.js'
+import { showToast } from '../../hooks/common/toast.js'
 import BottomSheetSelect from '../../components/common/BottomSheetSelect.jsx'
 
 export default function WikiDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { savedPlaces, addPlace, removePlace } = useSavedPlaceContext()
-  // TODO: fetch detail by id
-  const place = {
-    id,
-    name: '고냉지',
-    address: '서울시 중구 퇴계로',
-    images: [
-      'https://picsum.photos/seed/d1/600/400',
-      'https://picsum.photos/seed/d2/600/400',
-      'https://picsum.photos/seed/d3/600/400',
-      'https://picsum.photos/seed/d4/600/400',
-
-    ],
-    stars: 3.5,
-    hours: '매일 11:00 - 22:30',
-    phone: '0507-1335-9573',
-    summary: '여기는 지역위키에 전한 글을 요약한 부문이 들어가게 됩니다.',
-    reviews: [
-      { id: 1, user: '익명', text: '가치 있어요.. 굿', likes: 18 },
-    ],
-  }
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [place, setPlace] = useState({ id, name: '', address: '', images: [], stars: null, hours: '', phone: '', summary: '' })
+  const [reviews, setReviews] = useState([])
+  const [averageScore, setAverageScore] = useState(null)
 
   // 뷰포트 기준으로 접힌 상태 높이를 작게(≈220px) 유지
   const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 812
@@ -49,30 +36,64 @@ export default function WikiDetail() {
     p.id ? p.id === place.id : (p.name||p.place_name) === place.name && (p.address||p.address_name||p.location) === place.address
   )), [savedPlaces, place])
 
-  // 게시판 데모 데이터 및 정렬/좋아요 로직
-  // 게시판 데모 데이터 및 정렬/좋아요 로직
   const [sortKey, setSortKey] = useState('추천순') // 추천순 | 최신순
   const [sortOpen, setSortOpen] = useState(false)
-  const [reviews, setReviews] = useState([
-    { id: 1, user: '익명', text: '여기 맛 없어요… 가지 마세요.. 진짜 왜 감', likes: 18, createdAt: '2025-08-01T10:00:00Z' },
-    { id: 2, user: '익명', text: '분위기도 좋고, 서비스도 좋고, 맛도 있고,, 저녁 먹기 너무 좋아요', likes: 15, createdAt: '2025-08-12T12:00:00Z' },
-    { id: 3, user: '익명', text: '집 가고 싶고,, 진인데 집 가고 싶고,, 진짜 너무 어렵고,, 하지만 할 수 있죠?', likes: 14, createdAt: '2025-08-15T09:00:00Z' },
-    { id: 4, user: '익명', text: '한 번 힘을 내볼까요', likes: 2, createdAt: '2025-08-20T18:30:00Z' },
-  ])
   const [searchKeyword, setSearchKeyword] = useState('')
 
-  const toggleReviewLike = (rid) => {
-    setReviews(prev => prev.map(r => r.id === rid
-      ? { ...r, liked: !r.liked, likes: r.liked ? Math.max(0, r.likes - 1) : r.likes + 1 }
-      : r
-    ))
+  const toggleReviewLike = async (rid) => {
+    const target = reviews.find(r => r.id === rid)
+    if (!target) return
+    try {
+      const res = await likeWikiReview({ id: rid, place_id: id })
+      setReviews(prev => prev.map(r => r.id === rid ? { ...r, liked: true, likes: res.like_count ?? (r.likes + 1) } : r))
+    } catch (e) {
+      showToast('좋아요 처리에 실패했어요')
+    }
   }
 
   const sortedReviews = useMemo(() => {
     const arr = [...reviews]
-    if (sortKey === '추천순') return arr.sort((a, b) => b.likes - a.likes)
-    return arr.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    if (sortKey === '추천순') return arr.sort((a, b) => (b.like_num || b.likes || 0) - (a.like_num || a.likes || 0))
+    return arr.sort((a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt))
   }, [reviews, sortKey])
+
+  useEffect(() => {
+    let aborted = false
+    const load = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const data = await getWikiDetail({ place_id: id })
+        if (aborted) return
+        const sd = data?.search_detail || {}
+        setPlace({
+          id,
+          name: sd.place_name || '',
+          address: sd.address || '',
+          images: sd.place_photos || [],
+          stars: data?.average_review_score || null,
+          hours: Array.isArray(sd.running_time) ? sd.running_time.join(', ') : '',
+          phone: sd.phone_number || '',
+          summary: data?.ai_summary || '',
+        })
+        setAverageScore(data?.average_review_score ?? null)
+        setReviews((data?.reviews_content || []).map(r => ({
+          id: r.id,
+          text: r.review_content,
+          likes: r.like_num,
+          like_num: r.like_num,
+          createdAt: r.created_at,
+          created_at: r.created_at,
+        })))
+      } catch (e) {
+        if (!aborted) setError(e)
+      } finally {
+        if (!aborted) setLoading(false)
+      }
+    }
+    load()
+    return () => { aborted = true }
+  }, [id])
 
   // 신고 모달 상태
   const [reportOpen, setReportOpen] = useState(false)
@@ -109,8 +130,8 @@ export default function WikiDetail() {
         />
 
       <Header>
-        <Title>{place.name}</Title>
-        <Addr>{place.address}</Addr>
+        <Title>{place.name || '...'}</Title>
+        <Addr>{place.address || ''}</Addr>
         <Gallery>
           {place.images.map((src, i) => (
             <Img key={i} src={src} alt={`${place.name}-${i + 1}`} />
@@ -158,20 +179,20 @@ export default function WikiDetail() {
 
 <Section>
   <SecTitle><Dot /><TitleText>위키 별점</TitleText></SecTitle>
-  <Stars>★★★☆☆</Stars>
+  <Stars>{averageScore ? `★ ${averageScore.toFixed(1)}` : '평가 없음'}</Stars>
 </Section>
 
 <Section>
   <SecTitle><Dot /><TitleText>AI 요약</TitleText></SecTitle>
-  <Summary>{place.summary}</Summary>
+  <Summary>{place.summary || '요약 정보가 없습니다.'}</Summary>
 </Section>
 
 <Section>
   <SecTitle><Dot /><TitleText>기본 정보</TitleText></SecTitle>
   <Info>
-    <div>위치: {place.address}</div>
-    <div>영업 시간: {place.hours}</div>
-    <div>전화번호: {place.phone}</div>
+    <div>위치: {place.address || '-'}</div>
+    <div>영업 시간: {place.hours || '-'}</div>
+    <div>전화번호: {place.phone || '-'}</div>
   </Info>
 </Section>
 
@@ -201,7 +222,7 @@ export default function WikiDetail() {
                       <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.59C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill={r.liked ? '#E35A5A' : 'none'} stroke="#9AA0A6" strokeWidth="1.6"/>
                     </svg>
                   </HeartBtn>
-                  <LikeCount>{r.likes}</LikeCount>
+                  <LikeCount>{r.like_num ?? r.likes}</LikeCount>
                   <WarnBtn type="button" aria-label="신고" onClick={() => { setReportTarget(r.id); setReportOpen(true) }}>
                     <img src={warningIcon} alt="신고" />
                   </WarnBtn>
