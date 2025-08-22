@@ -111,27 +111,38 @@ const useLoadSavedPlace = () => {
             }
 
             // 3. 서버에 저장 요청
+            const googlePlaceId = place.id || place.google_place_id || place.place_id;
+            console.log('🔍 저장할 Google Place ID:', {
+                place_id: place.id,
+                google_place_id: place.google_place_id,
+                place_id_field: place.place_id,
+                선택된_ID: googlePlaceId
+            });
+            
             if (!googlePlaceId) {
-                throw new Error('Google Place ID가 없습니다.');
+                console.error('❌ Google Place ID를 찾을 수 없습니다:', place);
+                showToast('장소 ID가 없어 저장할 수 없습니다.');
+                return;
             }
 
             console.log('💾 서버에 장소 저장 요청...');
             const serverResponse = await savePlaceToServer(googlePlaceId);
             
-            if (serverResponse && serverResponse.data) {
-                // 서버에서 받은 풍부한 데이터 사용
+            if (serverResponse) {
+                // 서버에서 받은 데이터로 장소 객체 생성
                 const serverPlace = {
-                    ...serverResponse.data,
+                    ...place, // 원본 장소 데이터 유지
+                    ...serverResponse, // 서버 응답 데이터로 덮어쓰기
                     id: googlePlaceId, // Google Place ID 유지
                     place_id: googlePlaceId,
                     isEnabled: savedPlaces.length < 10 // 상위 10개는 활성화
                 };
 
-                console.log('✅ 서버 저장 성공, 로컬 상태 업데이트');
+                console.log('✅ 서버 저장 성공, 로컬 상태 업데이트:', serverPlace);
                 setSavedPlaces(prev => [...prev, serverPlace]);
                 showToast('장소가 저장되었습니다.');
             } else {
-                throw new Error('서버 응답에 데이터가 없습니다.');
+                throw new Error('서버 응답이 없습니다.');
             }
             
         } catch (error) {

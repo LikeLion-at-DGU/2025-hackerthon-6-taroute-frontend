@@ -69,19 +69,30 @@ export default function RecommendPlace() {
 
                 if (response && response.data) {
                     console.log('API 응답 data 객체:', response.data);
-                    // 카테고리별로 분류된 데이터를 하나의 배열로 합치기
-                    const categories = ['문화시설', '관광명소', '음식점', '카페'];
-                    categories.forEach(category => {
-                        if (response.data[category] && Array.isArray(response.data[category])) {
-                            console.log(`${category} 카테고리:`, response.data[category]);
-                            // 각 장소에 카테고리 정보 추가
-                            const categoryPlaces = response.data[category].map(place => ({
-                                ...place,
-                                category: getCategoryType(category)
-                            }));
-                            places = places.concat(categoryPlaces);
-                        }
-                    });
+                    
+                    // response.data가 배열인 경우 (category_group_code 없이 호출될 때)
+                    if (Array.isArray(response.data)) {
+                        console.log('API 응답이 배열 형태:', response.data);
+                        places = response.data.map(place => ({
+                            ...place,
+                            // API에서 이미 category 정보가 있으므로 그대로 사용
+                            category: getCategoryType(place.category) || 'restaurant'
+                        }));
+                    } else {
+                        // 카테고리별로 분류된 데이터를 하나의 배열로 합치기 (기존 로직 유지)
+                        const categories = ['문화시설', '관광명소', '음식점', '카페'];
+                        categories.forEach(category => {
+                            if (response.data[category] && Array.isArray(response.data[category])) {
+                                console.log(`${category} 카테고리:`, response.data[category]);
+                                // 각 장소에 카테고리 정보 추가
+                                const categoryPlaces = response.data[category].map(place => ({
+                                    ...place,
+                                    category: getCategoryType(category)
+                                }));
+                                places = places.concat(categoryPlaces);
+                            }
+                        });
+                    }
                 } else {
                     // 기존 구조 대응 (google_place 배열)
                     places = Array.isArray(response.google_place) ? response.google_place :
