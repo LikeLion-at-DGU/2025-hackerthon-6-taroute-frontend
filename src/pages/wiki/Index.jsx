@@ -8,24 +8,12 @@ import useSheetDrag from '../../hooks/common/useSheetDrag.js'
 import rotateLeft from '../../assets/icons/rotateLeft.svg'
 import timeIcon from '../../assets/icons/time.svg'
 import { useState, useEffect } from 'react'
+import { getRecentWiki, getTopLikedWiki } from '../../apis/wikiApi.js'
 
 export default function WikiIndex() {
   const navigate = useNavigate()
-
-  const recent = [
-    { id: 1, title: '서브웨이', ago: '2분 전' },
-    { id: 2, title: '카페', ago: '6분 전' },
-    { id: 3, title: '서브웨이', ago: '10분 전' },
-    { id: 4, title: '서브웨이', ago: '48분 전' },
-    { id: 5, title: '서브웨이', ago: '55분 전' },
-  ]
-
-  const hot = [
-    { id: 11, place: '동국대학교 상록원', title: '여기 진짜 맛있어서 저만 알고 싶어요', likes: 13 },
-    { id: 12, place: '명동', title: '여기 진짜 분위기도 좋고… 서비스도 좋고,,, 맛도 있고,,,', likes: 9 },
-    { id: 13, title: '집 가고 싶고, 집인데 집 가고 싶고,,, 진짜 너무 어렵고,,', likes: 14 },
-    { id: 14, title: '한 번 힘을 내볼까요', likes: 2 },
-  ]
+  const [recent, setRecent] = useState([])
+  const [hot, setHot] = useState([])
 
   const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 812
   const expandedTop = 102
@@ -48,6 +36,25 @@ export default function WikiIndex() {
     updateStamp()
     const t = setInterval(updateStamp, 60000)
     return () => clearInterval(t)
+  }, [])
+
+  useEffect(() => {
+    let aborted = false
+    ;(async () => {
+      try {
+        const [r, h] = await Promise.all([
+          getRecentWiki(),
+          getTopLikedWiki(),
+        ])
+        if (!aborted) {
+          setRecent(r)
+          setHot(h)
+        }
+      } catch (e) {
+        console.error('Failed to load wiki index data', e)
+      }
+    })()
+    return () => { aborted = true }
   }, [])
 
   return (
@@ -114,10 +121,10 @@ export default function WikiIndex() {
 
           <RecentList>
             {recent.map((r, i) => (
-              <RecentRow key={r.id}>
+              <RecentRow key={`${r.place_name}-${i}`}>
                 <IndexBadge>{i + 1}</IndexBadge>
-                <RowTitle>{r.title}</RowTitle>
-                <RightText>{r.ago}</RightText>
+                <RowTitle>{r.place_name}</RowTitle>
+                <RightText>{r.time_text}</RightText>
               </RecentRow>
             ))}
           </RecentList>
@@ -128,18 +135,18 @@ export default function WikiIndex() {
             <TitleText>현재 핫한 게시판</TitleText>
           </TitleRow>
           <HotList>
-            {hot.map(item => (
-              <HotRow key={item.id}>
+            {hot.map((item, idx) => (
+              <HotRow key={item.id ?? idx}>
                 <HotLeft>
                   <HotPlaceLine>
                     <PlaceDot />
-                    <HotPlace>{item.place}</HotPlace>
+                    <HotPlace>{item.place_name}</HotPlace>
                   </HotPlaceLine>
-                  <HotTitle>{item.title}</HotTitle>
+                  <HotTitle>{item.review_content}</HotTitle>
                 </HotLeft>
                 <HotRight>
                   <LikeIcon src={heart} alt="좋아요" />
-                  <LikeCount>{item.likes}</LikeCount>
+                  <LikeCount>{item.like_num}</LikeCount>
                   <WarnIcon src={warning} alt="신고" />
                 </HotRight>
               </HotRow>

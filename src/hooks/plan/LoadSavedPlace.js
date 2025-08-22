@@ -78,12 +78,15 @@ const useLoadSavedPlace = () => {
             모든키목록: Object.keys(place || {})
         });
 
+        // try/catch 밖에서 선언해 catch에서도 접근 가능하도록 처리
+        const googlePlaceId = place?.id || place?.place_id;
+
         try {
             // 1. 먼저 로컬 상태에서 중복 체크
             const isAlreadyExists = savedPlaces.some(p => {
                 // ID가 있으면 ID로 매칭
-                if (p.id && place.id) {
-                    return p.id === place.id;
+                if (p.id && (place.id || place.place_id)) {
+                    return p.id === (place.id || place.place_id);
                 }
                 
                 // ID가 없으면 이름과 주소로 매칭
@@ -108,7 +111,6 @@ const useLoadSavedPlace = () => {
             }
 
             // 3. 서버에 저장 요청
-            const googlePlaceId = place.id;
             if (!googlePlaceId) {
                 throw new Error('Google Place ID가 없습니다.');
             }
@@ -134,7 +136,26 @@ const useLoadSavedPlace = () => {
             
         } catch (error) {
             console.error('❌ 장소 저장 실패:', error);
-            showToast('장소 저장에 실패했습니다.');
+            const isNetworkError = error?.code === 'ERR_NETWORK' || error?.message === 'Network Error';
+            if (isNetworkError) {
+                // 네트워크 오류 시 로컬 컨텍스트에 임시 저장 (오프라인 모드)
+                const localPlace = {
+                    id: googlePlaceId,
+                    place_id: googlePlaceId,
+                    place_name: place.place_name || place.name,
+                    name: place.name || place.place_name,
+                    address: place.address || place.address_name || place.location,
+                    address_name: place.address || place.address_name || place.location,
+                    location: place.location || place.address || place.address_name,
+                    place_photos: Array.isArray(place.place_photos) ? place.place_photos : [],
+                    running_time: Array.isArray(place.running_time) ? place.running_time : [],
+                    isEnabled: savedPlaces.length < 10
+                };
+                setSavedPlaces(prev => [...prev, localPlace]);
+                showToast('네트워크 문제로 임시 저장했어요. 나중에 다시 동기화됩니다.');
+            } else {
+                showToast('장소 저장에 실패했습니다.');
+            }
         }
     };
 

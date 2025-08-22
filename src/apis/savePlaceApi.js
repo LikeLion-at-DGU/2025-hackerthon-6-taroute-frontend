@@ -12,40 +12,24 @@ export const savePlaceToServer = async (googlePlaceId) => {
     }
 
     try {
-        console.log('🚀 장소 저장 API 호출 시작:', {
-            googlePlaceId,
-            url: `${instance.defaults.baseURL}/places/save_place`
-        });
+        const existingSessionKey = getSessionKey();
+        // place_id는 디코딩된 원본을 전송
+        let decodedId = googlePlaceId;
+        try { decodedId = decodeURIComponent(googlePlaceId); } catch {}
 
         const res = await instance.get("/places/save_place", {
-            params: { place_id: googlePlaceId }
+            params: {
+                place_id: decodedId,
+                ...(existingSessionKey ? { session_key: existingSessionKey } : {})
+            }
         });
 
-        const responseData = res.data; // axios 응답의 실제 데이터
-        const dataPayload = responseData.data; // 'data' 키 아래의 데이터
-        const sessionKey = responseData.session_key; // 최상위 session_key
+        // 서버 응답 그대로 반환하되 .data 키를 유지 (호출측 호환)
+        const responseData = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+        const sessionKey = responseData?.session_key;
+        if (sessionKey) saveSessionKey(sessionKey);
 
-        console.log('📋 받아온 장소 데이터 상세:', {
-            place_name: dataPayload?.place_name,
-            address: dataPayload?.address,
-            location: dataPayload?.location,
-            running_time: dataPayload?.running_time,
-            place_photos_count: dataPayload?.place_photos?.length || 0,
-            place_photos_urls: dataPayload?.place_photos,
-            session_key: sessionKey, // 최상위 세션키를 사용
-            message: responseData?.message,
-            전체응답구조: Object.keys(responseData || {})
-        });
-
-        if (sessionKey) {
-            saveSessionKey(sessionKey);
-            console.log('🔑 세션 키 저장됨:', sessionKey);
-        } else {
-            console.log('⚠️ 응답에 세션키가 없음 - 값:', sessionKey, '타입:', typeof sessionKey);
-        }
-
-        return dataPayload; // 필요한 경우 data 내부의 페이로드만 반환
-        
+        return responseData; // { data: {...}, message, session_key }
     } catch (err) {
         console.error("❌ 장소 저장 실패:", {
             googlePlaceId: googlePlaceId,

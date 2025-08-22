@@ -1,9 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import PageNavbar from '../../components/common/PageNavbar.jsx'
 import SearchBar from '../../components/common/SearchBar.jsx'
 import PrimaryButton from '../../components/common/PrimaryButton.jsx'
+import { getWikiDetail, postWikiReview } from '../../apis/wikiApi.js'
+import { showToast } from '../../hooks/common/toast.js'
 
 
 export default function WikiReviewWrite() {
@@ -14,14 +16,87 @@ export default function WikiReviewWrite() {
   const [rating, setRating] = useState(0)
   const [text, setText] = useState('')
   const [files, setFiles] = useState([])
+  const [previews, setPreviews] = useState([])
+  const [submitting, setSubmitting] = useState(false)
   const [searchKeyword, setSearchKeyword] = useState('')
-  const placeName = '고냉지'
-  const address = '서울시 중구 퇴계로'
+  const [placeName, setPlaceName] = useState('')
+  const [address, setAddress] = useState('')
+  const [placeLoading, setPlaceLoading] = useState(true)
 
 
   const onPickFiles = (e) => {
     const list = Array.from(e.target.files || [])
     setFiles(list)
+  }
+
+  // Generate previews when files change
+  useEffect(() => {
+    const urls = files.map(f => URL.createObjectURL(f))
+    setPreviews(urls)
+    return () => {
+      urls.forEach(u => URL.revokeObjectURL(u))
+    }
+  }, [files])
+
+  useEffect(() => {
+    let aborted = false
+    const load = async () => {
+      try {
+        const data = await getWikiDetail({ place_id: id })
+        if (aborted) return
+        setPlaceName(data?.search_detail?.place_name || '')
+        setAddress(data?.search_detail?.address || '')
+      } catch (e) {
+        // ignore
+      } finally {
+        if (!aborted) setPlaceLoading(false)
+      }
+    }
+    load()
+    return () => { aborted = true }
+  }, [id])
+
+  const onSubmitReview = async () => {
+    if (!agreeTruth || !confirmPlace) {
+      showToast('체크리스트를 확인해주세요')
+      return
+    }
+    if (rating <= 0) {
+      showToast('별점을 선택해주세요')
+      return
+    }
+    if (!text.trim()) {
+      showToast('내용을 입력해주세요')
+      return
+    }
+    if (!placeName || !id) {
+      showToast('장소 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요')
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      const rawId = (() => { try { return decodeURIComponent(id) } catch { return id } })()
+      const score = Math.max(0, Math.min(5, rating))
+      const body = {
+        place_id: rawId,
+        gplace_id: rawId,
+        place_name: placeName || undefined,
+        review_content: text.trim(),
+        review_score: score.toFixed(1), // 서버는 문자열 기대
+      }
+      // 이미지 미구현: 서버가 빈 문자열을 싫어할 수 있어 아예 필드 제외
+      await postWikiReview(body)
+      showToast('작성 완료!')
+      navigate(`/wiki/place/${id}`)
+    } catch (e) {
+      // 서버 에러 메시지가 있으면 표시
+      const msg = e?.response?.data?.message || e?.response?.data?.detail || '작성에 실패했어요'
+      showToast(msg)
+      console.error('POST /wiki/reviews failed:', e?.response || e)
+    } finally {
+      setSubmitting(false)
+    }
   }
   return (
     <Wrap>
@@ -98,14 +173,27 @@ export default function WikiReviewWrite() {
 
         <UploadWrap>
           <UploadBox>
-            <UploadIcon>⇪</UploadIcon>
-            <UploadText>사진을 업로드해주세요</UploadText>
+            {previews.length === 0 ? (
+              <>
+                <UploadIcon>⇪</UploadIcon>
+                <UploadText>사진을 업로드해주세요</UploadText>
+              </>
+            ) : (
+              <PreviewGrid>
+                {previews.slice(0, 3).map((src, i) => (
+                  <PreviewImg key={i} src={src} alt={`preview-${i}`} />
+                ))}
+                {previews.length > 3 && (
+                  <MoreBadge>+{previews.length - 3}</MoreBadge>
+                )}
+              </PreviewGrid>
+            )}
             <HiddenInput type="file" accept="image/*" multiple onChange={onPickFiles} />
           </UploadBox>
         </UploadWrap>
       </Content>
 
-      <PrimaryButton fixedBottom onClick={() => { /* TODO: submit */ }}>
+      <PrimaryButton fixedBottom onClick={onSubmitReview} disabled={submitting || placeLoading}>
         게시판 작성
       </PrimaryButton>
     </Wrap>
@@ -190,6 +278,16 @@ const UploadBox = styled.label`
 const UploadIcon = styled.div`font-size: 36px; color: #FFC500;`
 const UploadText = styled.div`color: #6B7280; margin-top: 6px;`
 const HiddenInput = styled.input`display:none;`
+
+const PreviewGrid = styled.div`
+  width: 100%; height: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 10px;
+`
+const PreviewImg = styled.img`
+  width: 100%; height: 100%; object-fit: cover; border-radius: 8px;
+`
+const MoreBadge = styled.div`
+  position: absolute; right: 16px; bottom: 16px; background: rgba(0,0,0,0.6); color: #fff; padding: 6px 10px; border-radius: 999px; font-size: 12px;
+`
 
 
 const HeadingBox = styled.div`
