@@ -18,10 +18,7 @@ export const savePlaceToServer = async (googlePlaceId) => {
         try { decodedId = decodeURIComponent(googlePlaceId); } catch {}
 
         const res = await instance.get("/places/save_place", {
-            params: {
-                place_id: decodedId,
-                ...(existingSessionKey ? { session_key: existingSessionKey } : {})
-            }
+            params: { place_id: googlePlaceId }
         });
 
         console.log('🔥응답 전체:', res);

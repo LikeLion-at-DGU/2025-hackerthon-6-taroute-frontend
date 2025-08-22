@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCar } from "@fortawesome/free-solid-svg-icons";
 import { faTrainSubway } from "@fortawesome/free-solid-svg-icons";
@@ -16,8 +16,8 @@ const Container = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 20px;
-    position: relative;
+    margin-top: 95px;
+    position: absolute;
 `;
 
 const NavigationButton = styled.button`
@@ -207,7 +207,7 @@ const Steps = styled.div`
     display: flex;
 `;
 
-const RouteBox = () => {
+const RouteBox = ({ onRouteChange, routeInfo }) => {
     const [selectedTransport, setSelectedTransport] = useState('walk');
     const [currentRouteIndex, setCurrentRouteIndex] = useState(0);
     const [routeData, setRouteData] = useState(null);
@@ -215,21 +215,35 @@ const RouteBox = () => {
     const { savedPlaces } = useSavedPlaceContext();
 
     // 활성화된 장소들만 필터링
-    const enabledPlaces = savedPlaces.filter(place => place.isEnabled !== false);
+    const enabledPlaces = useMemo(() => {
+        return savedPlaces.filter(place => place.isEnabled !== false);
+    }, [savedPlaces]);
 
     // 루트 쌍 생성 (1->2, 2->3, 3->4 등)
-    const routes = [];
-    for (let i = 0; i < enabledPlaces.length - 1; i++) {
-        routes.push({
-            origin: enabledPlaces[i],
-            destination: enabledPlaces[i + 1],
-            originIndex: i + 1,
-            destinationIndex: i + 2
-        });
-    }
+    const routes = useMemo(() => {
+        const routeArray = [];
+        for (let i = 0; i < enabledPlaces.length - 1; i++) {
+            routeArray.push({
+                origin: enabledPlaces[i],
+                destination: enabledPlaces[i + 1],
+                originIndex: i + 1,
+                destinationIndex: i + 2
+            });
+        }
+        return routeArray;
+    }, [enabledPlaces]);
 
     // 현재 보여줄 루트
-    const currentRoute = routes[currentRouteIndex];
+    const currentRoute = useMemo(() => {
+        return routes[currentRouteIndex] || null;
+    }, [routes, currentRouteIndex]);
+
+    // 루트 변경시 부모 컴포넌트에 알림
+    useEffect(() => {
+        if (onRouteChange && currentRoute) {
+            onRouteChange(currentRoute);
+        }
+    }, [currentRoute]); // onRouteChange 제거
 
     // API 호출 함수
     const fetchRouteData = useCallback(async (route, transport) => {
@@ -349,16 +363,15 @@ const RouteBox = () => {
         console.log('🔄 useEffect 호출:', {
             selectedTransport: selectedTransport,
             currentRouteIndex: currentRouteIndex,
-            shouldCallAPI: selectedTransport === 'car' && currentRouteIndex < routes.length
+            shouldCallAPI: selectedTransport === 'car' && currentRoute
         });
         
-        if (selectedTransport === 'car' && currentRouteIndex < routes.length) {
-            const route = routes[currentRouteIndex];
-            fetchRouteData(route, 'car');
+        if (selectedTransport === 'car' && currentRoute) {
+            fetchRouteData(currentRoute, 'car');
         } else {
             setRouteData(null);
         }
-    }, [currentRouteIndex, selectedTransport, fetchRouteData]); // fetchRouteData 추가
+    }, [currentRouteIndex, selectedTransport, currentRoute, fetchRouteData]);
 
     const goToPreviousRoute = () => {
         setCurrentRouteIndex(prev => Math.max(0, prev - 1));
@@ -368,16 +381,6 @@ const RouteBox = () => {
         setCurrentRouteIndex(prev => Math.min(routes.length - 1, prev + 1));
     };
 
-    // 렌더링 상태 디버깅
-    console.log('🎨 RouteBox 렌더링:', {
-        selectedTransport: selectedTransport,
-        isLoading: isLoading,
-        hasRouteData: !!routeData,
-        routeData: routeData,
-        routeDataKeys: routeData ? Object.keys(routeData) : null,
-        currentRoute: currentRoute,
-        routesLength: routes.length
-    });
 
     // 루트가 없으면 기본 메시지 표시
     if (routes.length === 0) {
@@ -450,6 +453,14 @@ const RouteBox = () => {
                     <InfoBox>
                         {isLoading ? (
                             <div>로딩 중...</div>
+                        ) : selectedTransport === 'car' && routeInfo ? (
+                            <>
+                                <Time><p>{routeInfo.duration}</p>분</Time>
+                                <p style={{fontWeight:'500'}}>|</p>
+                                <Distance>{routeInfo.distance}km</Distance>
+                                <p style={{fontWeight:'500'}}>|</p>
+                                <Steps>{routeInfo.taxiFare?.toLocaleString()}원</Steps>
+                            </>
                         ) : selectedTransport === 'car' && routeData?.car_routes?.[0] ? (
                             <>
                                 <Time><p>{routeData.car_routes[0].car_duration.replace('분', '')}</p>분</Time>
