@@ -12,14 +12,18 @@ export const savePlaceToServer = async (googlePlaceId) => {
     }
 
     try {
-        console.log('🚀 장소 저장 API 호출 시작:', {
-            googlePlaceId,
-            url: `${instance.defaults.baseURL}/places/save_place`
-        });
+        const existingSessionKey = getSessionKey();
+        // place_id는 디코딩된 원본을 전송
+        let decodedId = googlePlaceId;
+        try { decodedId = decodeURIComponent(googlePlaceId); } catch {}
 
         const res = await instance.get("/places/save_place", {
-            params: { place_id: googlePlaceId }
+            params: {
+                place_id: decodedId,
+                ...(existingSessionKey ? { session_key: existingSessionKey } : {})
+            }
         });
+
 
         console.log('🔥응답 전체:', res);
         console.log('🔥응답 헤더:', res.headers);
