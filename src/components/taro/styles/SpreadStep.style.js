@@ -4,8 +4,8 @@ import bgImage from '../../../assets/images/bg_3.jpg'
 export const Wrapper = styled.div`
   position: relative;
   width: 100%;
-  height: 100%;
-  min-height: 100vh;
+  height: 812px;
+  min-height: 812px;
   display: flex;
   flex-direction: column;
   align-items: center;

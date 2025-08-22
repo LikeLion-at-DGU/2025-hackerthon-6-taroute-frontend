@@ -201,6 +201,7 @@ function ResultStep({ prev, goTo }) {
 
       <PrimaryButton
         fixedBottom
+        bottomOffset="50px"
         onClick={() => navigate('/plan')}
         zIndex={1200}
       >

@@ -22,7 +22,7 @@ export const TaruMascot = styled(CommonTaruMascot)`
 // QuestionStep 전용 스타일
 export const QuestionBox = styled.div`
   position: absolute;
-    top: 20%;
+    top: 13%;
     left: 16px;
     right: 16px;
     background: rgba(55, 35, 80, 0.95);
@@ -39,7 +39,7 @@ export const QuestionTitle = styled.div`
   font-family: MaruBuriOTF;
   font-size: 14px;
   font-weight: 700;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   opacity: 0.9;
 
   color: var(--color-neutral-whitegray, #F0F0F0);
@@ -53,13 +53,14 @@ export const QuestionTitle = styled.div`
 export const QuestionText = styled.div`
 
 
-  color: var(--color-neutral-white, #FFF);
+color: var(--color-neutral-white, #FFF);
 font-family: MaruBuriOTF;
 font-size: 17px;
 font-style: normal;
 font-weight: 600;
 line-height: 28px; /* 164.706% */
 letter-spacing: -0.5px;
+margin-bottom: 15px;
 `
 
 export const Options = styled.div`
@@ -74,7 +75,7 @@ line-height: 17px; /* 100% */
 letter-spacing: -0.5px;
   left: 16px;
   right: 16px;
-  top: 38%;
+  top: 26%;
   display: flex;
   flex-direction: column;
   gap: 28px;
