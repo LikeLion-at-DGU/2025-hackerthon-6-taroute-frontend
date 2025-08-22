@@ -30,7 +30,7 @@ export const CommonOverlay = styled.div`
 // 공통 타로 마스코트
 export const CommonTaruMascot = styled.img`
   position: absolute;
-  top: 53%;
+  top: 31%;
   left: 60%;
   transform: rotate(2.781deg);
   width: 147px;
@@ -89,7 +89,7 @@ export const CommonBubbleHeader = styled.div`
 // 공통 말풍선 컨텐츠
 export const CommonBubbleContent = styled.div`
   position: absolute;
-  bottom: 0px;
+  bottom: 595px;
   width: 375px;
   height: 205px;
   flex-shrink: 0;
