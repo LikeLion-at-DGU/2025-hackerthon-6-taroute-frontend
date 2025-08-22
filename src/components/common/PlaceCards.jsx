@@ -228,8 +228,16 @@ const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
       // 찜 해제
       removePlace(place);
     } else {
-      // 찜하기 - Google Place ID를 addPlace에 전달하면 자동으로 서버 저장 처리
-      const googlePlaceId = place.id;
+      // 찜하기 - Google Place ID 찾기 (여러 가능한 필드명 확인)
+      const googlePlaceId = place.google_place_id || place.place_id || place.id;
+      
+      console.log('🔍 Google Place ID 찾기:', {
+        google_place_id: place.google_place_id,
+        place_id: place.place_id,
+        id: place.id,
+        선택된_ID: googlePlaceId,
+        전체_장소_데이터: place
+      });
       
       if (!googlePlaceId) {
         console.error('❌ Google Place ID가 없어서 저장할 수 없습니다:', place);
@@ -242,8 +250,14 @@ const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
           originalPlace: place
         });
         
+        // Google Place ID를 가진 장소 객체 생성
+        const placeToSave = {
+          ...place,
+          id: googlePlaceId // Google Place ID를 id로 설정
+        };
+        
         // addPlace 함수가 자동으로 서버 저장 및 로컬 상태 업데이트 처리
-        await addPlace(place);
+        await addPlace(placeToSave);
         
       } catch (error) {
         console.error('❌ 장소 저장 실패:', error);

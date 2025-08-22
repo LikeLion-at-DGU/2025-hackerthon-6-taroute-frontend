@@ -22,10 +22,9 @@ const CATEGORY_GROUP_CODES = {
 const SelectCategory = () => {
   const [activeCat, setActiveCat] = useState("restaurant"); // 기본: 식당
   const [places, setPlaces] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // 기본적으로 로딩 상태로 시작
   const [userLocation, setUserLocation] = useState(null);
   const [error, setError] = useState(null);
-  const [allPlacesData, setAllPlacesData] = useState(null); // 전체 데이터 캐싱
   const navigate = useNavigate();
 
   // 사용자 위치 정보 가져오기
@@ -33,7 +32,6 @@ const SelectCategory = () => {
     const getUserLocation = () => {
       if (!navigator.geolocation) {
         setError('위치 서비스를 지원하지 않습니다');
-        setLoading(false);
         return;
       }
 
@@ -56,7 +54,6 @@ const SelectCategory = () => {
         (error) => {
           console.error('❌ 위치 정보 가져오기 실패:', error);
           setError('위치 정보를 가져올 수 없습니다');
-          setLoading(false);
         },
         options
       );
@@ -65,48 +62,52 @@ const SelectCategory = () => {
     getUserLocation();
   }, []);
 
-  // 추천 장소 데이터 로드 (한 번만 호출)
-  const loadAllRecommendPlaces = async () => {
+  // 특정 카테고리의 추천 장소 로드
+  const loadCategoryPlaces = async (category) => {
     if (!userLocation) return;
 
     try {
       setLoading(true);
       setError(null);
       
-      console.log('🔍 모든 추천 장소 API 호출:', {
-        x: userLocation.longitude,
-        y: userLocation.latitude
-      });
-
+      const categoryCode = CATEGORY_GROUP_CODES[category];
+      const categoryLabel = LABELS[category];
+      
+      console.log(`🔍 ${categoryLabel} 카테고리 추천 장소 API 호출 시작 (코드: ${categoryCode})`);
+      
       const response = await getRecommend({
         x: userLocation.longitude,
-        y: userLocation.latitude
-        // category_group_code 제거 - 모든 카테고리 데이터를 받아옴
+        y: userLocation.latitude,
+        category_group_code: categoryCode
       });
-
-      console.log('✅ 추천 장소 API 응답:', response);
       
-      if (response && response.data && typeof response.data === 'object') {
-        setAllPlacesData(response.data);
-        
-        // 현재 선택된 카테고리의 데이터로 places 설정
-        const categoryLabel = LABELS[activeCat];
-        const categoryPlaces = response.data[categoryLabel] || [];
-        const limitedPlaces = categoryPlaces.slice(0, 4);
-        setPlaces(limitedPlaces);
-        
-        console.log('📋 전체 데이터 로드 완료:', response.data);
-      } else {
-        throw new Error('API 응답 형식이 올바르지 않습니다');
-      }
+      console.log(`📋 ${categoryLabel} API 응답:`, response);
+      
+      // 응답 데이터 처리
+      const places = Array.isArray(response.data) ? response.data : 
+                    Array.isArray(response) ? response : [];
+      
+      const processedPlaces = places.map((place, index) => ({
+        ...place,
+        id: `${categoryLabel}-${place.place_name || place.name}-${index}`,
+        google_place_id: place.google_place_id || place.place_id || place.id,
+        category: categoryLabel // API 응답에 category 필드 추가
+      }));
+      
+      // 최대 4개까지만 표시
+      const limitedPlaces = processedPlaces.slice(0, 4);
+      setPlaces(limitedPlaces);
+      
+      console.log(`✅ ${categoryLabel} 장소 ${limitedPlaces.length}개 로드 완료`);
+      console.log(`🏷️ 로드된 장소들의 카테고리:`, limitedPlaces.map(p => ({ name: p.place_name, category: p.category })));
       
     } catch (error) {
-      console.error(`❌ 추천 장소 로딩 실패:`, error);
-      setError('추천 장소를 불러올 수 없습니다');
+      console.error(`❌ ${LABELS[category]} 추천 장소 로딩 실패:`, error);
+      setError(`${LABELS[category]} 추천 장소를 불러올 수 없습니다`);
       
       // 에러 발생 시 더미 데이터로 폴백
-      const fallbackPlaces = filterByCategory(DUMMY_PLACES, activeCat).slice(0, 4);
-      console.log(`🔄 폴백 더미 데이터 사용:`, fallbackPlaces);
+      const fallbackPlaces = filterByCategory(DUMMY_PLACES, category).slice(0, 4);
+      console.log(`🔄 ${LABELS[category]} 폴백 더미 데이터 사용:`, fallbackPlaces);
       setPlaces(fallbackPlaces);
       
     } finally {
@@ -114,40 +115,22 @@ const SelectCategory = () => {
     }
   };
 
-  // 캐싱된 데이터에서 카테고리별 장소 추출
-  const updatePlacesFromCache = (category) => {
-    if (!allPlacesData) return;
-    
-    const categoryLabel = LABELS[category];
-    console.log(`🔍 카테고리 "${category}" -> 라벨 "${categoryLabel}"`);
-    console.log('📦 전체 데이터 키들:', Object.keys(allPlacesData));
-    
-    const categoryPlaces = allPlacesData[categoryLabel] || [];
-    const limitedPlaces = categoryPlaces.slice(0, 4);
-    
-    console.log(`📋 ${categoryLabel} 카테고리 장소 ${limitedPlaces.length}개:`, limitedPlaces);
-    setPlaces(limitedPlaces);
-  };
-
-  // 위치 정보가 있을 때 전체 데이터 로드 (한 번만)
+  // 위치 정보가 있을 때 기본 카테고리 로드
   useEffect(() => {
-    if (userLocation && !allPlacesData) {
-      loadAllRecommendPlaces();
+    if (userLocation) {
+      loadCategoryPlaces(activeCat);
     }
   }, [userLocation]);
-
-  // 카테고리 변경 시 캐싱된 데이터에서 업데이트
-  useEffect(() => {
-    if (allPlacesData) {
-      updatePlacesFromCache(activeCat);
-    }
-  }, [activeCat, allPlacesData]);
 
   // 카테고리 클릭 핸들러
   const handleCategoryClick = (category) => {
     setActiveCat(category);
     const label = LABELS[category];
     console.log(`🏷️ 카테고리 변경: ${label}`);
+    
+    if (userLocation) {
+      loadCategoryPlaces(category);
+    }
   };
 
   return (
