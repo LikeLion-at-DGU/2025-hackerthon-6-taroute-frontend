@@ -174,10 +174,16 @@ export default function RecommendPlace() {
                             address: place.address || "",
                             address_name: place.address || "",
                             location: place.location || null,
+                            x: place.x, // API 응답의 x 좌표 추가
+                            y: place.y, // API 응답의 y 좌표 추가
                             image: place.image || "",
                             place_photos: place.place_photos || [],
                             category: place.category || "restaurant",
                         }}
+                        userLocation={selectedLocation ? {
+                            latitude: selectedLocation.y,
+                            longitude: selectedLocation.x
+                        } : null}
                     />
                 ))}
             </CardsContainer>

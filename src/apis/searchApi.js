@@ -129,3 +129,15 @@ export const getRecommend = async ({ x, y } = {}) => {
         throw err;
     }
 };
+
+export const getTop10Keyword = async () => {
+    try {
+        const res = await instance.get("/places/top10_keyword", {
+            params: {},
+        });
+        return res.data;
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+};

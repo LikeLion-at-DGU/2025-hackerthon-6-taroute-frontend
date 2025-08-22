@@ -175,10 +175,16 @@ export default function SearchResults() {
                             address: place.address || "",
                             address_name: place.address || "",
                             location: place.location || null, // 좌표 객체를 그대로 전달
+                            x: place.x, // API 응답의 x 좌표 추가
+                            y: place.y, // API 응답의 y 좌표 추가
                             image: place.image || "", // 이미지가 없으면 기본 이미지 처리됨
                             place_photos: place.place_photos || [], // ✅ Google Places API 이미지 배열 추가!
                             category: place.category || "restaurant", // 기본값
                         }}
+                        userLocation={selectedLocation ? {
+                            latitude: selectedLocation.y,
+                            longitude: selectedLocation.x
+                        } : null}
                     />
                 ))}
             </ResultsContainer>

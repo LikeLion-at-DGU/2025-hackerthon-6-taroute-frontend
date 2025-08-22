@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import rotateLeft from "../../assets/icons/rotateLeft.svg";
+import { getTop10Keyword } from "../../apis/searchApi";
 
 
 const TrendChartContainer = styled.div`
@@ -40,16 +41,25 @@ const Ranking = styled.div`
     font-size: 13px;
     align-items: flex-start;
     width: 147px;
-    margin-left: 20px;
+`;
+
+const Keyword = styled.span`
+    color: #363636;
+    display: inline-block;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;
 
 
-const rankingList = [
-    "서브웨이", "홍콩반점", "스타벅스", "롯데리아", "이디야커피",
-    "CGV", "노랑통닭", "투썸플레이스", "파리바게뜨", "GS25"
-];
-
 const TrendChart = () => {
+    const [rankingList, setRankingList] = useState([
+        "서브웨이", "홍콩반점", "스타벅스", "롯데리아", "이디야커피",
+        "CGV", "노랑통닭", "투썸플레이스", "파리바게뜨", "GS25"
+    ]); // 기본값으로 더미 데이터 사용
+    const [loading, setLoading] = useState(true);
+
     const getFormattedDate = () => {
         const currentDate = new Date();
         const month = currentDate.getMonth() + 1;
@@ -61,8 +71,51 @@ const TrendChart = () => {
 
     const [formattedDate, setFormattedDate] = useState(getFormattedDate);
 
+    // Top 10 키워드 데이터 로드
+    const loadTop10Keywords = async () => {
+        try {
+            setLoading(true);
+            const response = await getTop10Keyword();
+            console.log('🔥 Top 10 키워드 API 응답:', response);
+            
+            // API 응답 구조에 맞게 데이터 추출
+            let keywords = [];
+            if (response && Array.isArray(response.top10_keywords)) {
+                keywords = response.top10_keywords;
+            } else if (response && Array.isArray(response.data)) {
+                keywords = response.data;
+            } else if (Array.isArray(response)) {
+                keywords = response;
+            }
+            
+            // 각 키워드가 객체인 경우 place_name 값을 추출
+            const processedKeywords = keywords.map(keyword => {
+                if (typeof keyword === 'object' && keyword !== null) {
+                    return keyword.place_name || keyword.keyword || keyword.name || String(keyword);
+                }
+                return String(keyword);
+            });
+            
+            console.log('🔥 처리된 키워드 목록:', processedKeywords);
+            setRankingList(processedKeywords);
+            
+            // 날짜도 함께 업데이트
+            setFormattedDate(getFormattedDate());
+        } catch (error) {
+            console.error('❌ Top 10 키워드 로딩 실패:', error);
+            // 에러 발생 시 기본 더미 데이터 유지
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // 컴포넌트 마운트 시 데이터 로드
+    useEffect(() => {
+        loadTop10Keywords();
+    }, []);
+
     const handleRefresh = () => {
-        setFormattedDate(getFormattedDate());
+        loadTop10Keywords(); // 새로고침 시 API 재호출
     };
 
     return (
@@ -72,27 +125,43 @@ const TrendChart = () => {
                 <img
                     src={rotateLeft}
                     alt="새로고침"
-                    style={{ cursor: "pointer" }}
+                    style={{ cursor: "pointer", opacity: loading ? 0.5 : 1 }}
                     onClick={handleRefresh}
                 />
             </Standard>
             <RankingContainer>
-                <Ranking>
-                    {rankingList.slice(0, 5).map((place, idx) => (
-                        <div key={place} style={{ display: 'flex', alignItems: 'center', gap: 15, marginBottom: 8 }}>
-                            <span style={{ fontWeight: 700, color: '#271932', width: 18 }}>{idx + 1}</span>
-                            <span style={{ color: '#363636' }}>{place}</span>
-                        </div>
-                    ))}
-                </Ranking>
-                <Ranking>
-                    {rankingList.slice(5, 10).map((place, idx) => (
-                        <div key={place} style={{ display: 'flex', alignItems: 'center', gap: 15, marginBottom: 8 }}>
-                            <span style={{ fontWeight: 700, color: '#271932', width: 18 }}>{idx + 6}</span>
-                            <span style={{ color: '#363636' }}>{place}</span>
-                        </div>
-                    ))}
-                </Ranking>
+                {loading ? (
+                    <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        alignItems: 'center', 
+                        width: '100%', 
+                        color: '#8A8A8A', 
+                        fontSize: '12px',
+                        height: '120px'
+                    }}>
+                        인기 키워드 로딩중...
+                    </div>
+                ) : (
+                    <>
+                        <Ranking>
+                            {rankingList.slice(0, 5).map((place, idx) => (
+                                <div key={`left-${idx}`} style={{ display: 'flex', alignItems: 'center', gap: 15, marginBottom: 8 }}>
+                                    <span style={{ fontWeight: 700, color: '#271932', width: 18 }}>{idx + 1}</span>
+                                    <Keyword title={place}>{place}</Keyword>
+                                </div>
+                            ))}
+                        </Ranking>
+                        <Ranking>
+                            {rankingList.slice(5, 10).map((place, idx) => (
+                                <div key={`right-${idx}`} style={{ display: 'flex', alignItems: 'center', gap: 15, marginBottom: 8 }}>
+                                    <span style={{ fontWeight: 700, color: '#271932', width: 18 }}>{idx + 6}</span>
+                                    <Keyword title={place}>{place}</Keyword>
+                                </div>
+                            ))}
+                        </Ranking>
+                    </>
+                )}
             </RankingContainer>
         </TrendChartContainer>
     );

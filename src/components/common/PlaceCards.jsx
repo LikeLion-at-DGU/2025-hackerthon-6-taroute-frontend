@@ -149,11 +149,14 @@ function useUserLocation() {
 
 /**
  * 단일 카드 컴포넌트 (개별 카드 UI만 담당)
- * @param {{ place: Place, isFavorited?: boolean }} props
+ * @param {{ place: Place, isFavorited?: boolean, userLocation?: Object }} props
  */
-const PlaceCard = ({ place, category }) => {
+const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
   const { savedPlaces, addPlace, removePlace } = useSavedPlaceContext();
-  const { userLocation, locationError } = useUserLocation();
+  const { userLocation: hookUserLocation, locationError } = useUserLocation();
+  
+  // props로 받은 위치 정보가 있으면 우선 사용, 없으면 훅에서 가져온 위치 사용
+  const userLocation = propUserLocation || hookUserLocation;
   
   // 각 카드마다 개별적으로 저장 상태 계산
   const isSaved = savedPlaces.some(savedPlace => {
@@ -175,15 +178,30 @@ const PlaceCard = ({ place, category }) => {
     // API 응답 구조에 맞게 위치 정보 추출
     if (place.location && typeof place.location === 'object') {
       // API에서 받은 location 객체의 경우
-      placeLat = place.location.latitude || place.location.lat;
-      placeLon = place.location.longitude || place.location.lng;
+      placeLat = place.location.latitude || place.location.lat || place.location.y;
+      placeLon = place.location.longitude || place.location.lng || place.location.x;
     } else if (place.geometry && place.geometry.location) {
       // Google Places API 형태의 경우
       placeLat = place.geometry.location.lat;
       placeLon = place.geometry.location.lng;
+    } else if (place.x && place.y) {
+      // API 응답에서 직접 x, y로 오는 경우
+      placeLat = parseFloat(place.y);
+      placeLon = parseFloat(place.x);
     }
     
+    console.log('🗺️ 위치 정보 디버깅:', {
+      place: place,
+      placeLat,
+      placeLon,
+      userLocation,
+      placeLocation: place.location,
+      placeX: place.x,
+      placeY: place.y
+    });
+    
     if (!placeLat || !placeLon) {
+      console.log('❌ 장소 위치 정보가 없습니다:', place);
       return '거리 정보 없음';
     }
     
