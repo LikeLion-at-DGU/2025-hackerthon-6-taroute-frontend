@@ -114,15 +114,22 @@ export const getLocationSearch = async (query) => {
  * @param {number} args.y - 위도(필수)
  * @returns {Promise<any>} - 서버에서 내려주는 추천 장소 데이터
  */
-export const getRecommend = async ({ x, y } = {}) => {
+export const getRecommend = async ({ x, y, category_group_code } = {}) => {
     if (typeof x !== "number" || typeof y !== "number") {
         throw new Error("x, y must be numbers (latitude/longitude)");
     }
 
     try {
-        const res = await instance.get("/places/recommend", {
-            params: { x, y, radius:2000 },
-        });
+        const params = { x, y, radius: 2000 };
+        
+        // category_group_code가 있을 때만 파라미터에 추가
+        if (category_group_code) {
+            params.category_group_code = category_group_code;
+        }
+        
+        console.log('🔍 추천 API 요청 파라미터:', params);
+        
+        const res = await instance.get("/places/recommend", { params });
         return res.data;
     } catch (err) {
         console.error(err);

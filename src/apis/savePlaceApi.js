@@ -21,6 +21,12 @@ export const savePlaceToServer = async (googlePlaceId) => {
             params: { place_id: googlePlaceId }
         });
 
+        console.log('🔥응답 전체:', res);
+        console.log('🔥응답 헤더:', res.headers);
+        console.log('🔥응답 데이터:', res.data);
+        console.log('🔥s응답 상태:', res.status);
+        console.log('응답 데이터 구조 전체:', JSON.stringify(res.data, null, 2));
+
         const responseData = res.data; // axios 응답의 실제 데이터
         const dataPayload = responseData.data; // 'data' 키 아래의 데이터
         const sessionKey = responseData.session_key; // 최상위 session_key
@@ -45,7 +51,7 @@ export const savePlaceToServer = async (googlePlaceId) => {
         }
 
         return dataPayload; // 필요한 경우 data 내부의 페이로드만 반환
-        
+
     } catch (err) {
         console.error("❌ 장소 저장 실패:", {
             googlePlaceId: googlePlaceId,
