@@ -142,7 +142,7 @@ function QuestionStep({ next, prev, goTo }) {
       </QuestionBox>
 
       <Options>
-        {getOptionsFor(qIdx).map((opt) => f(
+        {getOptionsFor(qIdx).map((opt) => (
           <OptionButton key={opt.key} onClick={() => handleSelect(opt.label)}>
             <span style={{opacity: 0.8}}>{opt.key}</span>
             <span>{opt.label}</span>
