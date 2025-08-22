@@ -12,12 +12,12 @@ import { showToast } from '../../hooks/common/toast.js'
 import BottomSheetSelect from '../../components/common/BottomSheetSelect.jsx'
 
 export default function WikiDetail() {
-  const { id } = useParams()
+  const { id: routeId } = useParams()
   const navigate = useNavigate()
   const { savedPlaces, addPlace, removePlace } = useSavedPlaceContext()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [place, setPlace] = useState({ id, name: '', address: '', images: [], stars: null, hours: '', phone: '', summary: '' })
+  const [place, setPlace] = useState({ id: '', name: '', address: '', images: [], stars: null, hours: '', phone: '', summary: '' })
   const [reviews, setReviews] = useState([])
   const [averageScore, setAverageScore] = useState(null)
 
@@ -44,7 +44,7 @@ export default function WikiDetail() {
     const target = reviews.find(r => r.id === rid)
     if (!target) return
     try {
-      const res = await likeWikiReview({ id: rid, place_id: id })
+      const res = await likeWikiReview({ id: rid, place_id: place.id })
       setReviews(prev => prev.map(r => r.id === rid ? { ...r, liked: true, likes: res.like_count ?? (r.likes + 1) } : r))
     } catch (e) {
       showToast('좋아요 처리에 실패했어요')
@@ -63,11 +63,12 @@ export default function WikiDetail() {
       setLoading(true)
       setError(null)
       try {
-        const data = await getWikiDetail({ place_id: id })
+        const rawId = (() => { try { return decodeURIComponent(routeId) } catch { return routeId } })()
+        const data = await getWikiDetail({ place_id: rawId })
         if (aborted) return
         const sd = data?.search_detail || {}
         setPlace({
-          id,
+          id: rawId,
           name: sd.place_name || '',
           address: sd.address || '',
           images: sd.place_photos || [],
@@ -93,7 +94,7 @@ export default function WikiDetail() {
     }
     load()
     return () => { aborted = true }
-  }, [id])
+  }, [routeId])
 
   // 신고 모달 상태
   const [reportOpen, setReportOpen] = useState(false)
@@ -138,7 +139,7 @@ export default function WikiDetail() {
           ))}
         </Gallery>
         <Actions>
-          <WriteBtn onClick={() => navigate(`/wiki/place/${id}/review/new`)}>게시판 작성</WriteBtn>
+          <WriteBtn onClick={() => navigate(`/wiki/place/${encodeURIComponent(place.id)}/review/new`)}>게시판 작성</WriteBtn>
           <LikeIconButton
             $active={isLiked}
             onClick={() => {

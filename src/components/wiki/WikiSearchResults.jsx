@@ -79,7 +79,10 @@ export function WikiSearchResults({ query }) {
       {!loading && !error && (
         <List>
           {items.map((p) => (
-            <Row key={p.place_id} onClick={() => navigate(`/wiki/place/${encodeURIComponent(p.place_id)}`)} role="button" tabIndex={0}>
+            <Row key={p.place_id} onClick={() => {
+              const rawId = p.place_id
+              navigate(`/wiki/place/${encodeURIComponent(rawId)}`)
+            }} role="button" tabIndex={0}>
               <Left>
                 <Title>{p.place_name}</Title>
                 <Address>{p.address}</Address>

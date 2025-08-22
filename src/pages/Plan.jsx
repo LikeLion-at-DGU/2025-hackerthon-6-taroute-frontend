@@ -50,13 +50,17 @@ const PlanInfoBox = styled.div`
 const Plan = () => {
     const navigate = useNavigate();
     const [q, setQ] = useState("");
-    const { loadSavedPlaces } = useSavedPlaceContext();
+    const { savedPlaces, loadSavedPlaces } = useSavedPlaceContext();
 
-    // Plan 페이지 진입 시마다 서버에서 최신 저장된 장소들 로드
+    // 최초 진입 또는 컨텍스트가 비어있을 때만 서버에서 로드
     useEffect(() => {
-        console.log('📋 Plan 페이지 진입 - 서버에서 최신 데이터 로드 시작');
-        loadSavedPlaces();
-    }, []); // 컴포넌트 마운트 시에만 실행
+        if (!savedPlaces || savedPlaces.length === 0) {
+            console.log('📋 Plan 페이지 - 컨텍스트 비어있음, 서버 로드 실행');
+            loadSavedPlaces();
+        } else {
+            console.log('📋 Plan 페이지 - 컨텍스트에 데이터 존재, 서버 로드 건너뜀');
+        }
+    }, [savedPlaces?.length]);
 
     const handleSubmit = () => {
         if (!q.trim()) return;

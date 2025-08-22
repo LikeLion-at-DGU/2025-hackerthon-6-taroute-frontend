@@ -15,10 +15,13 @@ export const savePlaceToServer = async (googlePlaceId) => {
     const fullUrl = `${instance.defaults.baseURL}/places/save_place`;
     const existingSessionKey = getSessionKey();
 
-        
+        // Ensure we send a raw, not double-encoded, place_id
+        let decodedId = googlePlaceId;
+        try { decodedId = decodeURIComponent(googlePlaceId); } catch {}
+
         const res = await instance.get("/places/save_place", {
             params: {
-                place_id: googlePlaceId,
+                place_id: decodedId,
                 ...(existingSessionKey ? { session_key: existingSessionKey } : {})
             }
         });
