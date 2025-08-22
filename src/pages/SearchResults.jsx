@@ -52,84 +52,97 @@ export default function SearchResults() {
     const [q, setQ] = useState(initialQ);
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [sortType, setSortType] = useState("정확도순"); // 정렬 기준 상태 추가
 
     // 사용자 선택 위치 정보 훅 사용
     const { location: selectedLocation } = useSelectedLocation();
 
-    const handleSubmit = () => {
-        
-        if (!q) {
-            console.log('⚠️ 검색어가 없어서 검색하지 않음');
+    // 정렬 기준에 따른 API 파라미터 생성
+    const getSearchParams = (sortType) => {
+        const baseParams = {
+            q,
+            x: selectedLocation.x,
+            y: selectedLocation.y,
+            sortType
+        };
+
+        switch (sortType) {
+            case "정확도순":
+                return {
+                    ...baseParams,
+                    rankPreference: "RELEVANCE"
+                };
+            case "거리순":
+                return {
+                    ...baseParams,
+                    rankPreference: "DISTANCE"
+                };
+            case "가격낮은순":
+                return {
+                    ...baseParams,
+                    rankPreference: "RELEVANCE",
+                    priceLevel: "PRICE_LEVEL_INEXPENSIVE"
+                };
+            case "가격높은순":
+                return {
+                    ...baseParams,
+                    rankPreference: "RELEVANCE",
+                    priceLevel: "PRICE_LEVEL_MODERATE"
+                };
+            case "후기순":
+            case "인기순":
+            default:
+                return {
+                    ...baseParams,
+                    rankPreference: "RELEVANCE"
+                };
+        }
+    };
+
+    // 검색 실행 함수
+    const performSearch = async (currentSortType = sortType) => {
+        if (!q || !selectedLocation?.x || !selectedLocation?.y) {
+            console.log('⚠️ 검색 조건이 불충족:', { q, selectedLocation });
             return;
         }
-        
-        if (!selectedLocation?.x || !selectedLocation?.y) {
-            console.log('⚠️ 위치 정보가 없어서 검색하지 않음:', selectedLocation);
-            return;
-        }
-        
-        // 검색어가 바뀌면 useEffect가 실행되어 자동으로 검색됩니다.
-        // 필요하다면 여기서 추가 동작(예: 페이지 이동)도 구현 가능
-        setRows([]); // 이전 결과 초기화
+
         setLoading(true);
-        
-        console.log('🌐 handleSubmit 검색 API 호출:', { q, x: selectedLocation.x, y: selectedLocation.y });
-        getSearchPlace({ q, x: selectedLocation.x, y: selectedLocation.y, radius:2000 })
-            .then((data) => {
-                console.log("✅ handleSubmit API 응답:", data); // 응답 구조 확인
-                // data.results, data.items, data가 배열이 아니면 빈 배열로 처리
-                const arr =
-                    Array.isArray(data.google_place) ? data.google_place :
-                        Array.isArray(data.results) ? data.results :
-                            Array.isArray(data.items) ? data.items :
-                                Array.isArray(data) ? data : [];
-                console.log('📋 handleSubmit 처리된 검색 결과:', arr);
-                setRows(arr);
-            })
-            .catch((error) => {
-                console.error('❌ handleSubmit 검색 API 에러:', error);
-                setRows([]);
-            })
-            .finally(() => {
-                console.log('🏁 handleSubmit 검색 완료, 로딩 상태 해제');
-                setLoading(false);
-            });
+        console.log('🌐 검색 API 호출:', { q, sortType: currentSortType });
+
+        try {
+            const searchParams = getSearchParams(currentSortType);
+            const data = await getSearchPlace(searchParams);
+            
+            console.log("✅ 검색 API 응답:", data);
+            
+            const arr = Array.isArray(data.google_place) ? data.google_place :
+                       Array.isArray(data.results) ? data.results :
+                       Array.isArray(data.items) ? data.items :
+                       Array.isArray(data) ? data : [];
+            
+            console.log('📋 처리된 검색 결과:', { sortType: currentSortType, count: arr.length });
+            setRows(arr);
+        } catch (error) {
+            console.error('❌ 검색 API 에러:', error);
+            setRows([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+    const handleSubmit = () => {
+        performSearch();
+    };
+
+    // 정렬 기준 변경 핸들러
+    const handleSortChange = (newSortType) => {
+        setSortType(newSortType);
+        performSearch(newSortType); // 즉시 새로운 정렬로 검색
     };
 
     useEffect(() => {
-
-        
-        if (!q) {
-            console.log('⚠️ 검색어가 없어서 검색하지 않음');
-            return;
-        }
-        
-        if (!selectedLocation?.x || !selectedLocation?.y) {
-            console.log('⚠️ 위치 정보가 없어서 검색하지 않음:', selectedLocation);
-            return;
-        }
-        
-        console.log('🌐 검색 API 호출 시작:', { q, x: selectedLocation.x, y: selectedLocation.y });
-        setLoading(true);
-        
-        getSearchPlace({ q, x: selectedLocation.x, y: selectedLocation.y })
-            .then((data) => {
-                const arr =
-                    Array.isArray(data.google_place) ? data.google_place :
-                        Array.isArray(data.results) ? data.results :
-                            Array.isArray(data.items) ? data.items :
-                                Array.isArray(data) ? data : [];
-                setRows(arr);
-            })
-            .catch((error) => {
-                console.error('❌ 검색 API 에러:', error);
-                setRows([]);
-            })
-            .finally(() => {
-                console.log('🏁 검색 완료, 로딩 상태 해제');
-                setLoading(false);
-            });
-    }, [initialQ, selectedLocation?.x, selectedLocation?.y]); // 위치 좌표가 변경되면 재검색
+        // 초기 검색 실행
+        performSearch();
+    }, [initialQ, selectedLocation?.x, selectedLocation?.y]); // sortType은 제외 (별도 핸들러에서 처리)
 
     return (
         <SearchContainer>
@@ -144,7 +157,7 @@ export default function SearchResults() {
                 autoFocus
                 bordered borderColor="#363636" borderWidth="0.5px"
             />
-            {!loading && rows.length > 0 && <SortBar />}
+            {!loading && rows.length > 0 && <SortBar onSortChange={handleSortChange} selectedSort={sortType} />}
             {loading && <div>로딩중...</div>}
             {!loading && rows.length === 0 &&
                 <NoResultContainer>
@@ -162,10 +175,16 @@ export default function SearchResults() {
                             address: place.address || "",
                             address_name: place.address || "",
                             location: place.location || null, // 좌표 객체를 그대로 전달
+                            x: place.x, // API 응답의 x 좌표 추가
+                            y: place.y, // API 응답의 y 좌표 추가
                             image: place.image || "", // 이미지가 없으면 기본 이미지 처리됨
                             place_photos: place.place_photos || [], // ✅ Google Places API 이미지 배열 추가!
                             category: place.category || "restaurant", // 기본값
                         }}
+                        userLocation={selectedLocation ? {
+                            latitude: selectedLocation.y,
+                            longitude: selectedLocation.x
+                        } : null}
                     />
                 ))}
             </ResultsContainer>
