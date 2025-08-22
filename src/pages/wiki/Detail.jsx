@@ -192,7 +192,7 @@ export default function WikiDetail() {
   <SecTitle><Dot /><TitleText>기본 정보</TitleText></SecTitle>
   <Info>
     <div>위치: {place.address || '-'}</div>
-    <div>영업 시간: {place.hours || '-'}</div>
+    <div>영업 시간:<br />{place.hours || '-'}</div>
     <div>전화번호: {place.phone || '-'}</div>
   </Info>
 </Section>
