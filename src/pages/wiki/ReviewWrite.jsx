@@ -76,13 +76,16 @@ export default function WikiReviewWrite() {
 
     try {
       setSubmitting(true)
+      const rawId = (() => { try { return decodeURIComponent(id) } catch { return id } })()
       const score = Math.max(0, Math.min(5, rating))
       const body = {
+        place_id: rawId,
+        gplace_id: rawId,
+        place_name: placeName || undefined,
         review_content: text.trim(),
-        review_score: score.toFixed(1),
-        place_name: placeName,
-        gplace_id: id,
+        review_score: score.toFixed(1), // 서버는 문자열 기대
       }
+      // 이미지 미구현: 서버가 빈 문자열을 싫어할 수 있어 아예 필드 제외
       await postWikiReview(body)
       showToast('작성 완료!')
       navigate(`/wiki/place/${id}`)
