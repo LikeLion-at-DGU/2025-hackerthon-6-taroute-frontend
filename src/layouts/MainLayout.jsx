@@ -77,6 +77,10 @@ const TabLink = styled(NavLink)`
 `;
 const Content = styled.main`
     min-height: calc(100dvh - 56px - 44px);
-    overflow: hidden;          /* 옆으로 넘치는 부분 숨김 */
+    max-height: calc(812px - 56px - 44px);
+    /* 812px 프레임에서 navbar와 tabs 높이를 뺀 나머지 */
+    overflow-y: hidden;
+    overflow-x: hidden;
+    /* 내부 컴포넌트들이 제대로 보이도록 스크롤 허용 */
     touch-action: pan-y;       /* 세로 스크롤은 유지 + 가로 스와이프 동작 */
 `;

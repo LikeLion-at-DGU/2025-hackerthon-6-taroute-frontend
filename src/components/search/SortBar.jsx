@@ -98,7 +98,7 @@ export const SortBar = () => {
     return (
         <>
             <SortBarContainer>
-                <p style={{margin:'0'}}>검색결과</p>
+                <p style={{margin:'0', fontSize:'17px'}}>검색결과</p>
                 <Barbutton onClick={() => setShowSelect(true)}>
                     <BarbuttonInner>
                         <p style={{ fontSize: "10px", fontWeight:"400" }}>{select}</p>

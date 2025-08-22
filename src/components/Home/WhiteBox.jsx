@@ -11,6 +11,7 @@ import wikibook from '../../assets/icons/wikibook.png'
 import { useNavigate } from 'react-router-dom';
 import useSheetDrag from "../../hooks/common/useSheetDrag";
 
+
 const WhiteBoxContainer = styled.div`
     position: fixed;
     top: 0;
@@ -22,17 +23,39 @@ const WhiteBoxContainer = styled.div`
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     background: linear-gradient(90deg, #EBF3FF 0%, #F5F8FF 80%);
-    /* 높이는 런타임에서 y에 따라 동적으로 설정 (height: calc(100dvh - y)) */
     width: 100%;
     align-items: center;
     box-sizing: border-box;
     box-shadow: 0 -8px 24px rgba(0,0,0,0.12);
     will-change: transform;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    margin-top: 60px;
-    padding-bottom: 150px;
+    overflow-x: hidden;
+    max-width: 375px;
+    margin: 0 auto;
+    /* 812px 프레임 기준으로 최대 높이 제한 */
+    max-height: 712px;
+    /* 스크롤바를 강제로 표시 */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.5) transparent;
+    /* WebKit 스크롤바 스타일 */
+    &::-webkit-scrollbar {
+        width: 6px;
+        display: block !important;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.1);
+        border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba(0,0,0,0.5);
+        border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(0,0,0,0.7);
+    }
 `;
 
 const DragHandle = styled.div`
@@ -137,7 +160,7 @@ const HotPlace = styled.div`
     flex-direction: column;
     align-items: center;
     width: 100%;
-    margin-bottom: 90px;
+    margin-bottom: 60px;
     gap: 8px;
 `;
 
@@ -158,12 +181,19 @@ const WhiteBox = ({ expandedTop = 96, collapsedTop = 360 }) => {
         <WhiteBoxContainer
             style={{
                 transform: `translate3d(0, ${y}px, 0)`,
-                height: `calc(100dvh - ${y}px)`,
+                height: `${712 - y}px`, // 고정된 812px 프레임 기준으로 계산
+                maxHeight: `${712 - y}px`,
+                minHeight: `${712 - y}px`, // 최소 높이도 설정해서 강제로 스크롤 생성
                 transition: dragging ? 'none' : 'transform 240ms cubic-bezier(0.22, 1, 0.36, 1), height 240ms cubic-bezier(0.22, 1, 0.36, 1)'
             }}
         >
             <DragHandle
-                onPointerDown={onPointerDown}
+                onPointerDown={(e) => {
+                    // 드래그 핸들 영역에서만 드래그 시작
+                    if (e.target === e.currentTarget || e.target.closest('::before')) {
+                        onPointerDown(e);
+                    }
+                }}
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
                 onPointerCancel={onPointerUp}

@@ -44,3 +44,26 @@ export const getLocationSearch = async (query) => {
         throw err;
     }
 };
+
+/**
+ * 추천 장소 API 호출
+ * @param {Object} args
+ * @param {number} args.x - 경도(필수)
+ * @param {number} args.y - 위도(필수)
+ * @returns {Promise<any>} - 서버에서 내려주는 추천 장소 데이터
+ */
+export const getRecommend = async ({ x, y } = {}) => {
+    if (typeof x !== "number" || typeof y !== "number") {
+        throw new Error("x, y must be numbers (latitude/longitude)");
+    }
+
+    try {
+        const res = await instance.get("/places/recommend", {
+            params: { x, y },
+        });
+        return res.data;
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+};

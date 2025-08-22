@@ -2,13 +2,20 @@ import PageNavbar from "../components/common/PageNavbar";
 import styled from "styled-components";
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { triggerLocationUpdate } from "../hooks/useSelectedLocation";
 import Map from "../components/Location/Map";
 
 const Background = styled.div`
-    height: 100vh;
-    width: 100%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 812px;
+    width: 375px;
     flex-direction: column;
     display: flex;
+    z-index: 9999;
+    background: white;
 `;
 
 const NavbarContainer = styled.div`
@@ -18,8 +25,10 @@ const NavbarContainer = styled.div`
 
 const MapContainer = styled.div`
     width: 100%;
+    height: 100%;
     flex: 1;
     position: relative;
+    overflow: hidden;
 `;
 
 const AddressInfo = styled.div`
@@ -33,7 +42,7 @@ const AddressInfo = styled.div`
     padding: 20px 16px 30px 16px;
     border-radius: 20px 20px 0 0;
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 100;
+    z-index: 1000;
     background-color: white;
 `;
 
@@ -74,6 +83,7 @@ const LoadingText = styled.div`
     transform: translate(-50%, -50%);
     color: #8A8A8A;
     font-size: 16px;
+    z-index: 1001;
 `;
 
 const ErrorText = styled.div`
@@ -85,6 +95,7 @@ const ErrorText = styled.div`
     font-size: 16px;
     text-align: center;
     padding: 20px;
+    z-index: 1001;
 `;
 
 const LocationMap = () => {
@@ -129,6 +140,9 @@ const LocationMap = () => {
                 coordinates: markerPosition,
                 timestamp: Date.now()
             }));
+            
+            // 다른 컴포넌트들에게 위치 업데이트 알림
+            triggerLocationUpdate();
             
             // 홈으로 이동
             navigate('/', { 

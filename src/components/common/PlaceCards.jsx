@@ -157,7 +157,6 @@ const PlaceCard = ({ place, category }) => {
   
   // 각 카드마다 개별적으로 저장 상태 계산
   const isSaved = savedPlaces.some(savedPlace => {
-    // 더 정확한 매칭을 위해 여러 필드 확인
     const nameMatch = (savedPlace.place_name || savedPlace.name) === (place.place_name || place.name);
     const addressMatch = (savedPlace.address_name || savedPlace.location) === (place.address_name || place.location);
     const idMatch = savedPlace.id && place.id && savedPlace.id === place.id;
@@ -205,7 +204,7 @@ const PlaceCard = ({ place, category }) => {
       // 찜 해제
       removePlace(place);
     } else {
-      // 찜하기 - Google Place ID를 savePlaceAPI에 전달
+      // 찜하기 - Google Place ID를 addPlace에 전달하면 자동으로 서버 저장 처리
       const googlePlaceId = place.id;
       
       if (!googlePlaceId) {
@@ -214,75 +213,16 @@ const PlaceCard = ({ place, category }) => {
       }
       
       try {
-        console.log('💾 SavePlaceAPI 호출 시작:', {
+        console.log('💾 장소 저장 시작:', {
           googlePlaceId: googlePlaceId,
           originalPlace: place
         });
         
-        // SavePlaceAPI로 Google Place ID 전달하여 풍부한 데이터 받기
-        const serverResponse = await savePlaceToServer(googlePlaceId);
+        // addPlace 함수가 자동으로 서버 저장 및 로컬 상태 업데이트 처리
+        await addPlace(place);
         
-        console.log('✅ SavePlaceAPI 응답:', serverResponse);
-        
-        if (serverResponse && serverResponse.data) {
-          // 서버에서 받은 순수 데이터를 그대로 사용
-          const serverData = serverResponse.data;
-          
-          const enrichedPlace = {
-            id: googlePlaceId,
-            place_name: serverData.place_name,
-            address: serverData.address,
-            location: serverData.location,
-            running_time: serverData.running_time || [],
-            place_photos: serverData.place_photos || [],
-            // 호환성을 위한 추가 필드
-            name: serverData.place_name,
-            address_name: serverData.address,
-            image: serverData.place_photos?.[0] || place.image,
-          };
-          
-          console.log('🔄 Context에 저장할 데이터:', {
-            enrichedPlace,
-            place_photos: enrichedPlace.place_photos,
-            place_photos_length: enrichedPlace.place_photos?.length,
-            running_time: enrichedPlace.running_time,
-            running_time_length: enrichedPlace.running_time?.length
-          });
-          
-          addPlace(enrichedPlace);
-        } else {
-          console.error('❌ SavePlaceAPI 응답에 data가 없습니다:', serverResponse);
-          
-          // 서버 응답이 없으면 기본 SearchAPI 데이터로 대체
-          const fallbackPlace = {
-            id: googlePlaceId,
-            place_name: place.place_name || place.name,
-            address_name: place.address_name || place.location,
-            name: place.place_name || place.name,
-            location: place.address_name || place.location,
-            image: place.image,
-            place_photos: [],
-            running_time: []
-          };
-          
-          addPlace(fallbackPlace);
-        }
       } catch (error) {
-        console.error('❌ SavePlaceAPI 호출 실패:', error);
-        
-        // API 실패시 기본 SearchAPI 데이터로 대체
-        const fallbackPlace = {
-          id: googlePlaceId,
-          place_name: place.place_name || place.name,
-          address_name: place.address_name || place.location,
-          name: place.place_name || place.name,
-          location: place.address_name || place.location,
-          image: place.image,
-          place_photos: [],
-          running_time: []
-        };
-        
-        addPlace(fallbackPlace);
+        console.error('❌ 장소 저장 실패:', error);
       }
     }
   };
@@ -290,7 +230,21 @@ const PlaceCard = ({ place, category }) => {
   return (
     <Card>
       <CardImageContainer>
-        <Cover $src={place.image || bg1} />
+        <Cover>
+          <img 
+            src={place.place_photos?.[0] || place.image || bg1}
+            alt={place.place_name || place.name || '장소 이미지'}
+            onError={(e) => {
+              e.target.src = bg1; // 폴백 이미지로 변경
+            }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center'
+            }}
+          />
+        </Cover>
         <HeartButton onClick={handleFavoriteClick}>
           <img 
             src={isSaved ? blackHeartIcon : heartIcon} 
@@ -343,11 +297,10 @@ const CardImageContainer = styled.div`
 const Cover = styled.div`
   width: 100%;
   height: 100%;
-  background-image: url(${(props) => props.$src});
-  background-size: cover;  /* 이미지를 꽉 채우고 넘치는 부분은 크롭 */
-  background-position: center;
-  background-repeat: no-repeat;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const HeartButton = styled.button`

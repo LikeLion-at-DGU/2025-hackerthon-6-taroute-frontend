@@ -28,7 +28,7 @@ export default function WikiIndex() {
   ]
 
   const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 812
-  const expandedTop = 80
+  const expandedTop = 102
   const collapsedTop = 387; // 기존 330
   const { y, dragging, onPointerDown, onPointerMove, onPointerUp } = useSheetDrag({
     expandedTop,
@@ -40,8 +40,8 @@ export default function WikiIndex() {
 
   const updateStamp = () => {
     const d = new Date()
-    const z2 = (n) => String(n).padStart(2,'0')
-    setStamp(`${d.getFullYear()}-${z2(d.getMonth()+1)}-${z2(d.getDate())} ${z2(d.getHours())}:${z2(d.getMinutes())} 기준`)
+    const z2 = (n) => String(n).padStart(2, '0')
+    setStamp(`${d.getFullYear()}-${z2(d.getMonth() + 1)}-${z2(d.getDate())} ${z2(d.getHours())}:${z2(d.getMinutes())} 기준`)
   }
 
   useEffect(() => {
@@ -61,85 +61,92 @@ export default function WikiIndex() {
         borderColor="#E2E2E2"
       />
 
-{/* 검색바 아래 */}
-<WikiInfo>
-  <p>우리가 만들어가는 <br />동네 장소들의 위키백과</p>
-  <WikiInfoBox onClick={() => navigate('/wiki/search')}>
-    <p>내가 방문한 장소 <br />
-      <span style={{ fontSize: '24px', color: '#FFC500', fontWeight: 500 }}>
-        위키 작성하기
-      </span>
-    </p>
-    <img src={taru} alt="타루" />
-  </WikiInfoBox>
-</WikiInfo>
+      {/* 검색바 아래 */}
+      <WikiInfo>
+        <p>우리가 만들어가는 <br />동네 장소들의 위키백과</p>
+        <WikiInfoBox onClick={() => navigate('/wiki/search')}>
+          <p>내가 방문한 장소 <br />
+            <span style={{ fontSize: '24px', color: '#FFC500', fontWeight: 500 }}>
+              위키 작성하기
+            </span>
+          </p>
+          <img src={taru} alt="타루" />
+        </WikiInfoBox>
+      </WikiInfo>
 
-  <Sheet
-    style={{
-      transform: `translate3d(0, ${y}px, 0)`,
-      height: `calc(100dvh - ${y}px)`,
-      transition: dragging ? 'none' : 'transform 240ms cubic-bezier(0.22, 1, 0.36, 1), height 240ms cubic-bezier(0.22, 1, 0.36, 1)',
-    }}
-  >
-    <Handle
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
-    />
+      <Sheet 
+        style={{
+          transform: `translate3d(0, ${y}px, 0)`,
+          height: `${712 - y}px`, // 고정된 812px 프레임 기준으로 계산
+          maxHeight: `${712 - y}px`,
+          minHeight: `${712 - y}px`, // 최소 높이도 설정해서 강제로 스크롤 생성
+          transition: dragging ? 'none' : 'transform 240ms cubic-bezier(0.22, 1, 0.36, 1), height 240ms cubic-bezier(0.22, 1, 0.36, 1)'
+        }}
+      >
+        <Handle
+          onPointerDown={(e) => {
+            // 드래그 핸들 영역에서만 드래그 시작
+            if (e.target === e.currentTarget || e.target.closest('::before')) {
+              onPointerDown(e);
+            }
+          }}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+        />
 
-      <Section>
-        <TitleBox>
+        <Section>
+          <TitleBox>
+            <TitleRow>
+              <TitleText>최근 업데이트된 위키</TitleText>
+            </TitleRow>
+            <StampRow>
+              <Stamp>
+                {stamp}
+                <RefreshBtn onClick={updateStamp}>
+                  <img src={rotateLeft} alt="새로고침" />
+                </RefreshBtn>
+              </Stamp>
+            </StampRow>
+          </TitleBox>
+
+
+
+          <RecentList>
+            {recent.map((r, i) => (
+              <RecentRow key={r.id}>
+                <IndexBadge>{i + 1}</IndexBadge>
+                <RowTitle>{r.title}</RowTitle>
+                <RightText>{r.ago}</RightText>
+              </RecentRow>
+            ))}
+          </RecentList>
+        </Section>
+
+        <HotSection>
           <TitleRow>
-            <TitleText>최근 업데이트된 위키</TitleText>
+            <TitleText>현재 핫한 게시판</TitleText>
           </TitleRow>
-          <StampRow>
-            <Stamp>
-              {stamp}
-              <RefreshBtn onClick={updateStamp}>
-                <img src={rotateLeft} alt="새로고침" />
-              </RefreshBtn>
-            </Stamp>
-          </StampRow>
-        </TitleBox>
-
-  
-
-        <RecentList>
-          {recent.map((r, i) => (
-            <RecentRow key={r.id}>
-              <IndexBadge>{i + 1}</IndexBadge>
-              <RowTitle>{r.title}</RowTitle>
-              <RightText>{r.ago}</RightText>
-            </RecentRow>
-          ))}
-        </RecentList>
-      </Section>
-
-      <HotSection>
-        <TitleRow>
-          <TitleText>현재 핫한 게시판</TitleText>
-        </TitleRow>
-        <HotList>
-          {hot.map(item => (
-            <HotRow key={item.id}>
-              <HotLeft>
-                <HotPlaceLine>
-                  <PlaceDot />
-                  <HotPlace>{item.place}</HotPlace>
-                </HotPlaceLine>
-                <HotTitle>{item.title}</HotTitle>
-              </HotLeft>
-              <HotRight>
-                <LikeIcon src={heart} alt="좋아요" />
-                <LikeCount>{item.likes}</LikeCount>
-                <WarnIcon src={warning} alt="신고" />
-              </HotRight>
-            </HotRow>
-          ))}
-        </HotList>
-      </HotSection>
-    </Sheet>
+          <HotList>
+            {hot.map(item => (
+              <HotRow key={item.id}>
+                <HotLeft>
+                  <HotPlaceLine>
+                    <PlaceDot />
+                    <HotPlace>{item.place}</HotPlace>
+                  </HotPlaceLine>
+                  <HotTitle>{item.title}</HotTitle>
+                </HotLeft>
+                <HotRight>
+                  <LikeIcon src={heart} alt="좋아요" />
+                  <LikeCount>{item.likes}</LikeCount>
+                  <WarnIcon src={warning} alt="신고" />
+                </HotRight>
+              </HotRow>
+            ))}
+          </HotList>
+        </HotSection>
+      </Sheet>
     </Wrap>
   )
 }
@@ -379,15 +386,43 @@ const Sheet = styled.div`
   position: fixed;
   left: 0; right: 0; top: 0; margin: 0 auto;
   z-index: 40;
-  width: min(375px, 100vw);
+  width: 100%;
   background: var(--bg-3, linear-gradient(90deg, #EBF3FF 0%, #F5F8FF 100%));
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
   box-shadow: 0 -8px 24px rgba(0,0,0,0.12);
+  will-change: transform;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   padding: 0 16px 24px;
+  max-width: 375px;
+  margin: 0 auto;
+  /* 812px 프레임 기준으로 최대 높이 제한 */
+    max-height: 712px;
+    /* 스크롤바를 강제로 표시 */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.5) transparent;
+    /* WebKit 스크롤바 스타일 */
+    &::-webkit-scrollbar {
+        width: 6px;
+        display: block !important;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.1);
+        border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba(0,0,0,0.5);
+        border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(0,0,0,0.7);
+    }
 `
 
 const Handle = styled.div`

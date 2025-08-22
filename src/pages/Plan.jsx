@@ -13,6 +13,7 @@ const PlanContainer = styled.div`
     width: 100%;
     height: fit-content;
     color: #F0F0F0;
+    overflow-y: hidden;
 `;
 
 const PlanInfo = styled.div`
