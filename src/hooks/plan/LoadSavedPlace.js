@@ -119,7 +119,6 @@ const useLoadSavedPlace = () => {
                 선택된_ID: googlePlaceId
             });
             
-
             if (!googlePlaceId) {
                 console.error('❌ Google Place ID를 찾을 수 없습니다:', place);
                 showToast('장소 ID가 없어 저장할 수 없습니다.');

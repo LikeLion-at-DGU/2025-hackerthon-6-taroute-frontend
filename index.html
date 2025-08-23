@@ -7,18 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <link rel="stylesheet"
   href="https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy.css" />
-    <script>
-      // Vite 환경변수를 이용해 런타임에 SDK 삽입
-      (function(){
-        var key = (window.__VITE__ || {}).VITE_TMAP_API_KEY || (typeof importMeta !== 'undefined' && importMeta.env && importMeta.env.VITE_TMAP_API_KEY);
-        // 위 방식이 안되면 뒤에서 SpotMap이 동적 로더로 재시도합니다.
-        if (!key) return;
-        var s = document.createElement('script');
-        s.src = 'https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=' + key;
-        s.async = false; // document.write 회피를 위해 동기 로드 시도
-        document.head.appendChild(s);
-      })();
-    </script>
     <title>Taroute frontend</title>
   </head>
   <body>
