@@ -80,4 +80,13 @@ export async function fetchCategoryPlaces(query) {
   }))
 }
 
+// Wiki 검색 API를 카테고리 모듈에서도 사용할 수 있도록 래핑
+export const searchWikiPlaces = async (params) => {
+  const { latitude, longitude, place_name, radius, rankPreference } = params || {}
+  const res = await instance.get('/wiki/search', {
+    params: { latitude, longitude, place_name, radius, rankPreference },
+  })
+  return res.data?.google_place || []
+}
+
 

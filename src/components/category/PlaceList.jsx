@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import { useEffect, useState, useMemo } from 'react'
 import { fetchCategoryPlaces } from '../../apis/categoryApi.js'
+import { searchWikiPlaces } from '../../apis/wikiApi.js'
 import timeIcon from '../../assets/icons/time.svg'
 import { useSavedPlaceContext } from '../../contexts/SavedPlaceContext.jsx'
 
@@ -17,8 +18,47 @@ export function PlaceList({ query, itemsOverride }) {
     }
     setLoading(true)
     fetchCategoryPlaces(query)
-      .then((res) => {
-        if (!cancelled) setItems(res)
+      .then(async (res) => {
+        if (cancelled) return
+        // 1차: 카테고리 검색 결과
+        if (Array.isArray(res) && res.length > 0) {
+          setItems(res)
+          return
+        }
+        // 2차: fallback - 검색어가 있을 때만 위키 검색으로 보완 (상위 5)
+        const kw = (query?.keyword || '').trim()
+        if (!kw) { setItems([]); return }
+        try {
+          const distLabel = query?.distance || 'all'
+          const toRadius = (label) => {
+            if (!label) return 20000
+            if (label.includes('1km')) return 1000
+            if (label.includes('3km')) return 3000
+            if (label.includes('5km')) return 5000
+            return 20000
+          }
+          const radius = toRadius(distLabel)
+          const rankPreference = distLabel === 'all' ? 'RELEVANCE' : 'DISTANCE'
+          const wiki = await searchWikiPlaces({
+            latitude: query?.y,
+            longitude: query?.x,
+            place_name: kw,
+            radius,
+            rankPreference,
+          })
+          if (cancelled) return
+          const mapped = (wiki || []).slice(0, 5).map(p => ({
+            id: p.place_id,
+            name: p.place_name,
+            images: [],
+            distance: p.distance_text,
+            address: p.address,
+            time: Array.isArray(p.running_time) && p.running_time.length ? p.running_time[0] : '',
+          }))
+          setItems(mapped)
+        } catch {
+          setItems([])
+        }
       })
       .finally(() => !cancelled && setLoading(false))
     return () => { cancelled = true }
