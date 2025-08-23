@@ -41,6 +41,7 @@ const ContentOverlay = styled.div`
 const Spot = () => {
     const [currentRoute, setCurrentRoute] = useState(null);
     const [routeInfo, setRouteInfo] = useState(null);
+    const [selectedTransport, setSelectedTransport] = useState('walk'); // 교통수단 상태 추가
 
     // 콜백 함수들을 최적화
     const handleRouteChange = useCallback((route) => {
@@ -49,6 +50,11 @@ const Spot = () => {
 
     const handleRouteInfoChange = useCallback((info) => {
         setRouteInfo(info);
+    }, []);
+
+    // 교통수단 변경 핸들러 추가
+    const handleTransportChange = useCallback((transport) => {
+        setSelectedTransport(transport);
     }, []);
 
     // start와 end 좌표를 useMemo로 최적화하여 무한 렌더링 방지
@@ -98,6 +104,7 @@ const Spot = () => {
                     end={endCoords}
                     startIndex={currentRoute?.originIndex || 1}
                     endIndex={currentRoute?.destinationIndex || 2}
+                    transportMode={selectedTransport}
                     onRouteInfoChange={handleRouteInfoChange}
                 />
             </MapBackground>
@@ -106,7 +113,11 @@ const Spot = () => {
             <ContentOverlay>
                 <PageNavbar title="일정계획" />
                 <div style={{ flex: 1 }} /> {/* 공간 확보용 */}
-                <RouteBox onRouteChange={handleRouteChange} routeInfo={routeInfo} />
+                <RouteBox 
+                    onRouteChange={handleRouteChange} 
+                    routeInfo={routeInfo} 
+                    onTransportChange={handleTransportChange}
+                />
                 <SpotWhiteBox />
             </ContentOverlay>
         </Spotcontainer>
