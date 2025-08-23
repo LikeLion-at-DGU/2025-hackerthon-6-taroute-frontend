@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import SearchBar from '../components/common/SearchBar.jsx'
 import PageNavbar from '../components/common/PageNavbar.jsx'
@@ -7,9 +7,11 @@ import { PlaceList } from '../components/category/PlaceList.jsx'
 import { useCategoryFilters } from '../hooks/category/useCategoryFilters.js'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { useSelectedLocation } from '../hooks/useSelectedLocation'
+// 검색은 카테고리 API(text_query)만 사용
 
 function Category() {
   const { location: selectedLoc } = useSelectedLocation()
+  const [submittedKeyword, setSubmittedKeyword] = useState('')
   const {
     keyword,
     setKeyword,
@@ -34,8 +36,9 @@ function Category() {
     x: selectedLoc?.x ?? 126.98364611778,
     y: selectedLoc?.y ?? 37.565315667212,
     // 선택: 검색어
-    keyword: keyword || undefined,
-  }), [selectedCategory, distance, visitTime, visitDay, selectedLoc?.x, selectedLoc?.y, keyword])
+    keyword: (submittedKeyword || '').trim() || undefined,
+  }), [selectedCategory, distance, visitTime, visitDay, selectedLoc?.x, selectedLoc?.y, submittedKeyword])
+  // 위키 검색 fallback 제거: 카테고리 API(text_query)만 사용
 
   const location = useLocation()
   const [searchParams] = useSearchParams()
@@ -51,6 +54,14 @@ function Category() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // 입력 시 자동 검색(디바운스)
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSubmittedKeyword((keyword || '').trim())
+    }, 300)
+    return () => clearTimeout(t)
+  }, [keyword])
+
   return (
     <Wrapper>
       <Bleed>
@@ -60,7 +71,8 @@ function Category() {
         placeholder="검색어를 입력하세요"
         value={keyword}
         onChange={setKeyword}
-        onSubmit={() => {}}
+        onSubmit={() => setSubmittedKeyword((keyword || '').trim())}
+        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setSubmittedKeyword((keyword || '').trim()) } }}
         bordered
         borderColor="#E2E2E2"
       />

@@ -4,12 +4,17 @@ import { fetchCategoryPlaces } from '../../apis/categoryApi.js'
 import timeIcon from '../../assets/icons/time.svg'
 import { useSavedPlaceContext } from '../../contexts/SavedPlaceContext.jsx'
 
-export function PlaceList({ query }) {
+export function PlaceList({ query, itemsOverride }) {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
+    if (Array.isArray(itemsOverride)) {
+      setItems(itemsOverride)
+      setLoading(false)
+      return () => { cancelled = true }
+    }
     setLoading(true)
     fetchCategoryPlaces(query)
       .then((res) => {
@@ -17,7 +22,7 @@ export function PlaceList({ query }) {
       })
       .finally(() => !cancelled && setLoading(false))
     return () => { cancelled = true }
-  }, [JSON.stringify(query)])
+  }, [JSON.stringify(query), Array.isArray(itemsOverride) ? JSON.stringify(itemsOverride.map(i => i.id)) : ''])
 
   if (loading) return <Empty>불러오는 중...</Empty>
   if (!items.length) return <Empty>결과가 없어요</Empty>

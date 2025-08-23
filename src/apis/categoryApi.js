@@ -21,7 +21,9 @@ const mapCategory = (ko) => {
 const mapDistance = (label) => {
   if (!label) return 'all'
   if (label.includes('1km')) return '1km'
+  if (label.includes('2km')) return '2km'
   if (label.includes('3km')) return '3km'
+  if (label.includes('4km')) return '4km'
   if (label.includes('5km 이상') || label.includes('5km_plus')) return '5km_plus'
   if (label.includes('5km')) return '5km'
   if (label === 'all') return 'all'
