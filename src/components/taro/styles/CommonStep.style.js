@@ -4,7 +4,7 @@ import bgImage from '../../../assets/images/bg_1.jpg'
 // 공통 배경과 오버레이
 export const CommonWrapper = styled.div`
   position: relative;
-  height: 100vh;
+  height: 812px;
   background-color: #000;
   background-image:
   linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
@@ -30,7 +30,7 @@ export const CommonOverlay = styled.div`
 // 공통 타로 마스코트
 export const CommonTaruMascot = styled.img`
   position: absolute;
-  top: 31%;
+  top: 400px;
   left: 60%;
   transform: rotate(2.781deg);
   width: 147px;
@@ -89,7 +89,7 @@ export const CommonBubbleHeader = styled.div`
 // 공통 말풍선 컨텐츠
 export const CommonBubbleContent = styled.div`
   position: absolute;
-  bottom: 595px;
+  bottom: 0px;
   width: 375px;
   height: 205px;
   flex-shrink: 0;

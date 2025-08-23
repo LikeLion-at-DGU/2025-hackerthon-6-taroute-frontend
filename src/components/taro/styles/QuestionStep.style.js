@@ -14,15 +14,15 @@ export const TaruMascot = styled(CommonTaruMascot)`
   height: 160px;
   flex-shrink: 0;
   aspect-ratio: 98/125;
-  top: 5%;
-  left: 68%;
+  top: 36px;
+  left: 66%;
   transform: rotate(2.781deg);
 `
 
 // QuestionStep 전용 스타일
 export const QuestionBox = styled.div`
   position: absolute;
-    top: 13%;
+    top: 134px;
     left: 16px;
     right: 16px;
     background: rgba(55, 35, 80, 0.95);
@@ -66,16 +66,16 @@ margin-bottom: 15px;
 export const Options = styled.div`
   position: absolute;
   color: var(--color-neutral-gray, #8A8A8A);
-text-align: center;
-font-family: MaruBuriOTF;
-font-size: 17px;
-font-style: normal;
-font-weight: 600;
-line-height: 17px; /* 100% */
-letter-spacing: -0.5px;
+  text-align: center;
+  font-family: MaruBuriOTF;
+  font-size: 17px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 17px; /* 100% */
+  letter-spacing: -0.5px;
   left: 16px;
   right: 16px;
-  top: 26%;
+  top: 315px;
   display: flex;
   flex-direction: column;
   gap: 28px;

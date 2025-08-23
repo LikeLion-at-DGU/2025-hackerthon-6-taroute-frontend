@@ -207,7 +207,7 @@ const Steps = styled.div`
     display: flex;
 `;
 
-const RouteBox = ({ onRouteChange, routeInfo }) => {
+const RouteBox = ({ onRouteChange, routeInfo, onTransportChange }) => {
     const [selectedTransport, setSelectedTransport] = useState('walk');
     const [currentRouteIndex, setCurrentRouteIndex] = useState(0);
     const [routeData, setRouteData] = useState(null);
@@ -308,6 +308,22 @@ const RouteBox = ({ onRouteChange, routeInfo }) => {
             transport: transport
         };
 
+        // walk일 때는 장소 이름도 추가
+        if (transport === 'walk') {
+            const startName = route.origin.name || route.origin.place_name || route.origin.title || '출발지';
+            const endName = route.destination.name || route.destination.place_name || route.destination.title || '도착지';
+            
+            apiParams.startName = startName;
+            apiParams.endName = endName;
+            
+            console.log('🏷️ 장소 이름 확인:', {
+                origin: route.origin,
+                destination: route.destination,
+                startName: startName,
+                endName: endName
+            });
+        }
+
         console.log('📡 API 호출 파라미터:', apiParams);
 
         setIsLoading(true);
@@ -335,7 +351,23 @@ const RouteBox = ({ onRouteChange, routeInfo }) => {
                 config: error.config,
                 apiParams: apiParams
             });
+            
+            // 임시로 목업 데이터 비활성화 - 실제 에러 확인용
             setRouteData(null);
+            
+            // walk 모드일 때는 목업 데이터 제공 (주석 처리)
+            // if (transport === 'walk') {
+            //     console.log('🚶 도보 모드 목업 데이터 제공');
+            //     setRouteData({
+            //         data: {
+            //             walk_distance: "1.2km",
+            //             walk_time: "15분", 
+            //             walk_step: "1,680걸음"
+            //         }
+            //     });
+            // } else {
+            //     setRouteData(null);
+            // }
         } finally {
             console.log('🔄 로딩 상태 해제');
             setIsLoading(false);
@@ -347,27 +379,34 @@ const RouteBox = ({ onRouteChange, routeInfo }) => {
         console.log('🚗 handleTransportChange 호출:', {
             transport: transport,
             currentRoute: currentRoute,
-            currentRouteExists: !!currentRoute
+            가능한경로개수: routes.length
         });
         
         setSelectedTransport(transport);
-        if (transport === 'car' && currentRoute) {
+        
+        // 상위 컴포넌트에 교통수단 변경 알림
+        if (onTransportChange) {
+            onTransportChange(transport);
+        }
+        
+        // car 또는 walk 선택 시 API 호출
+        if ((transport === 'car' || transport === 'walk') && currentRoute) {
             await fetchRouteData(currentRoute, transport);
         } else {
             setRouteData(null);
         }
     };
 
-    // 루트 변경 시 자동차가 선택되어 있으면 API 호출
+    // 루트 변경 시 선택된 교통수단에 따라 API 호출
     useEffect(() => {
         console.log('🔄 useEffect 호출:', {
             selectedTransport: selectedTransport,
             currentRouteIndex: currentRouteIndex,
-            shouldCallAPI: selectedTransport === 'car' && currentRoute
+            shouldCallAPI: (selectedTransport === 'car' || selectedTransport === 'walk') && currentRoute
         });
         
-        if (selectedTransport === 'car' && currentRoute) {
-            fetchRouteData(currentRoute, 'car');
+        if ((selectedTransport === 'car' || selectedTransport === 'walk') && currentRoute) {
+            fetchRouteData(currentRoute, selectedTransport);
         } else {
             setRouteData(null);
         }
@@ -453,6 +492,14 @@ const RouteBox = ({ onRouteChange, routeInfo }) => {
                     <InfoBox>
                         {isLoading ? (
                             <div>로딩 중...</div>
+                        ) : selectedTransport === 'walk' && routeData?.data ? (
+                            <>
+                                <Time><p>{routeData.data.walk_time?.replace('분', '') || '12'}</p>분</Time>
+                                <p style={{fontWeight:'500'}}>|</p>
+                                <Distance>{routeData.data.walk_distance || '1.1km'}</Distance>
+                                <p style={{fontWeight:'500'}}>|</p>
+                                <Steps>{routeData.data.walk_step || '3,600걸음'}</Steps>
+                            </>
                         ) : selectedTransport === 'car' && routeInfo ? (
                             <>
                                 <Time><p>{routeInfo.duration}</p>분</Time>
