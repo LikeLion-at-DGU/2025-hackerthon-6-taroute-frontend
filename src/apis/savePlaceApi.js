@@ -18,12 +18,8 @@ export const savePlaceToServer = async (googlePlaceId) => {
         try { decodedId = decodeURIComponent(googlePlaceId); } catch {}
 
         const res = await instance.get("/places/save_place", {
-            params: {
-                place_id: decodedId,
-                ...(existingSessionKey ? { session_key: existingSessionKey } : {})
-            }
+            params: { place_id: googlePlaceId }
         });
-
 
         console.log('🔥응답 전체:', res);
         console.log('🔥응답 헤더:', res.headers);
@@ -56,6 +52,7 @@ export const savePlaceToServer = async (googlePlaceId) => {
 
         return dataPayload; // 필요한 경우 data 내부의 페이로드만 반환
 
+    
     } catch (err) {
         console.error("❌ 장소 저장 실패:", {
             googlePlaceId: googlePlaceId,
