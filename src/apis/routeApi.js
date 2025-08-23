@@ -49,3 +49,4 @@ export const getRouteInfo = async ({ destination_x, destination_y, origin_x, ori
         throw err;
     }
 };
+

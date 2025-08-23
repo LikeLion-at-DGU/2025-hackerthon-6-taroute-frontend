@@ -7,6 +7,7 @@ import { TouchBackend } from 'react-dnd-touch-backend';
 import useSheetDrag from "../../hooks/common/useSheetDrag";
 import RouteListItem from "./RouteListItem";
 import { useSavedPlaceContext } from "../../contexts/SavedPlaceContext";
+import ShareModal from "./ShareModal";
 
 
 const SpotWhiteBoxContainer = styled.div`
@@ -123,6 +124,10 @@ const SpotWhiteBox = ({ expandedTop = 96, collapsedTop = 520 }) => {
     // 저장된 장소들을 관리하는 커스텀 훅
     const { savedPlaces, setSavedPlaces } = useSavedPlaceContext();
 
+    // 공유 모달 상태
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [shareData, setShareData] = useState(null);
+
     // 터치 기능을 위한 백엔드 선택
     const isTouchDevice = 'ontouchstart' in window;
     const dndBackend = isTouchDevice ? TouchBackend : HTML5Backend;
@@ -168,10 +173,42 @@ const SpotWhiteBox = ({ expandedTop = 96, collapsedTop = 520 }) => {
         navigate('/');
     };
 
-    // 공유하기 버튼 클릭 핸들러 (일단 보류)
+    // 공유하기 버튼 클릭 핸들러 
     const handleShare = () => {
-        console.log('공유하기 버튼 클릭 (기능 구현 보류)');
-        // navigate('/share'); // 나중에 구현
+        // 활성화된 장소들만 필터링
+        const activePlaces = savedPlaces.filter(place => place.isEnabled !== false);
+        
+        if (activePlaces.length < 2) {
+            alert('공유하려면 최소 2개 이상의 장소가 필요합니다.');
+            return;
+        }
+
+        // 첫 번째와 마지막 장소를 출발지/도착지로 설정
+        const startPlace = activePlaces[0];
+        const endPlace = activePlaces[activePlaces.length - 1];
+
+        // 공유 데이터 생성 (places 필드 제거)
+        const shareData = {
+            start: {
+                name: startPlace.place_name || startPlace.name || '출발지',
+                x: startPlace.x || startPlace.lng || startPlace.longitude,
+                y: startPlace.y || startPlace.lat || startPlace.latitude
+            },
+            end: {
+                name: endPlace.place_name || endPlace.name || '도착지', 
+                x: endPlace.x || endPlace.lng || endPlace.longitude,
+                y: endPlace.y || endPlace.lat || endPlace.latitude
+            },
+            ui: {
+                selected_mode: 'car', // 기본값
+                map_theme: 'light',
+                show_order_badges: true
+            }
+        };
+
+        console.log('🔗 공유 데이터 생성:', shareData);
+        setShareData(shareData);
+        setIsShareModalOpen(true);
     };
 
     return (
@@ -239,6 +276,13 @@ const SpotWhiteBox = ({ expandedTop = 96, collapsedTop = 520 }) => {
                     </ButtonContainer>
                 )}
             </SpotWhiteBoxContainer>
+            
+            {/* 공유 모달 */}
+            <ShareModal
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+                shareData={shareData}
+            />
         </DndProvider>
     );
 };
