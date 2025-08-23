@@ -52,6 +52,7 @@ export const savePlaceToServer = async (googlePlaceId) => {
 
         return dataPayload; // 필요한 경우 data 내부의 페이로드만 반환
 
+    
     } catch (err) {
         console.error("❌ 장소 저장 실패:", {
             googlePlaceId: googlePlaceId,
