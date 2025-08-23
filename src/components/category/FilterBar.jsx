@@ -65,10 +65,8 @@ export function FilterBar({
               title="거리"
               options={[
                 { label: '1km 이내', value: '1km 이내' },
-                { label: '2km 이내', value: '2km 이내' },
                 { label: '3km 이내', value: '3km 이내' },
                 { label: '5km 이내', value: '5km 이내' },
-                { label: '5km 이상', value: '5km 이상' },
               ]}
               value={distance}
               onSelect={(v) => { onChangeDistance(v); setSheet({ type: null }) }}

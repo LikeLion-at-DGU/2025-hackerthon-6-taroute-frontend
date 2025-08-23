@@ -1,23 +1,68 @@
 import styled from 'styled-components'
 import { useEffect, useState, useMemo } from 'react'
 import { fetchCategoryPlaces } from '../../apis/categoryApi.js'
+import { searchWikiPlaces } from '../../apis/wikiApi.js'
 import timeIcon from '../../assets/icons/time.svg'
 import { useSavedPlaceContext } from '../../contexts/SavedPlaceContext.jsx'
 
-export function PlaceList({ query }) {
+export function PlaceList({ query, itemsOverride }) {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
+    if (Array.isArray(itemsOverride)) {
+      setItems(itemsOverride)
+      setLoading(false)
+      return () => { cancelled = true }
+    }
     setLoading(true)
     fetchCategoryPlaces(query)
-      .then((res) => {
-        if (!cancelled) setItems(res)
+      .then(async (res) => {
+        if (cancelled) return
+        // 1차: 카테고리 검색 결과
+        if (Array.isArray(res) && res.length > 0) {
+          setItems(res)
+          return
+        }
+        // 2차: fallback - 검색어가 있을 때만 위키 검색으로 보완 (상위 5)
+        const kw = (query?.keyword || '').trim()
+        if (!kw) { setItems([]); return }
+        try {
+          const distLabel = query?.distance || 'all'
+          const toRadius = (label) => {
+            if (!label) return 20000
+            if (label.includes('1km')) return 1000
+            if (label.includes('3km')) return 3000
+            if (label.includes('5km')) return 5000
+            return 20000
+          }
+          const radius = toRadius(distLabel)
+          const rankPreference = distLabel === 'all' ? 'RELEVANCE' : 'DISTANCE'
+          const wiki = await searchWikiPlaces({
+            latitude: query?.y,
+            longitude: query?.x,
+            place_name: kw,
+            radius,
+            rankPreference,
+          })
+          if (cancelled) return
+          const mapped = (wiki || []).slice(0, 5).map(p => ({
+            id: p.place_id,
+            name: p.place_name,
+            images: [],
+            distance: p.distance_text,
+            address: p.address,
+            time: Array.isArray(p.running_time) && p.running_time.length ? p.running_time[0] : '',
+          }))
+          setItems(mapped)
+        } catch {
+          setItems([])
+        }
       })
       .finally(() => !cancelled && setLoading(false))
     return () => { cancelled = true }
-  }, [JSON.stringify(query)])
+  }, [JSON.stringify(query), Array.isArray(itemsOverride) ? JSON.stringify(itemsOverride.map(i => i.id)) : ''])
 
   if (loading) return <Empty>불러오는 중...</Empty>
   if (!items.length) return <Empty>결과가 없어요</Empty>
@@ -47,9 +92,9 @@ function PlaceCard({ place }) {
       id: place.id,
       name: place.name,
       place_name: place.name,
-      address: place.location,
-      address_name: place.location,
-      location: place.location,
+      address: place.address || place.location,
+      address_name: place.address || place.location,
+      location: place.address || place.location,
       place_photos: place.images,
     }
     if (liked) removePlace(normalized)
@@ -71,7 +116,7 @@ function PlaceCard({ place }) {
         <Name>{place.name}</Name>
         <Row>
           <IconMap />
-          <Text $ml="-4px">{place.location}</Text>
+          <Text $ml="-4px">{place.distance || place.location}</Text>
         </Row>
         <Row>
           <IconTime src={timeIcon} alt="시간" />

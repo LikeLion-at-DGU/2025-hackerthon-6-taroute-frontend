@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import SearchBar from '../components/common/SearchBar.jsx'
 import PageNavbar from '../components/common/PageNavbar.jsx'
@@ -6,8 +6,14 @@ import { FilterBar } from '../components/category/FilterBar.jsx'
 import { PlaceList } from '../components/category/PlaceList.jsx'
 import { useCategoryFilters } from '../hooks/category/useCategoryFilters.js'
 import { useLocation, useSearchParams } from 'react-router-dom'
+import { useSelectedLocation } from '../hooks/useSelectedLocation'
+import { searchWikiPlaces, getWikiDetail } from '../apis/wikiApi'
+// 검색은 카테고리 API(text_query)만 사용
 
 function Category() {
+  const { location: selectedLoc } = useSelectedLocation()
+  const [submittedKeyword, setSubmittedKeyword] = useState('')
+  const [wikiItems, setWikiItems] = useState(null)
   const {
     keyword,
     setKeyword,
@@ -22,12 +28,19 @@ function Category() {
   } = useCategoryFilters()
 
   const query = useMemo(() => ({
-    keyword,
+    // 필수/기본 파라미터 포함
     category: selectedCategory,
-    distance,
-    visitTime,
+    distance: distance || 'all',
+    visitTime: visitTime || 'all',
     visitDay,
-  }), [keyword, selectedCategory, distance, visitTime, visitDay])
+    sortBy: 'relevance',
+    limit: 10,
+    x: selectedLoc?.x ?? 126.98364611778,
+    y: selectedLoc?.y ?? 37.565315667212,
+    // 선택: 검색어
+    keyword: (submittedKeyword || '').trim() || undefined,
+  }), [selectedCategory, distance, visitTime, visitDay, selectedLoc?.x, selectedLoc?.y, submittedKeyword])
+  // 위키 검색 fallback 제거: 카테고리 API(text_query)만 사용
 
   const location = useLocation()
   const [searchParams] = useSearchParams()
@@ -43,6 +56,67 @@ function Category() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // 입력 시 자동 검색(디바운스)
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSubmittedKeyword((keyword || '').trim())
+    }, 300)
+    return () => clearTimeout(t)
+  }, [keyword])
+
+  // 검색어가 있을 땐 wiki 검색 API 사용 (카테고리 리스트와 별도 기능)
+  useEffect(() => {
+    let cancelled = false
+    const kw = (submittedKeyword || '').trim()
+    if (!kw) { setWikiItems(null); return }
+    ;(async () => {
+      try {
+        const distLabel = distance || 'all'
+        const toRadius = (label) => {
+          if (!label) return 20000
+          if (label.includes('1km')) return 1000
+          if (label.includes('3km')) return 3000
+          if (label.includes('5km')) return 5000
+          return 20000
+        }
+        const radius = toRadius(distLabel)
+        const rankPreference = distLabel === 'all' ? 'RELEVANCE' : 'DISTANCE'
+        const res = await searchWikiPlaces({
+          latitude: selectedLoc?.y ?? 37.565315667212,
+          longitude: selectedLoc?.x ?? 126.98364611778,
+          place_name: kw,
+          radius,
+          rankPreference,
+        })
+        if (cancelled) return
+        let mapped = res.map(p => ({
+          id: p.place_id,
+          name: p.place_name,
+          images: [],
+          distance: p.distance_text,
+          address: p.address,
+          time: Array.isArray(p.running_time) && p.running_time.length ? p.running_time[0] : '',
+        }))
+        // 사진 보강
+        const details = await Promise.allSettled(
+          mapped.slice(0, 10).map(item => getWikiDetail({ place_id: item.id }))
+        )
+        mapped = mapped.map((item, idx) => {
+          const d = details[idx]
+          if (d?.status === 'fulfilled') {
+            const photos = d.value?.search_detail?.place_photos
+            if (Array.isArray(photos) && photos.length) return { ...item, images: photos.slice(0, 5) }
+          }
+          return item
+        })
+        setWikiItems(mapped)
+      } catch {
+        setWikiItems(null)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [submittedKeyword, distance, selectedLoc?.x, selectedLoc?.y])
+
   return (
     <Wrapper>
       <Bleed>
@@ -52,7 +126,8 @@ function Category() {
         placeholder="검색어를 입력하세요"
         value={keyword}
         onChange={setKeyword}
-        onSubmit={() => {}}
+        onSubmit={() => setSubmittedKeyword((keyword || '').trim())}
+        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setSubmittedKeyword((keyword || '').trim()) } }}
         bordered
         borderColor="#E2E2E2"
       />
@@ -70,7 +145,7 @@ function Category() {
       />
 
       <Content>
-        <PlaceList query={query} />
+        <PlaceList query={query} itemsOverride={wikiItems ?? undefined} />
       </Content>
     </Wrapper>
   )
