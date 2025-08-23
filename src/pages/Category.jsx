@@ -6,8 +6,10 @@ import { FilterBar } from '../components/category/FilterBar.jsx'
 import { PlaceList } from '../components/category/PlaceList.jsx'
 import { useCategoryFilters } from '../hooks/category/useCategoryFilters.js'
 import { useLocation, useSearchParams } from 'react-router-dom'
+import { useSelectedLocation } from '../hooks/useSelectedLocation'
 
 function Category() {
+  const { location: selectedLoc } = useSelectedLocation()
   const {
     keyword,
     setKeyword,
@@ -22,12 +24,18 @@ function Category() {
   } = useCategoryFilters()
 
   const query = useMemo(() => ({
-    keyword,
+    // 필수/기본 파라미터 포함
     category: selectedCategory,
-    distance,
-    visitTime,
+    distance: distance || 'all',
+    visitTime: visitTime || 'all',
     visitDay,
-  }), [keyword, selectedCategory, distance, visitTime, visitDay])
+    sortBy: 'relevance',
+    limit: 10,
+    x: selectedLoc?.x ?? 126.98364611778,
+    y: selectedLoc?.y ?? 37.565315667212,
+    // 선택: 검색어
+    keyword: keyword || undefined,
+  }), [selectedCategory, distance, visitTime, visitDay, selectedLoc?.x, selectedLoc?.y, keyword])
 
   const location = useLocation()
   const [searchParams] = useSearchParams()

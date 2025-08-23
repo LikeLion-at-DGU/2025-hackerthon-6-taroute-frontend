@@ -1,28 +1,83 @@
-// 임시 API 스텁. 실제 API 연결 시 여기만 교체하면 됩니다.
+import { instance } from './instance'
+
+const DEFAULT_X = 126.98364611778
+const DEFAULT_Y = 37.565315667212
+
+const mapCategory = (ko) => {
+  switch (ko) {
+    case '식당':
+      return 'restaurant'
+    case '카페':
+      return 'cafe'
+    case '문화시설':
+      return 'culture'
+    case '관광명소':
+      return 'tourist_attraction'
+    default:
+      return 'restaurant'
+  }
+}
+
+const mapDistance = (label) => {
+  if (!label) return 'all'
+  if (label.includes('1km')) return '1km'
+  if (label.includes('3km')) return '3km'
+  if (label.includes('5km 이상') || label.includes('5km_plus')) return '5km_plus'
+  if (label.includes('5km')) return '5km'
+  if (label === 'all') return 'all'
+  return 'all'
+}
+
+const mapVisitTime = (label) => {
+  if (!label) return 'all'
+  if (label.startsWith('아침')) return 'morning'
+  if (label.startsWith('낮')) return 'afternoon'
+  if (label.startsWith('저녁')) return 'evening'
+  if (label.startsWith('밤')) return 'night'
+  if (label.startsWith('새벽')) return 'dawn'
+  return 'all'
+}
+
+const mapVisitDay = (label) => {
+  const table = {
+    '월요일': 'monday',
+    '화요일': 'tuesday',
+    '수요일': 'wednesday',
+    '목요일': 'thursday',
+    '금요일': 'friday',
+    '토요일': 'saturday',
+    '일요일': 'sunday',
+  }
+  return table[label] || label
+}
 
 export async function fetchCategoryPlaces(query) {
-  // 네트워크 지연 시뮬레이션
-  await new Promise((r) => setTimeout(r, 300))
+  const params = {
+    x: query?.x ?? DEFAULT_X,
+    y: query?.y ?? DEFAULT_Y,
+    text_query: query?.keyword || undefined,
+    category: mapCategory(query?.category),
+    radius: 5000,
+    distance_filter: mapDistance(query?.distance) || 'all',
+    visit_time_filter: mapVisitTime(query?.visitTime) || 'all',
+    visit_days_filter: Array.isArray(query?.visitDays)
+      ? query.visitDays.map(mapVisitDay).filter(Boolean)
+      : (query?.visitDay ? [mapVisitDay(query.visitDay)].filter(Boolean) : undefined),
+    sort_by: query?.sortBy || 'relevance',
+    limit: query?.limit || 10,
+  }
 
-  // 데모 데이터
-  const demo = Array.from({ length: 6 }).map((_, i) => {
-    const seed = i + 10
-    return {
-      id: `${i + 1}`,
-      name: `${query.category || '식당'} 샘플 ${i + 1}`,
-      images: [
-        `https://picsum.photos/seed/${seed}/600/400`,
-        `https://picsum.photos/seed/${seed + 20}/600/400`,
-        `https://picsum.photos/seed/${seed + 40}/600/400`,
-      ],
-      location: '충무로역에서 270m',
-      time: '목요일 11:00 - 19:00',
-      liked: false,
-      meta: `${query.category || '식당'} · ${query.distance || ''}`.trim(),
-    }
-  })
+  const res = await instance.get('/places/category_search', { params })
+  const places = res.data?.places || []
 
-  return demo
+  return places.map((p) => ({
+    id: p.place_id,
+    name: p.place_name,
+    images: Array.isArray(p.place_photos) ? p.place_photos.slice(0, 5) : [],
+    distance: p.distance,
+    address: p.address,
+    time: Array.isArray(p.running_time) && p.running_time.length > 0 ? p.running_time[0] : (p.is_open_now === true ? '영업중' : (p.is_open_now === false ? '영업 종료' : '')),
+  }))
 }
 
 

@@ -47,9 +47,9 @@ function PlaceCard({ place }) {
       id: place.id,
       name: place.name,
       place_name: place.name,
-      address: place.location,
-      address_name: place.location,
-      location: place.location,
+      address: place.address || place.location,
+      address_name: place.address || place.location,
+      location: place.address || place.location,
       place_photos: place.images,
     }
     if (liked) removePlace(normalized)
@@ -71,7 +71,7 @@ function PlaceCard({ place }) {
         <Name>{place.name}</Name>
         <Row>
           <IconMap />
-          <Text $ml="-4px">{place.location}</Text>
+          <Text $ml="-4px">{place.distance || place.location}</Text>
         </Row>
         <Row>
           <IconTime src={timeIcon} alt="시간" />
