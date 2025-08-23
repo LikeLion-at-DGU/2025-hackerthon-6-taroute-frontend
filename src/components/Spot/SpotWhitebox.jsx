@@ -20,7 +20,7 @@ const SpotWhiteBoxContainer = styled.div`
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     background-color: white;
-    /* 높이는 런타임에서 y에 따라 동적으로 설정 (height: calc(100dvh - y)) */
+    /* 높이는 런타임에서 y에 따라 동적으로 설정됩니다 */
     width: 100%;
     align-items: center;
     box-sizing: border-box;
@@ -30,7 +30,6 @@ const SpotWhiteBoxContainer = styled.div`
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     margin-top: 60px;
-    padding-bottom: 150px;
 `;
 
 const DragHandle = styled.div`
@@ -70,6 +69,52 @@ const SavedPlaceList = styled.div`
     width: 100%;
     /* 드래그 앤 드롭을 위한 터치 액션 허용 */
     touch-action: manipulation;
+`;
+
+const ButtonContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 20px 16px 100px 16px;
+    gap: 12px;
+`;
+
+const ActionButton = styled.button`
+    width: 100%;
+    height: 48px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &.primary {
+        background-color: #271932;
+        color: white;
+        
+        &:hover {
+            background-color: #1f1428;
+        }
+        
+        &:active {
+            background-color: #150e1a;
+        }
+    }
+    
+    &.secondary {
+        background-color: #f8f9fa;
+        color: #2A2A2A;
+        border: 1px solid #e9ecef;
+        
+        &:hover {
+            background-color: #e9ecef;
+        }
+        
+        &:active {
+            background-color: #dee2e6;
+        }
+    }
 `;
 
 const SpotWhiteBox = ({ expandedTop = 96, collapsedTop = 520 }) => {
@@ -118,12 +163,23 @@ const SpotWhiteBox = ({ expandedTop = 96, collapsedTop = 520 }) => {
         }
     }, [savedPlaces, setSavedPlaces]);
 
+    // 일정 추가하기 버튼 클릭 핸들러
+    const handleAddToPlan = () => {
+        navigate('/');
+    };
+
+    // 공유하기 버튼 클릭 핸들러 (일단 보류)
+    const handleShare = () => {
+        console.log('공유하기 버튼 클릭 (기능 구현 보류)');
+        // navigate('/share'); // 나중에 구현
+    };
+
     return (
         <DndProvider backend={dndBackend} options={backendOptions}>
             <SpotWhiteBoxContainer
                 style={{
                     transform: `translate3d(0, ${y}px, 0)`,
-                    height: `calc(100dvh - ${y}px)`,
+                    height: `${812 - y}px`,
                     transition: dragging ? 'none' : 'transform 240ms cubic-bezier(0.22, 1, 0.36, 1), height 240ms cubic-bezier(0.22, 1, 0.36, 1)'
                 }}
             >
@@ -170,6 +226,18 @@ const SpotWhiteBox = ({ expandedTop = 96, collapsedTop = 520 }) => {
                         </div>
                     )}
                 </SavedPlaceList>
+
+                {/* 활성화된 장소가 있을 때만 버튼 표시 */}
+                {savedPlaces && savedPlaces.some(place => place.isEnabled !== false) && (
+                    <ButtonContainer>
+                        <ActionButton className="primary" onClick={handleAddToPlan}>
+                            일정 추가하기
+                        </ActionButton>
+                        <ActionButton className="secondary" onClick={handleShare}>
+                            공유하기
+                        </ActionButton>
+                    </ButtonContainer>
+                )}
             </SpotWhiteBoxContainer>
         </DndProvider>
     );

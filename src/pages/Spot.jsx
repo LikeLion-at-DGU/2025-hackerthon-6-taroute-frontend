@@ -10,7 +10,8 @@ const Spotcontainer = styled.div`
     flex-direction: column;
     align-items: center;
     position: relative;
-    height: 100vh;
+    height: 812px;
+    max-height: 812px;
     overflow: hidden;
 `;
 
@@ -99,7 +100,7 @@ const Spot = () => {
             {/* 배경 지도 */}
             <MapBackground>
                 <SpotMap 
-                    height={window.innerHeight || 800}
+                    height={812}
                     start={startCoords}
                     end={endCoords}
                     startIndex={currentRoute?.originIndex || 1}
