@@ -44,8 +44,12 @@ const SpotMap = ({
 
 	// 카카오맵 SDK 로드 확인
 	useEffect(() => {
+		console.log('🚀 SpotMap useEffect 실행됨');
+		
 		const checkKakaoReady = () => {
-			if (window.kakao && window.kakao.maps && window.kakao.maps.Map) {
+			const isReady = window.kakao && window.kakao.maps && window.kakao.maps.Map;
+			console.log('🔍 카카오맵 준비상태 확인:', isReady);
+			if (isReady) {
 				setReady(true)
 				return true
 			}
@@ -55,18 +59,34 @@ const SpotMap = ({
 		if (checkKakaoReady()) return
 
 		// SDK 로드
-		if (!document.querySelector('script[src*="dapi.kakao.com/v2/maps"]')) {
+		const existingScript = document.querySelector('script[src*="dapi.kakao.com/v2/maps"]');
+		console.log('🔍 기존 스크립트 존재여부:', !!existingScript);
+		
+		if (!existingScript) {
 			const apiKey = import.meta.env.VITE_KAKAO_MAP_APP_KEY;
 			console.log('🔑 카카오맵 API 키:', apiKey);
+			
+			if (!apiKey) {
+				console.error('❌ 카카오맵 API 키가 없습니다!');
+				return;
+			}
 			
 			const script = document.createElement('script')
 			script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`
 			console.log('📍 카카오맵 스크립트 URL:', script.src);
+			
 			script.onload = () => {
+				console.log('✅ 카카오맵 스크립트 로드 완료');
 				window.kakao.maps.load(() => {
+					console.log('✅ 카카오맵 초기화 완료');
 					setReady(true)
 				})
 			}
+			
+			script.onerror = (error) => {
+				console.error('❌ 카카오맵 스크립트 로드 실패:', error);
+			}
+			
 			document.head.appendChild(script)
 		}
 	}, [])
