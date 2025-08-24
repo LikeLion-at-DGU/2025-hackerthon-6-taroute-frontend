@@ -105,12 +105,16 @@ const SpotMap = ({
 	// 카카오맵 초기화 함수
 	const initKakaoMap = () => {
 		try {
+			console.log('🗺️ initKakaoMap 시작:', { actualStart, actualEnd });
+			
 			// 기본 좌표 (서울) 또는 전달받은 좌표 사용
 			const defaultStart = { lat: 37.566567545861645, lng: 126.9850380932383 }
 			const defaultEnd = { lat: 37.403049076341794, lng: 127.10331814639885 }
 			
-			const startCoords = actualStart
-			const endCoords = actualEnd
+			const startCoords = actualStart || defaultStart
+			const endCoords = actualEnd || defaultEnd
+
+			console.log('🗺️ 사용할 좌표:', { startCoords, endCoords });
 
 			// 지도 중심점 계산
 			const centerLat = (startCoords.lat + endCoords.lat) / 2
@@ -985,6 +989,8 @@ const SpotMap = ({
 			console.error('❌ 경로 그리기 실패:', error)
 		}
 	}
+
+	console.log('🖼️ SpotMap 렌더링:', { ready, height, hasMapRef: !!mapRef.current, actualStart, actualEnd });
 
 	return (
 		<MapContainer>
