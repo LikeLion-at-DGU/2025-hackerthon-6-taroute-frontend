@@ -35,7 +35,6 @@ const SpotMap = ({
 	const mapRef = useRef(null)
 	const mapObjRef = useRef(null)
 	const [ready, setReady] = useState(false)
-	const [routeData, setRouteData] = useState(null)
 	const [loading, setLoading] = useState(false)
 
 	// 카카오맵 SDK 로드 확인
@@ -101,6 +100,8 @@ const SpotMap = ({
 			// 길찾기 실행
 			if (transportMode === 'walk') {
 				findWalkingRoute(map, startCoords, endCoords)
+			} else if (transportMode === 'transit') {
+				findTransitRoute(map, startCoords, endCoords)
 			} else {
 				findRoute(map, startCoords, endCoords)
 			}
@@ -176,6 +177,78 @@ const SpotMap = ({
 
 			// 직선 경로로 그리기
 			drawWalkingRoute(map, null, startCoords, endCoords)
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	// 대중교통 길찾기 API 호출
+	const findTransitRoute = async (map, startCoords, endCoords) => {
+		setLoading(true)
+		try {
+			console.log('🚌 대중교통 경로 API 호출 시작')
+
+			// RouteAPI 호출
+			const routeResponse = await getRouteInfo({
+				origin_x: startCoords.lng,
+				origin_y: startCoords.lat,
+				destination_x: endCoords.lng,
+				destination_y: endCoords.lat,
+				transport: 'transit',
+				startName,
+				endName
+			})
+
+			console.log('✅ 대중교통 경로 API 응답:', routeResponse)
+
+			// 상위 컴포넌트에 경로 정보 전달 (segments 정보도 포함)
+			if (onRouteInfoChange && routeResponse?.data) {
+				const summary = routeResponse.data.transit_summary || {};
+				
+				// 시간, 거리, 요금에서 숫자만 추출
+				const timeMatch = summary.trans_time?.match(/\d+/);
+				const duration = timeMatch ? parseInt(timeMatch[0]) : 0;
+				
+				const distanceMatch = summary.trans_distance?.match(/([\d.]+)/);
+				const distance = distanceMatch ? parseFloat(distanceMatch[1]) : 0;
+				
+				const fareMatch = summary.trans_fare?.match(/[\d,]+/);
+				const fare = fareMatch ? parseInt(fareMatch[0].replace(/,/g, '')) : 0;
+
+				onRouteInfoChange({
+					distance: distance, // km
+					duration: duration, // 분
+					taxiFare: fare, // 대중교통 요금
+					segments: routeResponse.data.segments || [] // 구간 정보
+				})
+			}
+
+			// 대중교통 경로 그리기 (API 응답 구조에 따라 segments 위치 다름)
+			const segments = routeResponse?.data?.segments || routeResponse?.segments;
+			console.log('🚌 segments 전달 확인:', {
+				'routeResponse?.data?.segments': routeResponse?.data?.segments,
+				'routeResponse?.segments': routeResponse?.segments,
+				'최종 segments': segments
+			});
+			drawTransitRoute(map, segments, startCoords, endCoords)
+
+		} catch (error) {
+			console.error('❌ 대중교통 경로 API 호출 실패:', error)
+			
+			// API 실패 시 직선 거리로 폴백
+			const distance = calculateDistance(startCoords.lat, startCoords.lng, endCoords.lat, endCoords.lng)
+			const estimatedTime = Math.round(distance * 3) // 대략적인 대중교통 시간 (km당 3분)
+
+			if (onRouteInfoChange) {
+				onRouteInfoChange({
+					distance: distance.toFixed(1), // km
+					duration: estimatedTime, // 분
+					taxiFare: 0
+				})
+			}
+
+			// 직선 경로로 그리기
+			drawTransitRoute(map, null, startCoords, endCoords)
 		} finally {
 			setLoading(false)
 		}
@@ -309,7 +382,6 @@ const SpotMap = ({
 
 			if (response.data.routes && response.data.routes[0]) {
 				const route = response.data.routes[0]
-				setRouteData(route)
 				drawRoute(map, route, startCoords, endCoords)
 				
 				// 상위 컴포넌트에 경로 정보 전달
@@ -484,6 +556,288 @@ const SpotMap = ({
 
 		} catch (error) {
 			console.error('❌ 도보 경로 그리기 실패:', error)
+		}
+	}
+
+	// 대중교통 경로 그리기
+	const drawTransitRoute = (map, segments, startCoords, endCoords) => {
+		try {
+			console.log('🎯 drawTransitRoute 호출됨:', {
+				segments: segments,
+				segmentsCount: segments?.length,
+				startCoords,
+				endCoords
+			});
+			// RouteListItem과 같은 색상 배열 사용
+			const colors = [
+				'#e06d6d', '#e09b6d', '#d9e06d', '#aee06d', '#6de09a',
+				'#6ddfe0', '#6d95e0', '#9a6de0', '#e06ddf', '#e06d95'
+			];
+
+			const startColor = colors[(startIndex - 1) % 10] || '#e06d6d';
+			const endColor = colors[(endIndex - 1) % 10] || '#e09b6d';
+
+			// 출발지와 도착지 마커
+			const startPosition = new window.kakao.maps.LatLng(startCoords.lat, startCoords.lng);
+			const endPosition = new window.kakao.maps.LatLng(endCoords.lat, endCoords.lng);
+
+			const startMarker = createNeonMarker(startPosition, startColor, startName || '출발지', startIndex);
+			const endMarker = createNeonMarker(endPosition, endColor, endName || '도착지', endIndex);
+
+			startMarker.setMap(map);
+			endMarker.setMap(map);
+
+			// 마커 클릭 이벤트
+			let startTooltip = null;
+			let endTooltip = null;
+
+			startMarker.getContent().addEventListener('click', () => {
+				if (endTooltip) {
+					endTooltip.setMap(null);
+				}
+				if (startTooltip) {
+					startTooltip.setMap(null);
+					startTooltip = null;
+				} else {
+					startTooltip = createTooltip(startPosition, startName || '출발지');
+					startTooltip.setMap(map);
+				}
+			});
+
+			endMarker.getContent().addEventListener('click', () => {
+				if (startTooltip) {
+					startTooltip.setMap(null);
+				}
+				if (endTooltip) {
+					endTooltip.setMap(null);
+					endTooltip = null;
+				} else {
+					endTooltip = createTooltip(endPosition, endName || '도착지');
+					endTooltip.setMap(map);
+				}
+			});
+
+			const bounds = new window.kakao.maps.LatLngBounds();
+			bounds.extend(startPosition);
+			bounds.extend(endPosition);
+
+			// segments가 있으면 대중교통 경로를 구간별로 그리기
+			if (segments && segments.length > 0) {
+				console.log('🚌 대중교통 구간별 경로 그리기:', segments.length, '개 구간');
+				console.log('🔍 segments 데이터 상세:', segments);
+
+				// 전체 경로를 위한 좌표 배열
+				const allRoutePoints = [];
+				
+				// BUS/SUBWAY 구간만 필터링
+				const transitSegments = segments.filter(segment => segment.mode === 'BUS' || segment.mode === 'SUBWAY');
+				console.log('🚌 대중교통 구간만 추출:', transitSegments.length, '개');
+
+				// 첫 번째 교통수단이 있다면 출발지에서 첫 탑승지까지 도보 그리기
+				if (transitSegments.length > 0) {
+					const firstTransit = transitSegments[0];
+					let firstStartPos;
+					
+					if (firstTransit.mode === 'BUS') {
+						firstStartPos = new window.kakao.maps.LatLng(firstTransit.start_blat, firstTransit.start_blon);
+					} else if (firstTransit.mode === 'SUBWAY') {
+						firstStartPos = new window.kakao.maps.LatLng(firstTransit.start_slat, firstTransit.start_slon);
+					}
+					
+					if (firstStartPos) {
+						const walkToFirst = new window.kakao.maps.Polyline({
+							path: [startPosition, firstStartPos],
+							strokeWeight: 5,
+							strokeColor: '#666666',
+							strokeOpacity: 0.8,
+							strokeStyle: 'shortdash'
+						});
+						walkToFirst.setMap(map);
+						console.log('🚶 출발지→첫 탑승지 도보 경로 그리기');
+					}
+				}
+				
+				// 마지막 교통수단이 있다면 마지막 하차지에서 도착지까지 도보 그리기
+				if (transitSegments.length > 0) {
+					const lastTransit = transitSegments[transitSegments.length - 1];
+					let lastEndPos;
+					
+					if (lastTransit.mode === 'BUS') {
+						lastEndPos = new window.kakao.maps.LatLng(lastTransit.end_blat, lastTransit.end_blon);
+					} else if (lastTransit.mode === 'SUBWAY') {
+						lastEndPos = new window.kakao.maps.LatLng(lastTransit.end_slat, lastTransit.end_slon);
+					}
+					
+					if (lastEndPos) {
+						const walkFromLast = new window.kakao.maps.Polyline({
+							path: [lastEndPos, endPosition],
+							strokeWeight: 5,
+							strokeColor: '#666666',
+							strokeOpacity: 0.8,
+							strokeStyle: 'shortdash'
+						});
+						walkFromLast.setMap(map);
+						console.log('🚶 마지막 하차지→도착지 도보 경로 그리기');
+					}
+				}
+				
+				// 교통수단 간 환승 도보 그리기
+				for (let i = 0; i < transitSegments.length - 1; i++) {
+					const currentTransit = transitSegments[i];
+					const nextTransit = transitSegments[i + 1];
+					
+					let currentEndPos, nextStartPos;
+					
+					// 현재 교통수단 하차지
+					if (currentTransit.mode === 'BUS') {
+						currentEndPos = new window.kakao.maps.LatLng(currentTransit.end_blat, currentTransit.end_blon);
+					} else if (currentTransit.mode === 'SUBWAY') {
+						currentEndPos = new window.kakao.maps.LatLng(currentTransit.end_slat, currentTransit.end_slon);
+					}
+					
+					// 다음 교통수단 탑승지
+					if (nextTransit.mode === 'BUS') {
+						nextStartPos = new window.kakao.maps.LatLng(nextTransit.start_blat, nextTransit.start_blon);
+					} else if (nextTransit.mode === 'SUBWAY') {
+						nextStartPos = new window.kakao.maps.LatLng(nextTransit.start_slat, nextTransit.start_slon);
+					}
+					
+					if (currentEndPos && nextStartPos) {
+						const transferWalk = new window.kakao.maps.Polyline({
+							path: [currentEndPos, nextStartPos],
+							strokeWeight: 5,
+							strokeColor: '#666666',
+							strokeOpacity: 0.8,
+							strokeStyle: 'shortdash'
+						});
+						transferWalk.setMap(map);
+						console.log(`🚶 환승 도보 경로 그리기: ${currentTransit.mode} → ${nextTransit.mode}`);
+					}
+				}
+
+				segments.forEach((segment, index) => {
+					if (segment.mode === 'BUS' || segment.mode === 'SUBWAY') {
+						let startPos, endPos;
+						
+						// 버스와 지하철 좌표 필드명이 다름
+						if (segment.mode === 'BUS') {
+							startPos = new window.kakao.maps.LatLng(segment.start_blat, segment.start_blon);
+							endPos = new window.kakao.maps.LatLng(segment.end_blat, segment.end_blon);
+						} else if (segment.mode === 'SUBWAY') {
+							startPos = new window.kakao.maps.LatLng(segment.start_slat, segment.start_slon);
+							endPos = new window.kakao.maps.LatLng(segment.end_slat, segment.end_slon);
+						}
+						
+						if (startPos && endPos) {
+							bounds.extend(startPos);
+							bounds.extend(endPos);
+							
+							// 전체 경로에 좌표 추가 (첫 번째 segment의 시작점과 모든 segment의 끝점)
+							if (index === 0) {
+								allRoutePoints.push(startPos);
+							}
+							allRoutePoints.push(endPos);
+							
+							
+
+							// 지하철 호선별 색상 코드 (RouteBox와 동일)
+							const subwayLineColors = {
+								'1호선': '#0052A4',
+								'2호선': '#009D3E',
+								'3호선': '#EF7C1C',
+								'4호선': '#00A5DE',
+								'5호선': '#996CAC',
+								'6호선': '#9E4510',
+								'7호선': '#5D6519',
+								'8호선': '#D6406A',
+								'9호선': '#8E764B',
+								'수인분당선': '#E0A134',
+								'경의중앙선': '#2ABFD0',
+								'공항철도': '#0090D2',
+								'신분당선': '#BB1834',
+								'인천1호선': '#6E98BB',
+								'인천2호선': '#ED8B00',
+								'경춘선': '#0C8E72',
+								'서해선': '#81A914',
+								'김포골드라인': '#A17800',
+								'GTX-A': '#BB1834',
+								'GTX-B': '#0090D2',
+								'GTX-C': '#009D3E'
+							};
+							
+							// 대중교통 색상 결정
+							let transitColor = '#4285F4'; // 기본 버스 색상
+							
+							if (segment.mode === 'BUS') {
+								transitColor = '#4285F4';
+							} else if (segment.mode === 'SUBWAY') {
+								// "수도권" 접두사와 "_숫자" 접미사 제거
+								const lineName = segment.subway_line?.replace(/^수도권/, '').replace(/_\d+$/, '');
+								transitColor = subwayLineColors[lineName] || '#34A853';
+								
+								console.log('🚇 지하철 경로 색상:', {
+									originalLine: segment.subway_line,
+									processedLine: lineName,
+									color: transitColor
+								});
+							}
+							
+							// 메인 경로선
+							const transitPolyline = new window.kakao.maps.Polyline({
+								path: [startPos, endPos],
+								strokeWeight: 8,
+								strokeColor: transitColor,
+								strokeOpacity: 0.8,
+								strokeStyle: 'solid'
+							});
+							transitPolyline.setMap(map);
+
+							// 글로우 효과
+							const glowPolyline = new window.kakao.maps.Polyline({
+								path: [startPos, endPos],
+								strokeWeight: 14,
+								strokeColor: transitColor,
+								strokeOpacity: 0.3,
+								strokeStyle: 'solid'
+							});
+							glowPolyline.setMap(map);
+						}
+					}
+				});
+
+				// 전체 경로를 연결하는 얇은 가이드 라인 (회색 점선)
+				if (allRoutePoints.length > 1) {
+					console.log('🗺️ 전체 연결 경로 그리기:', allRoutePoints.length, '개 좌표점');
+					
+					const guidePolyline = new window.kakao.maps.Polyline({
+						path: allRoutePoints,
+						strokeWeight: 2,
+						strokeColor: '#666666',
+						strokeOpacity: 0.6,
+						strokeStyle: 'shortdash'
+					});
+					guidePolyline.setMap(map);
+				}
+			} else {
+				console.log('🚌 직선 대중교통 경로 사용 (segments 없음)');
+				console.log('📊 segments 상태:', { segments, hasSegments: !!segments, segmentsLength: segments?.length });
+				
+				// segments가 없으면 직선으로 표시 (실선)
+				const transitPolyline = new window.kakao.maps.Polyline({
+					path: [startPosition, endPosition],
+					strokeWeight: 6,
+					strokeColor: '#4285F4',
+					strokeOpacity: 0.8,
+					strokeStyle: 'solid'
+				});
+				transitPolyline.setMap(map);
+			}
+
+			// 지도 범위 조정
+			map.setBounds(bounds);
+
+		} catch (error) {
+			console.error('❌ 대중교통 경로 그리기 실패:', error)
 		}
 	}
 
