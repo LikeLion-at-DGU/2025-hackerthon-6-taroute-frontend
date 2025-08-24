@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Wrapper, Overlay } from '../styles/ConsentStep.style.js'
+import { Wrapper, Overlay, BackButton } from '../styles/ConsentStep.style.js'
 import Map from '../../Location/Map.jsx'
 import locationIcon from '../../../assets/icons/location.svg'
 

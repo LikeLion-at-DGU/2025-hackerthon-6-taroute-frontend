@@ -32,7 +32,7 @@ export const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 168px);
   justify-content: center;
-  gap: 20px 20px;
+  gap: 5px 5px;
   margin: 8px auto 0;
 `
 
@@ -291,7 +291,7 @@ export const DetailFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
+  padding: 0 16px;
   margin-bottom: 20px;
   margin-left: 20px;
   margin-right: 20px;
@@ -356,8 +356,8 @@ background-blend-mode: multiply, normal, overlay;
 `
 
 export const DetailHeartSvg = styled.img`
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   pointer-events: none;
 `
 
