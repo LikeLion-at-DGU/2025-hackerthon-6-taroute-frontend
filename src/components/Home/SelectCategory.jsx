@@ -155,7 +155,7 @@ const SelectCategory = () => {
       {/* 로딩 또는 에러 상태 */}
       {loading && (
         <LoadingContainer>
-          <p>추천 장소 로딩중...</p>
+          <p>{t("category.loading")}</p>
         </LoadingContainer>
       )}
 
@@ -181,7 +181,7 @@ const SelectCategory = () => {
       {/* 데이터가 없는 경우 */}
       {!loading && !error && places.length === 0 && (
         <NoDataContainer>
-          <p>추천할 {LABELS[activeCat]}가 없습니다</p>
+          <p>{t("category.norecommend1")} {LABELS[activeCat]}{t("category.norecommend2")}</p>
         </NoDataContainer>
       )}
     </CategoryContainer>

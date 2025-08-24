@@ -8,23 +8,31 @@ import {
   ButtonNext,
 } from '../styles/ConsentStep.style.js'
 import taruSvg from '../../../assets/icons/taru.svg'
+import { useTranslation } from "react-i18next";
 
-function CommonStep({ 
-  next, 
-  prev, 
-  headerText = "타루",
-  roleText = "타로마스터",
-  contentText,
-  showPrevButton = false,
-}) {
+
+function CommonStep(props){
+  const { t } = useTranslation();
+  const{ 
+    next, 
+    prev, 
+    headerText,
+    roleText,
+    contentText,
+    showPrevButton = false,
+  } = props;
+
+  const taroHeader = headerText ?? t("taro.name"); // "타루"
+  const taroRole   = roleText  ?? t("taro.job");   // "타로마스터"
+
   return (
     <Wrapper>
       <Overlay />
       <TaruMascot src={taruSvg} alt="타루" aria-label="타루" role="img" />
 
       <BubbleHeader>
-        <span className="name">{headerText}</span>
-        <span className="role">{roleText}</span>
+        <span className="name">{taroHeader}</span>
+        <span className="role">{taroRole}</span>
       </BubbleHeader>
 
       <BubbleContent>

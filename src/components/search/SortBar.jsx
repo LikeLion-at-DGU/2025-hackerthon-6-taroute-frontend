@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import check from "../../assets/icons/check.svg";
 import arrow_down from "../../assets/icons/arrow-down.svg";
+import { useTranslation } from "react-i18next";
+
 
 const SortBarContainer = styled.div`
     display: flex;
@@ -86,8 +88,9 @@ const sortOptions = [
     "가격높은순"
 ];
 
-export const SortBar = ({ onSortChange, selectedSort = "정확도순" }) => {
+export const SortBar = ({ onSortChange, selectedSort = t(`search.sortitem${idx}`) }) => {
     const [showSelect, setShowSelect] = useState(false);
+    const { t } = useTranslation();
 
     const handleSelect = (option) => {
         setShowSelect(false);
@@ -101,10 +104,12 @@ export const SortBar = ({ onSortChange, selectedSort = "정확도순" }) => {
     return (
         <>
             <SortBarContainer>
-                <p style={{margin:'0', fontSize:'17px'}}>검색결과</p>
+                <p style={{margin:'0', fontSize:'17px'}}>{t("search.result")}</p>
                 <Barbutton onClick={() => setShowSelect(true)}>
                     <BarbuttonInner>
-                        <p style={{ fontSize: "10px", fontWeight:"400" }}>{selectedSort}</p>
+                        <p style={{ fontSize: "10px", fontWeight:"400" }}>
+                            {t(`search.sortitem${sortOptions.indexOf(selectedSort)}`)}
+                        </p>
                         <img src={arrow_down} style={{ width: 10 }} />
                     </BarbuttonInner>
                 </Barbutton>
@@ -123,9 +128,10 @@ export const SortBar = ({ onSortChange, selectedSort = "정확도순" }) => {
 };
 
 export const SelectSort = ({ onSelect, selected }) => {
+    const { t } = useTranslation();
     return (
         <SelectContainer>
-            <Title>정렬 기준</Title>
+            <Title>{t("search.sorttitle")}</Title>
             {sortOptions.map(option => (
                 <OptionButton
                     key={option}
@@ -133,7 +139,7 @@ export const SelectSort = ({ onSelect, selected }) => {
                     selected={selected === option}
                 >
                     <OptionButtonInner>
-                        <span>{option}</span>
+                        <span>{t(`search.sortitem${idx}`)}</span>
                         {selected === option && (
                             <img src={check} style={{ width: 14, height: 14 }} />
                         )}

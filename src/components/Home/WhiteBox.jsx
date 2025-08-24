@@ -10,6 +10,8 @@ import tour from '../../assets/icons/category/tour.png'
 import wikibook from '../../assets/icons/wikibook.png'
 import { useNavigate } from 'react-router-dom';
 import useSheetDrag from "../../hooks/common/useSheetDrag";
+import { useTranslation } from "react-i18next";
+
 
 
 const WhiteBoxContainer = styled.div`
@@ -167,6 +169,8 @@ const HotPlace = styled.div`
 
 const WhiteBox = ({ expandedTop = 96, collapsedTop = 360 }) => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
+
 
     const {
         y,
@@ -200,32 +204,32 @@ const WhiteBox = ({ expandedTop = 96, collapsedTop = 360 }) => {
             />
             <WhatWonder>
                 <Title>
-                    <p>카테고리별 장소</p>
+                    <p>{t("home.category")}</p>
                 </Title>
                 <CategoryContainer>
                     <CategoryItem onClick={() => navigate('/category', { state: { initialCategory: '식당' } })}> {/* 식당 */}
                         <Tile>
                             <Icon src={restaurant} />
                         </Tile>
-                        <Label>식당</Label>
+                        <Label>{t("home.item1")}</Label>
                     </CategoryItem>
                     <CategoryItem onClick={() => navigate('/category', { state: { initialCategory: '카페' } })}> {/* 카페 */}
                         <Tile>
                             <Icon src={cafe} />
                         </Tile>
-                        <Label>카페</Label>
+                        <Label>{t("home.item2")}</Label>
                     </CategoryItem>
                     <CategoryItem onClick={() => navigate('/category', { state: { initialCategory: '문화시설' } })}> {/* 문화시설 */}
                         <Tile>
                             <Icon src={culture} />
                         </Tile>
-                        <Label>문화시설</Label>
+                        <Label>{t("home.item3")}</Label>
                     </CategoryItem>
                     <CategoryItem onClick={() => navigate('/category', { state: { initialCategory: '관광명소' } })}> {/* 관광명소 */}
                         <Tile>
                             <Icon src={tour} />
                         </Tile>
-                        <Label>관광명소</Label>
+                        <Label>{t("home.item4")}</Label>
                     </CategoryItem>
                 </CategoryContainer>
 
@@ -246,7 +250,7 @@ const WhiteBox = ({ expandedTop = 96, collapsedTop = 360 }) => {
             <HotPlace>
                 <Title>
                     <img src={title} />
-                    <p style={{fontWeight:"600", fontSize:'20', color:'#2A2A2A'}}>요즘 뜨는 운명의 장소</p>
+                    <p style={{fontWeight:"600", fontSize:'20', color:'#2A2A2A'}}>{t("home.recent")}</p>
                 </Title>
                 <SelectCategory />
             </HotPlace>

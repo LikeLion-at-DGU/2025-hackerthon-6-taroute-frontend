@@ -8,9 +8,12 @@ import { useCategoryFilters } from '../hooks/category/useCategoryFilters.js'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { useSelectedLocation } from '../hooks/useSelectedLocation'
 import { searchWikiPlaces, getWikiDetail } from '../apis/wikiApi'
+import { useTranslation } from "react-i18next";
+
 // 검색은 카테고리 API(text_query)만 사용
 
 function Category() {
+  const { t } = useTranslation();
   const { location: selectedLoc } = useSelectedLocation()
   const [submittedKeyword, setSubmittedKeyword] = useState('')
   const [wikiItems, setWikiItems] = useState(null)
@@ -121,10 +124,10 @@ function Category() {
   return (
     <Wrapper>
       <Bleed>
-        <PageNavbar title="카테고리" />
+        <PageNavbar title={t("category.title")} />
       </Bleed>
       <SearchBar
-        placeholder="검색어를 입력하세요"
+        placeholder={t("category.subtitle")}
         value={keyword}
         onChange={setKeyword}
         onSubmit={() => setSubmittedKeyword((keyword || '').trim())}

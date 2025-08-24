@@ -35,6 +35,8 @@ import {
   ExitModalFooter,
   ExitModalButton,
 } from '../styles/ResultStep.style.js'
+import { useTranslation } from "react-i18next";
+
 
 import sampleImg from '../../../assets/images/ads_temp/temp1.jpg'
 import cardBg from '../../../assets/icons/taro/ResultTaroCard.svg'
@@ -52,6 +54,7 @@ import { useNavigate } from 'react-router-dom'
 import SadTaruIcon from '../../../assets/icons/taru/SadTaru.svg'
 
 function ResultStep({ prev, goTo }) {
+  const { t } = useTranslation();
   const navigate = useNavigate()
   const { addPlace, removePlace } = useSavedPlaceContext()
   const [cards, setCards] = useState(() => ([
@@ -172,7 +175,7 @@ function ResultStep({ prev, goTo }) {
     <Wrapper>
       <Overlay />
       <Content>
-        <Title>운명의 카드</Title>
+        <Title>{t("taro.card")}</Title>
 
         <Grid>
           {pageCards.map((c, idx) => (
@@ -273,11 +276,11 @@ function ResultStep({ prev, goTo }) {
           )}
         </Grid>
 
-        <Instruction>카드를 눌러 자세히 확인해보세요</Instruction>
+        <Instruction>{t("taro.carddetail")}</Instruction>
       </Content>
 
       <TaroButton onClick={openExitModal}>
-        타로 종료하기
+        {t("taro.endtaro")}
       </TaroButton>
 
       {detailIndex !== null && cards[detailIndex] && !cards[detailIndex].isRetry && (
@@ -324,12 +327,9 @@ function ResultStep({ prev, goTo }) {
                   
                   // 방법 2: replace 대신 push 사용하여 히스토리 스택 유지
                   navigate(`/wiki/place/${encodeURIComponent(rawId)}`, { replace: false })
-                  
-                  // 방법 3: 약간의 지연 후 이동 (히스토리 스택이 제대로 추가되도록)
-                  // setTimeout(() => {
-                  //   navigate(`/wiki/place/${encodeURIComponent(rawId)}`)
-                  // }, 100)
-                }}>지역위키 확인하기</SmallButton>
+                
+                }}>{t("taro.gowiki")}</SmallButton>
+                
                 <DetailHeartButton onClick={async (e) => {
                   e.stopPropagation()
                   const idx = detailIndex
@@ -395,15 +395,15 @@ function ResultStep({ prev, goTo }) {
             <ExitModalHeader>           
             </ExitModalHeader>
             <ExitModalContent>
-              <ExitModalTitle>타로 서비스를 종료하시겠습니까?</ExitModalTitle>
-              <ExitModalDescription>지나간 운명의 카드는 돌아오지 않습니다.</ExitModalDescription>
+              <ExitModalTitle>{t("taro.ending")}</ExitModalTitle>
+              <ExitModalDescription>{t("taro.ending2")}</ExitModalDescription>
             </ExitModalContent>
             <ExitModalFooter>
-              <ExitModalButton onClick={closeExitModal}>닫기</ExitModalButton>
+              <ExitModalButton onClick={closeExitModal}>{t("taro.return")}</ExitModalButton>
               <ExitModalButton $primary onClick={() => {
                 closeExitModal()
                 navigate('/plan')
-              }}>종료</ExitModalButton>
+              }}>{t("taro.close")}</ExitModalButton>
             </ExitModalFooter>
           </ExitModal>
         </ExitModalOverlay>

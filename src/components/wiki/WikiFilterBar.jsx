@@ -1,8 +1,10 @@
 import styled from 'styled-components'
 import { useState } from 'react'
 import BottomSheetSelect from '../common/BottomSheetSelect.jsx'
+import { useTranslation } from "react-i18next";
 
-const CATS = ['식당', '카페', '문화시설', '관광명소']
+const CATS = ['item1', 'item2', 'item3', 'item4']
+const { t } = useTranslation();
 
 export function WikiFilterBar({ selectedCategory, onSelectCategory }) {
   const [open, setOpen] = useState(false)
@@ -10,11 +12,13 @@ export function WikiFilterBar({ selectedCategory, onSelectCategory }) {
   return (
     <Bar>
       <Tabs>
-        {CATS.map((c) => (
+        {CATS.map((c) => {
+          const label = t(`category.${c}`);
           <Tab key={c} $active={selectedCategory === c} onClick={() => onSelectCategory(c)}>
             {c}
+          {label}
           </Tab>
-        ))}
+        })}
         <PillButton onClick={() => setOpen(true)}>
           {selectedCategory || '카테고리'}
         </PillButton>

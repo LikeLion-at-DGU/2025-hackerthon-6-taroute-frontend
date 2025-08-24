@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { getLocationSearch } from "../apis/searchApi";
 import searchIcon from '../assets/icons/search.svg';
 import nowLocation from '../assets/icons/nowLocation.svg';
+import { useTranslation } from "react-i18next";
+
 
 const LocationContainer = styled.div`
     display: flex;
@@ -317,15 +319,15 @@ const Location = () => {
 
     return (
         <Background>
-        <PageNavbar title="위치 검색" />
+        <PageNavbar title={t("location.title")} />
         <LocationContainer>
             {/* <Map keyword="이태원 맛집" /> */}
-            <h2>일정을 계획할 위치를 <br />검색해주세요</h2>
+            <h2>{t("location.subtitle")} <br />{t("location.subtitle2")}</h2>
             <SearchForm onSubmit={handleSubmit}>
                 <SearchInputContainer>
                     <Input
                         type="text"
-                        placeholder="동, 역명, 도로명 주소를 입력해주세요"
+                        placeholder={t("location.searchbar")}
                         value={searchValue}
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
@@ -347,18 +349,18 @@ const Location = () => {
                     disabled={loading}
                 >
                     <img src={nowLocation} />
-                    현재 위치로 찾기
+                    {t("location.now")}
                 </CurrentLocationButton>
             </SearchForm>
 
 
             {/* 검색 결과 표시 */}
-            {loading && <LoadingText>검색 중...</LoadingText>}
+            {loading && <LoadingText>{t("location.search")}</LoadingText>}
             
             {error && <ErrorText>{error}</ErrorText>}
             
             {!loading && !error && locations.length === 0 && hasSearched && (
-                <LoadingText>검색 결과가 없습니다.</LoadingText>
+                <LoadingText>{t("location.nolocation")}</LoadingText>
             )}
             
             {locations.length > 0 && (
