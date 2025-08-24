@@ -26,6 +26,15 @@ import {
   DetailHeartButton,
   DetailHeartSvg,
   TaroButton,
+  ExitModalOverlay,
+  ExitModal,
+  ExitModalHeader,
+  ExitModalContent,
+  ExitModalTitle,
+  ExitModalDescription,
+  ExitModalFooter,
+  ExitModalButton,
+  SadTaruImage,
 } from '../styles/ResultStep.style.js'
 
 import sampleImg from '../../../assets/images/ads_temp/temp1.jpg'
@@ -41,6 +50,7 @@ import { useSavedPlaceContext } from '../../../contexts/SavedPlaceContext'
 import { fetchPlaceSummary } from '../../../apis/taroApi'
 
 import { useNavigate } from 'react-router-dom'
+import SadTaruIcon from '../../../assets/icons/taru/SadTaru.svg'
 
 function ResultStep({ prev, goTo }) {
   const navigate = useNavigate()
@@ -69,6 +79,10 @@ function ResultStep({ prev, goTo }) {
   const closeDetail = () => setDetailIndex(null)
   const goPrev = () => setDetailIndex(i => (i === null ? i : Math.max(0, i - 1)))
   const goNext = () => setDetailIndex(i => (i === null ? i : Math.min(cards.length - 2, i + 1))) // retry 제외
+  
+  const [showExitModal, setShowExitModal] = useState(false)
+  const openExitModal = () => setShowExitModal(true)
+  const closeExitModal = () => setShowExitModal(false)
 
   // 세션에 저장된 20장 추천 결과 중 7장을 무작위로 골라 카드 타이틀/desc를 채움
   useEffect(() => {
@@ -224,7 +238,7 @@ function ResultStep({ prev, goTo }) {
         <Instruction>카드를 눌러 자세히 확인해보세요</Instruction>
       </Content>
 
-      <TaroButton onClick={() => navigate('/plan')}>
+      <TaroButton onClick={openExitModal}>
         타로 종료하기
       </TaroButton>
 
@@ -262,6 +276,27 @@ function ResultStep({ prev, goTo }) {
         </DetailOverlay> 
       )}
 
+      {/* 타로 종료 확인 모달 */}
+      {showExitModal && (
+        <ExitModalOverlay onClick={closeExitModal}>
+          <ExitModal onClick={(e) => e.stopPropagation()}>
+            <ExitModalHeader>
+             
+            </ExitModalHeader>
+            <ExitModalContent>
+              <ExitModalTitle>타로 서비스를 종료하시겠습니까?</ExitModalTitle>
+              <ExitModalDescription>지나간 운명의 카드는 돌아오지 않습니다.</ExitModalDescription>
+            </ExitModalContent>
+            <ExitModalFooter>
+              <ExitModalButton onClick={closeExitModal}>닫기</ExitModalButton>
+              <ExitModalButton $primary onClick={() => {
+                closeExitModal()
+                navigate('/plan')
+              }}>종료</ExitModalButton>
+            </ExitModalFooter>
+          </ExitModal>
+        </ExitModalOverlay>
+      )}
       
     </Wrapper>
   )

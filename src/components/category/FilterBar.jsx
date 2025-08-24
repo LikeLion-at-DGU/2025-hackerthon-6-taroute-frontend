@@ -65,8 +65,8 @@ export function FilterBar({
               title="거리"
               options={[
                 { label: '전체', value: '전체' },
+                { label: '500m 이내', value: '500m 이내' },
                 { label: '1km 이내', value: '1km 이내' },
-
                 { label: '3km 이내', value: '3km 이내' },
                 { label: '5km 이내', value: '5km 이내' },
               ]}

@@ -386,3 +386,73 @@ export const TaroButton = styled.button`
   z-index: 1200;
 `
 
+// 타로 종료 모달 스타일
+export const ExitModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+`
+
+export const ExitModal = styled.div`
+  width: 320px;
+  max-width: calc(100% - 32px);
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+`
+
+export const ExitModalHeader = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+`
+
+export const ExitModalContent = styled.div`
+  text-align: center;
+  margin-bottom: 24px;
+`
+
+export const ExitModalTitle = styled.h2`
+  margin: 0 0 12px 0;
+  color: #2A2A2A;
+  font-family: MaruBuriOTF;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+`
+
+export const ExitModalDescription = styled.p`
+  margin: 0;
+  color: #666;
+  font-family: MaruBuriOTF;
+  font-size: 14px;
+  line-height: 1.4;
+`
+
+export const ExitModalFooter = styled.div`
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+`
+
+export const ExitModalButton = styled.button`
+  padding: 12px 15px;
+  border: none;
+  border-radius: 8px;
+  font-family: MaruBuriOTF;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: ${props => props.$primary ? '#271932' : '#F0F0F0'};
+  color: ${props => props.$primary ? '#FFFFFF' : '#666'};
+  
+  &:hover {
+    opacity: 0.9;
+  }
+`
+
