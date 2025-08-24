@@ -7,6 +7,7 @@ import { TouchBackend } from 'react-dnd-touch-backend';
 import useSheetDrag from "../../hooks/common/useSheetDrag";
 import RouteListItem from "./RouteListItem";
 import { useSavedPlaceContext } from "../../contexts/SavedPlaceContext";
+import ShareModal from "./ShareModal";
 
 
 const SpotWhiteBoxContainer = styled.div`
@@ -20,7 +21,7 @@ const SpotWhiteBoxContainer = styled.div`
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     background-color: white;
-    /* 높이는 런타임에서 y에 따라 동적으로 설정 (height: calc(100dvh - y)) */
+    /* 높이는 런타임에서 y에 따라 동적으로 설정됩니다 */
     width: 100%;
     align-items: center;
     box-sizing: border-box;
@@ -30,7 +31,6 @@ const SpotWhiteBoxContainer = styled.div`
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     margin-top: 60px;
-    padding-bottom: 150px;
 `;
 
 const DragHandle = styled.div`
@@ -72,11 +72,61 @@ const SavedPlaceList = styled.div`
     touch-action: manipulation;
 `;
 
+const ButtonContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 20px 16px 100px 16px;
+    gap: 12px;
+`;
+
+const ActionButton = styled.button`
+    width: 100%;
+    height: 48px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &.primary {
+        background-color: #271932;
+        color: white;
+        
+        &:hover {
+            background-color: #1f1428;
+        }
+        
+        &:active {
+            background-color: #150e1a;
+        }
+    }
+    
+    &.secondary {
+        background-color: #f8f9fa;
+        color: #2A2A2A;
+        border: 1px solid #e9ecef;
+        
+        &:hover {
+            background-color: #e9ecef;
+        }
+        
+        &:active {
+            background-color: #dee2e6;
+        }
+    }
+`;
+
 const SpotWhiteBox = ({ expandedTop = 96, collapsedTop = 520 }) => {
     const navigate = useNavigate();
 
     // 저장된 장소들을 관리하는 커스텀 훅
     const { savedPlaces, setSavedPlaces } = useSavedPlaceContext();
+
+    // 공유 모달 상태
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [shareData, setShareData] = useState(null);
 
     // 터치 기능을 위한 백엔드 선택
     const isTouchDevice = 'ontouchstart' in window;
@@ -118,12 +168,55 @@ const SpotWhiteBox = ({ expandedTop = 96, collapsedTop = 520 }) => {
         }
     }, [savedPlaces, setSavedPlaces]);
 
+    // 일정 추가하기 버튼 클릭 핸들러
+    const handleAddToPlan = () => {
+        navigate('/');
+    };
+
+    // 공유하기 버튼 클릭 핸들러 
+    const handleShare = () => {
+        // 활성화된 장소들만 필터링
+        const activePlaces = savedPlaces.filter(place => place.isEnabled !== false);
+        
+        if (activePlaces.length < 2) {
+            alert('공유하려면 최소 2개 이상의 장소가 필요합니다.');
+            return;
+        }
+
+        // 첫 번째와 마지막 장소를 출발지/도착지로 설정
+        const startPlace = activePlaces[0];
+        const endPlace = activePlaces[activePlaces.length - 1];
+
+        // 공유 데이터 생성 (places 필드 제거)
+        const shareData = {
+            start: {
+                name: startPlace.place_name || startPlace.name || '출발지',
+                x: startPlace.x || startPlace.lng || startPlace.longitude,
+                y: startPlace.y || startPlace.lat || startPlace.latitude
+            },
+            end: {
+                name: endPlace.place_name || endPlace.name || '도착지', 
+                x: endPlace.x || endPlace.lng || endPlace.longitude,
+                y: endPlace.y || endPlace.lat || endPlace.latitude
+            },
+            ui: {
+                selected_mode: 'car', // 기본값
+                map_theme: 'light',
+                show_order_badges: true
+            }
+        };
+
+        console.log('🔗 공유 데이터 생성:', shareData);
+        setShareData(shareData);
+        setIsShareModalOpen(true);
+    };
+
     return (
         <DndProvider backend={dndBackend} options={backendOptions}>
             <SpotWhiteBoxContainer
                 style={{
                     transform: `translate3d(0, ${y}px, 0)`,
-                    height: `calc(100dvh - ${y}px)`,
+                    height: `${812 - y}px`,
                     transition: dragging ? 'none' : 'transform 240ms cubic-bezier(0.22, 1, 0.36, 1), height 240ms cubic-bezier(0.22, 1, 0.36, 1)'
                 }}
             >
@@ -170,7 +263,26 @@ const SpotWhiteBox = ({ expandedTop = 96, collapsedTop = 520 }) => {
                         </div>
                     )}
                 </SavedPlaceList>
+
+                {/* 활성화된 장소가 있을 때만 버튼 표시 */}
+                {savedPlaces && savedPlaces.some(place => place.isEnabled !== false) && (
+                    <ButtonContainer>
+                        <ActionButton className="primary" onClick={handleAddToPlan}>
+                            일정 추가하기
+                        </ActionButton>
+                        <ActionButton className="secondary" onClick={handleShare}>
+                            공유하기
+                        </ActionButton>
+                    </ButtonContainer>
+                )}
             </SpotWhiteBoxContainer>
+            
+            {/* 공유 모달 */}
+            <ShareModal
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+                shareData={shareData}
+            />
         </DndProvider>
     );
 };

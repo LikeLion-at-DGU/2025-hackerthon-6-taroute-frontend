@@ -157,7 +157,7 @@ export default function SearchResults() {
                 autoFocus
                 bordered borderColor="#363636" borderWidth="0.5px"
             />
-            {!loading && rows.length > 0 && <SortBar onSortChange={handleSortChange} selectedSort={sortType} />}
+            {!loading && <SortBar onSortChange={handleSortChange} selectedSort={sortType} />}
             {loading && <div>로딩중...</div>}
             {!loading && rows.length === 0 &&
                 <NoResultContainer>

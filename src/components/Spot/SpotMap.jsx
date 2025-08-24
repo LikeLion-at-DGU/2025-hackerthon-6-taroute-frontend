@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import axios from 'axios'
+import { getRouteInfo } from '../../apis/routeApi'
 
 const MapContainer = styled.div`
     width: 100%;
@@ -10,6 +11,11 @@ const MapContainer = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
+    
+    /* 네온 효과를 위한 글로벌 스타일 */
+    .neon-polyline {
+        filter: drop-shadow(0 0 3px currentColor) drop-shadow(0 0 6px currentColor);
+    }
 `;
 
 /**
@@ -22,12 +28,13 @@ const SpotMap = ({
 	startIndex = 1,
 	endIndex = 2,
 	transportMode = 'car', // 교통수단 ('car', 'walk', 'transit')
-	onRouteInfoChange
+	onRouteInfoChange,
+	startName = '출발지',
+	endName = '도착지'
 }) => {
 	const mapRef = useRef(null)
 	const mapObjRef = useRef(null)
 	const [ready, setReady] = useState(false)
-	const [routeData, setRouteData] = useState(null)
 	const [loading, setLoading] = useState(false)
 
 	// 카카오맵 SDK 로드 확인
@@ -93,6 +100,8 @@ const SpotMap = ({
 			// 길찾기 실행
 			if (transportMode === 'walk') {
 				findWalkingRoute(map, startCoords, endCoords)
+			} else if (transportMode === 'transit') {
+				findTransitRoute(map, startCoords, endCoords)
 			} else {
 				findRoute(map, startCoords, endCoords)
 			}
@@ -106,18 +115,58 @@ const SpotMap = ({
 		}
 	}
 
-	// TMAP 도보 길찾기 API (간단한 버전)
+	// TMAP 도보 길찾기 API 호출
 	const findWalkingRoute = async (map, startCoords, endCoords) => {
 		setLoading(true)
 		try {
-			console.log('🚶 도보 경로 표시 시작')
+			console.log('🚶 도보 경로 API 호출 시작')
 
-			// 간단한 도보 경로 - 직선 거리로 계산
+			// RouteAPI 호출
+			const routeResponse = await getRouteInfo({
+				origin_x: startCoords.lng,
+				origin_y: startCoords.lat,
+				destination_x: endCoords.lng,
+				destination_y: endCoords.lat,
+				transport: 'walk',
+				startName,
+				endName
+			})
+
+			console.log('✅ 도보 경로 API 응답:', routeResponse)
+			console.log('🔍 points 배열 확인:', routeResponse?.data?.points)
+			if (routeResponse?.data?.points) {
+				console.log('📍 첫 번째 point:', routeResponse.data.points[0])
+				console.log('📍 마지막 point:', routeResponse.data.points[routeResponse.data.points.length - 1])
+			}
+
+			// 상위 컴포넌트에 경로 정보 전달
+			if (onRouteInfoChange && routeResponse?.data) {
+				// walk_time에서 숫자만 추출 (예: "35분" -> 35)
+				const timeMatch = routeResponse.data.walk_time?.match(/\d+/);
+				const duration = timeMatch ? parseInt(timeMatch[0]) : 0;
+				
+				// walk_distance에서 숫자만 추출 (예: "2.6km" -> 2.6)
+				const distanceMatch = routeResponse.data.walk_distance?.match(/([\d.]+)/);
+				const distance = distanceMatch ? parseFloat(distanceMatch[1]) : 0;
+
+				onRouteInfoChange({
+					distance: distance, // km
+					duration: duration, // 분
+					taxiFare: 0 // 도보는 택시비 없음
+				})
+			}
+
+			// 도보 경로 그리기 (API 응답의 points 사용)
+			drawWalkingRoute(map, routeResponse?.data?.points, startCoords, endCoords)
+
+		} catch (error) {
+			console.error('❌ 도보 경로 API 호출 실패:', error)
+			
+			// API 실패 시 직선 거리로 폴백
 			const distance = calculateDistance(startCoords.lat, startCoords.lng, endCoords.lat, endCoords.lng)
 			const walkingSpeed = 5 // 시속 5km
 			const walkingTime = Math.round((distance / walkingSpeed) * 60) // 분
 
-			// 상위 컴포넌트에 경로 정보 전달
 			if (onRouteInfoChange) {
 				onRouteInfoChange({
 					distance: distance.toFixed(1), // km
@@ -126,20 +175,175 @@ const SpotMap = ({
 				})
 			}
 
-			// 도보 경로 그리기
+			// 직선 경로로 그리기
 			drawWalkingRoute(map, null, startCoords, endCoords)
-
-		} catch (error) {
-			console.error('❌ 도보 경로 표시 실패:', error)
-			if (onRouteInfoChange) {
-				onRouteInfoChange(null)
-			}
 		} finally {
 			setLoading(false)
 		}
 	}
 
-	// 두 좌표 간의 거리 계산 (하버사인 공식)
+	// 대중교통 길찾기 API 호출
+	const findTransitRoute = async (map, startCoords, endCoords) => {
+		setLoading(true)
+		try {
+			console.log('🚌 대중교통 경로 API 호출 시작')
+
+			// RouteAPI 호출
+			const routeResponse = await getRouteInfo({
+				origin_x: startCoords.lng,
+				origin_y: startCoords.lat,
+				destination_x: endCoords.lng,
+				destination_y: endCoords.lat,
+				transport: 'transit',
+				startName,
+				endName
+			})
+
+			console.log('✅ 대중교통 경로 API 응답:', routeResponse)
+
+			// 상위 컴포넌트에 경로 정보 전달 (segments 정보도 포함)
+			if (onRouteInfoChange && routeResponse?.data) {
+				const summary = routeResponse.data.transit_summary || {};
+				
+				// 시간, 거리, 요금에서 숫자만 추출
+				const timeMatch = summary.trans_time?.match(/\d+/);
+				const duration = timeMatch ? parseInt(timeMatch[0]) : 0;
+				
+				const distanceMatch = summary.trans_distance?.match(/([\d.]+)/);
+				const distance = distanceMatch ? parseFloat(distanceMatch[1]) : 0;
+				
+				const fareMatch = summary.trans_fare?.match(/[\d,]+/);
+				const fare = fareMatch ? parseInt(fareMatch[0].replace(/,/g, '')) : 0;
+
+				onRouteInfoChange({
+					distance: distance, // km
+					duration: duration, // 분
+					taxiFare: fare, // 대중교통 요금
+					segments: routeResponse.data.segments || [] // 구간 정보
+				})
+			}
+
+			// 대중교통 경로 그리기 (API 응답 구조에 따라 segments 위치 다름)
+			const segments = routeResponse?.data?.segments || routeResponse?.segments;
+			console.log('🚌 segments 전달 확인:', {
+				'routeResponse?.data?.segments': routeResponse?.data?.segments,
+				'routeResponse?.segments': routeResponse?.segments,
+				'최종 segments': segments
+			});
+			drawTransitRoute(map, segments, startCoords, endCoords)
+
+		} catch (error) {
+			console.error('❌ 대중교통 경로 API 호출 실패:', error)
+			
+			// API 실패 시 직선 거리로 폴백
+			const distance = calculateDistance(startCoords.lat, startCoords.lng, endCoords.lat, endCoords.lng)
+			const estimatedTime = Math.round(distance * 3) // 대략적인 대중교통 시간 (km당 3분)
+
+			if (onRouteInfoChange) {
+				onRouteInfoChange({
+					distance: distance.toFixed(1), // km
+					duration: estimatedTime, // 분
+					taxiFare: 0
+				})
+			}
+
+			// 직선 경로로 그리기
+			drawTransitRoute(map, null, startCoords, endCoords)
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	// 깔끔한 네온 마커 생성 (이미지 스타일 참고)
+	const createNeonMarker = (position, color, text, index) => {
+		// 마커 생성
+		const markerElement = document.createElement('div');
+		markerElement.style.cssText = `
+			width: 32px;
+			height: 32px;
+			background: ${color};
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: bold;
+			color: white;
+			font-size: 14px;
+			cursor: pointer;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 0 2px ${color}40;
+			transition: all 0.2s ease;
+			z-index: 10;
+			position: relative;
+		`;
+		markerElement.textContent = index;
+		markerElement.title = text; // 툴팁으로 이름 표시
+
+		// 호버 효과
+		markerElement.addEventListener('mouseenter', () => {
+			markerElement.style.transform = 'scale(1.15)';
+			markerElement.style.boxShadow = `0 4px 15px rgba(0,0,0,0.4), 0 0 0 3px ${color}60, 0 0 20px ${color}80`;
+		});
+
+		markerElement.addEventListener('mouseleave', () => {
+			markerElement.style.transform = 'scale(1)';
+			markerElement.style.boxShadow = `0 2px 8px rgba(0,0,0,0.3), 0 0 0 2px ${color}40`;
+		});
+
+		// 커스텀 오버레이로 마커 생성
+		const customOverlay = new window.kakao.maps.CustomOverlay({
+			position: position,
+			content: markerElement,
+			yAnchor: 0.5,
+			xAnchor: 0.5
+		});
+
+		return customOverlay;
+	};
+
+	// 간단한 툴팁 말풍선 생성 (InfoWindow 대신 CustomOverlay 사용)
+	const createTooltip = (position, text) => {
+		const tooltipElement = document.createElement('div');
+		tooltipElement.style.cssText = `
+			padding: 8px 12px;
+			background: white;
+			color: #333;
+			border-radius: 8px;
+			font-size: 13px;
+			font-weight: 600;
+			box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+			border: 1px solid #e0e0e0;
+			position: relative;
+			min-width: 80px;
+			text-align: center;
+			white-space: nowrap;
+			z-index: 1000;
+		`;
+		tooltipElement.textContent = text;
+
+		// 화살표 추가
+		const arrow = document.createElement('div');
+		arrow.style.cssText = `
+			position: absolute;
+			bottom: -6px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 0;
+			height: 0;
+			border-left: 6px solid transparent;
+			border-right: 6px solid transparent;
+			border-top: 6px solid white;
+		`;
+		tooltipElement.appendChild(arrow);
+
+		const tooltip = new window.kakao.maps.CustomOverlay({
+			position: position,
+			content: tooltipElement,
+			yAnchor: 1.3,
+			xAnchor: 0.5
+		});
+
+		return tooltip;
+	};
 	const calculateDistance = (lat1, lng1, lat2, lng2) => {
 		const R = 6371 // 지구 반지름 (km)
 		const dLat = (lat2 - lat1) * Math.PI / 180
@@ -178,7 +382,6 @@ const SpotMap = ({
 
 			if (response.data.routes && response.data.routes[0]) {
 				const route = response.data.routes[0]
-				setRouteData(route)
 				drawRoute(map, route, startCoords, endCoords)
 				
 				// 상위 컴포넌트에 경로 정보 전달
@@ -207,8 +410,8 @@ const SpotMap = ({
 		}
 	}
 
-	// TMAP 도보 경로 그리기 (간단한 버전)
-	const drawWalkingRoute = (map, features, startCoords, endCoords) => {
+	// TMAP 도보 경로 그리기 (API 응답의 points 사용)
+	const drawWalkingRoute = (map, points, startCoords, endCoords) => {
 		try {
 			// RouteListItem과 같은 색상 배열 사용
 			const colors = [
@@ -219,35 +422,88 @@ const SpotMap = ({
 			const startColor = colors[(startIndex - 1) % 10] || '#e06d6d';
 			const endColor = colors[(endIndex - 1) % 10] || '#e09b6d';
 
-			// 출발지 동그라미 마커
-			const startCircle = new window.kakao.maps.Circle({
-				center: new window.kakao.maps.LatLng(startCoords.lat, startCoords.lng),
-				radius: 50,
-				strokeWeight: 3,
-				strokeColor: startColor,
-				strokeOpacity: 1,
-				fillColor: startColor,
-				fillOpacity: 0.8
-			});
-			startCircle.setMap(map);
+			// 네온 효과가 적용된 커스텀 마커 생성
+			const startPosition = new window.kakao.maps.LatLng(startCoords.lat, startCoords.lng);
+			const endPosition = new window.kakao.maps.LatLng(endCoords.lat, endCoords.lng);
 
-			// 도착지 동그라미 마커
-			const endCircle = new window.kakao.maps.Circle({
-				center: new window.kakao.maps.LatLng(endCoords.lat, endCoords.lng),
-				radius: 50,
-				strokeWeight: 3,
-				strokeColor: endColor,
-				strokeOpacity: 1,
-				fillColor: endColor,
-				fillOpacity: 0.8
-			});
-			endCircle.setMap(map);
+			const startMarker = createNeonMarker(startPosition, startColor, startName || '출발지', startIndex);
+			const endMarker = createNeonMarker(endPosition, endColor, endName || '도착지', endIndex);
 
-			// 도보는 직선으로 표시 (점선)
-			const path = [
-				new window.kakao.maps.LatLng(startCoords.lat, startCoords.lng),
-				new window.kakao.maps.LatLng(endCoords.lat, endCoords.lng)
-			];
+			startMarker.setMap(map);
+			endMarker.setMap(map);
+
+			// 마커 클릭 이벤트 - 툴팁 표시 (도보)
+			let startTooltip = null;
+			let endTooltip = null;
+
+			// 출발지 마커 클릭 이벤트
+			startMarker.getContent().addEventListener('click', () => {
+				// 기존 툴팁들 제거
+				if (endTooltip) {
+					endTooltip.setMap(null);
+				}
+				if (startTooltip) {
+					startTooltip.setMap(null);
+					startTooltip = null;
+				} else {
+					startTooltip = createTooltip(startPosition, startName || '출발지');
+					startTooltip.setMap(map);
+				}
+			});
+
+			// 도착지 마커 클릭 이벤트
+			endMarker.getContent().addEventListener('click', () => {
+				// 기존 툴팁들 제거
+				if (startTooltip) {
+					startTooltip.setMap(null);
+				}
+				if (endTooltip) {
+					endTooltip.setMap(null);
+					endTooltip = null;
+				} else {
+					endTooltip = createTooltip(endPosition, endName || '도착지');
+					endTooltip.setMap(map);
+				}
+			});
+
+			// API 응답으로 받은 points가 있으면 실제 경로를 그리고, 없으면 직선으로 그리기
+			let routePath = [];
+			const bounds = new window.kakao.maps.LatLngBounds();
+
+			if (points && points.length > 0) {
+				console.log('🗺️ API 경로 points 사용:', points.length, '개 지점');
+				console.log('🔍 points 배열 전체:', points);
+				
+				// API 응답의 points를 카카오맵 좌표로 변환
+				routePath = points.map((point, index) => {
+					const lat = point.lat || point.y || point.latitude;
+					const lng = point.lng || point.x || point.longitude;
+					
+					console.log(`📍 Point ${index}:`, { point, lat, lng });
+					
+					if (!lat || !lng) {
+						console.warn(`⚠️ Point ${index}에서 좌표를 찾을 수 없음:`, point);
+						return null;
+					}
+					
+					const latlng = new window.kakao.maps.LatLng(lat, lng);
+					bounds.extend(latlng);
+					return latlng;
+				}).filter(Boolean); // null 값 제거
+				
+				console.log('✅ 변환된 경로 points:', routePath.length, '개');
+			} else {
+				console.log('🗺️ 직선 경로 사용 - points가 없거나 비어있음');
+				console.log('🔍 points 값:', points);
+				
+				// 직선 경로
+				routePath = [
+					new window.kakao.maps.LatLng(startCoords.lat, startCoords.lng),
+					new window.kakao.maps.LatLng(endCoords.lat, endCoords.lng)
+				];
+				bounds.extend(routePath[0]);
+				bounds.extend(routePath[1]);
+			}
 
 			// HEX를 RGB로 변환하는 함수
 			const hexToRgb = (hex) => {
@@ -262,57 +518,332 @@ const SpotMap = ({
 			const startRgb = hexToRgb(startColor);
 			const endRgb = hexToRgb(endColor);
 
-			// 중간 색상 계산 (50% 지점)
-			const midColor = `rgb(${Math.round((startRgb.r + endRgb.r) / 2)}, ${Math.round((startRgb.g + endRgb.g) / 2)}, ${Math.round((startRgb.b + endRgb.b) / 2)})`;
-
-			// 도보 경로선 그리기 (점선, 그라디언트 효과를 위해 여러 선분으로)
-			const segments = 10;
-			for (let i = 0; i < segments; i++) {
-				const ratio = i / (segments - 1);
-				const lat = startCoords.lat + (endCoords.lat - startCoords.lat) * ratio;
-				const lng = startCoords.lng + (endCoords.lng - startCoords.lng) * ratio;
+			// 경로선을 세그먼트별로 그려서 그라디언트 효과 구현
+			const totalSegments = routePath.length - 1;
+			
+			for (let i = 0; i < totalSegments; i++) {
+				const ratio = i / Math.max(totalSegments - 1, 1);
 				
-				if (i > 0) {
-					const prevRatio = (i - 1) / (segments - 1);
-					const prevLat = startCoords.lat + (endCoords.lat - startCoords.lat) * prevRatio;
-					const prevLng = startCoords.lng + (endCoords.lng - startCoords.lng) * prevRatio;
-					
-					// 색상 보간
-					const r = Math.round(startRgb.r + (endRgb.r - startRgb.r) * ratio);
-					const g = Math.round(startRgb.g + (endRgb.g - startRgb.g) * ratio);
-					const b = Math.round(startRgb.b + (endRgb.b - startRgb.b) * ratio);
-					
-					const polyline = new window.kakao.maps.Polyline({
-						path: [
-							new window.kakao.maps.LatLng(prevLat, prevLng),
-							new window.kakao.maps.LatLng(lat, lng)
-						],
-						strokeWeight: 4, // 도보는 더 얇게
-						strokeColor: `rgb(${r}, ${g}, ${b})`,
-						strokeOpacity: 0.9,
-						strokeStyle: 'shortdash' // 도보는 점선
-					});
-					polyline.setMap(map);
-				}
+				// 색상 보간
+				const r = Math.round(startRgb.r + (endRgb.r - startRgb.r) * ratio);
+				const g = Math.round(startRgb.g + (endRgb.g - startRgb.g) * ratio);
+				const b = Math.round(startRgb.b + (endRgb.b - startRgb.b) * ratio);
+				const currentColor = `rgb(${r}, ${g}, ${b})`;
+				
+				// 메인 경로선 (굵게, 점선)
+				const mainPolyline = new window.kakao.maps.Polyline({
+					path: [routePath[i], routePath[i + 1]],
+					strokeWeight: 6,
+					strokeColor: currentColor,
+					strokeOpacity: 1,
+					strokeStyle: 'shortdash'
+				});
+				mainPolyline.setMap(map);
+				
+				// 네온 글로우 효과를 위한 추가 경로선 (더 굵고 투명)
+				const glowPolyline = new window.kakao.maps.Polyline({
+					path: [routePath[i], routePath[i + 1]],
+					strokeWeight: 12,
+					strokeColor: currentColor,
+					strokeOpacity: 0.3,
+					strokeStyle: 'shortdash'
+				});
+				glowPolyline.setMap(map);
 			}
 
 			// 지도 범위 조정
-			const bounds = new window.kakao.maps.LatLngBounds()
-			bounds.extend(new window.kakao.maps.LatLng(startCoords.lat, startCoords.lng))
-			bounds.extend(new window.kakao.maps.LatLng(endCoords.lat, endCoords.lng))
-			map.setBounds(bounds)
+			map.setBounds(bounds);
 
 		} catch (error) {
 			console.error('❌ 도보 경로 그리기 실패:', error)
 		}
 	}
 
+	// 대중교통 경로 그리기
+	const drawTransitRoute = (map, segments, startCoords, endCoords) => {
+		try {
+			console.log('🎯 drawTransitRoute 호출됨:', {
+				segments: segments,
+				segmentsCount: segments?.length,
+				startCoords,
+				endCoords
+			});
+			// RouteListItem과 같은 색상 배열 사용
+			const colors = [
+				'#e06d6d', '#e09b6d', '#d9e06d', '#aee06d', '#6de09a',
+				'#6ddfe0', '#6d95e0', '#9a6de0', '#e06ddf', '#e06d95'
+			];
+
+			const startColor = colors[(startIndex - 1) % 10] || '#e06d6d';
+			const endColor = colors[(endIndex - 1) % 10] || '#e09b6d';
+
+			// 출발지와 도착지 마커
+			const startPosition = new window.kakao.maps.LatLng(startCoords.lat, startCoords.lng);
+			const endPosition = new window.kakao.maps.LatLng(endCoords.lat, endCoords.lng);
+
+			const startMarker = createNeonMarker(startPosition, startColor, startName || '출발지', startIndex);
+			const endMarker = createNeonMarker(endPosition, endColor, endName || '도착지', endIndex);
+
+			startMarker.setMap(map);
+			endMarker.setMap(map);
+
+			// 마커 클릭 이벤트
+			let startTooltip = null;
+			let endTooltip = null;
+
+			startMarker.getContent().addEventListener('click', () => {
+				if (endTooltip) {
+					endTooltip.setMap(null);
+				}
+				if (startTooltip) {
+					startTooltip.setMap(null);
+					startTooltip = null;
+				} else {
+					startTooltip = createTooltip(startPosition, startName || '출발지');
+					startTooltip.setMap(map);
+				}
+			});
+
+			endMarker.getContent().addEventListener('click', () => {
+				if (startTooltip) {
+					startTooltip.setMap(null);
+				}
+				if (endTooltip) {
+					endTooltip.setMap(null);
+					endTooltip = null;
+				} else {
+					endTooltip = createTooltip(endPosition, endName || '도착지');
+					endTooltip.setMap(map);
+				}
+			});
+
+			const bounds = new window.kakao.maps.LatLngBounds();
+			bounds.extend(startPosition);
+			bounds.extend(endPosition);
+
+			// segments가 있으면 대중교통 경로를 구간별로 그리기
+			if (segments && segments.length > 0) {
+				console.log('🚌 대중교통 구간별 경로 그리기:', segments.length, '개 구간');
+				console.log('🔍 segments 데이터 상세:', segments);
+
+				// 전체 경로를 위한 좌표 배열
+				const allRoutePoints = [];
+				
+				// BUS/SUBWAY 구간만 필터링
+				const transitSegments = segments.filter(segment => segment.mode === 'BUS' || segment.mode === 'SUBWAY');
+				console.log('🚌 대중교통 구간만 추출:', transitSegments.length, '개');
+
+				// 첫 번째 교통수단이 있다면 출발지에서 첫 탑승지까지 도보 그리기
+				if (transitSegments.length > 0) {
+					const firstTransit = transitSegments[0];
+					let firstStartPos;
+					
+					if (firstTransit.mode === 'BUS') {
+						firstStartPos = new window.kakao.maps.LatLng(firstTransit.start_blat, firstTransit.start_blon);
+					} else if (firstTransit.mode === 'SUBWAY') {
+						firstStartPos = new window.kakao.maps.LatLng(firstTransit.start_slat, firstTransit.start_slon);
+					}
+					
+					if (firstStartPos) {
+						const walkToFirst = new window.kakao.maps.Polyline({
+							path: [startPosition, firstStartPos],
+							strokeWeight: 5,
+							strokeColor: '#666666',
+							strokeOpacity: 0.8,
+							strokeStyle: 'shortdash'
+						});
+						walkToFirst.setMap(map);
+						console.log('🚶 출발지→첫 탑승지 도보 경로 그리기');
+					}
+				}
+				
+				// 마지막 교통수단이 있다면 마지막 하차지에서 도착지까지 도보 그리기
+				if (transitSegments.length > 0) {
+					const lastTransit = transitSegments[transitSegments.length - 1];
+					let lastEndPos;
+					
+					if (lastTransit.mode === 'BUS') {
+						lastEndPos = new window.kakao.maps.LatLng(lastTransit.end_blat, lastTransit.end_blon);
+					} else if (lastTransit.mode === 'SUBWAY') {
+						lastEndPos = new window.kakao.maps.LatLng(lastTransit.end_slat, lastTransit.end_slon);
+					}
+					
+					if (lastEndPos) {
+						const walkFromLast = new window.kakao.maps.Polyline({
+							path: [lastEndPos, endPosition],
+							strokeWeight: 5,
+							strokeColor: '#666666',
+							strokeOpacity: 0.8,
+							strokeStyle: 'shortdash'
+						});
+						walkFromLast.setMap(map);
+						console.log('🚶 마지막 하차지→도착지 도보 경로 그리기');
+					}
+				}
+				
+				// 교통수단 간 환승 도보 그리기
+				for (let i = 0; i < transitSegments.length - 1; i++) {
+					const currentTransit = transitSegments[i];
+					const nextTransit = transitSegments[i + 1];
+					
+					let currentEndPos, nextStartPos;
+					
+					// 현재 교통수단 하차지
+					if (currentTransit.mode === 'BUS') {
+						currentEndPos = new window.kakao.maps.LatLng(currentTransit.end_blat, currentTransit.end_blon);
+					} else if (currentTransit.mode === 'SUBWAY') {
+						currentEndPos = new window.kakao.maps.LatLng(currentTransit.end_slat, currentTransit.end_slon);
+					}
+					
+					// 다음 교통수단 탑승지
+					if (nextTransit.mode === 'BUS') {
+						nextStartPos = new window.kakao.maps.LatLng(nextTransit.start_blat, nextTransit.start_blon);
+					} else if (nextTransit.mode === 'SUBWAY') {
+						nextStartPos = new window.kakao.maps.LatLng(nextTransit.start_slat, nextTransit.start_slon);
+					}
+					
+					if (currentEndPos && nextStartPos) {
+						const transferWalk = new window.kakao.maps.Polyline({
+							path: [currentEndPos, nextStartPos],
+							strokeWeight: 5,
+							strokeColor: '#666666',
+							strokeOpacity: 0.8,
+							strokeStyle: 'shortdash'
+						});
+						transferWalk.setMap(map);
+						console.log(`🚶 환승 도보 경로 그리기: ${currentTransit.mode} → ${nextTransit.mode}`);
+					}
+				}
+
+				segments.forEach((segment, index) => {
+					if (segment.mode === 'BUS' || segment.mode === 'SUBWAY') {
+						let startPos, endPos;
+						
+						// 버스와 지하철 좌표 필드명이 다름
+						if (segment.mode === 'BUS') {
+							startPos = new window.kakao.maps.LatLng(segment.start_blat, segment.start_blon);
+							endPos = new window.kakao.maps.LatLng(segment.end_blat, segment.end_blon);
+						} else if (segment.mode === 'SUBWAY') {
+							startPos = new window.kakao.maps.LatLng(segment.start_slat, segment.start_slon);
+							endPos = new window.kakao.maps.LatLng(segment.end_slat, segment.end_slon);
+						}
+						
+						if (startPos && endPos) {
+							bounds.extend(startPos);
+							bounds.extend(endPos);
+							
+							// 전체 경로에 좌표 추가 (첫 번째 segment의 시작점과 모든 segment의 끝점)
+							if (index === 0) {
+								allRoutePoints.push(startPos);
+							}
+							allRoutePoints.push(endPos);
+							
+							
+
+							// 지하철 호선별 색상 코드 (RouteBox와 동일)
+							const subwayLineColors = {
+								'1호선': '#0052A4',
+								'2호선': '#009D3E',
+								'3호선': '#EF7C1C',
+								'4호선': '#00A5DE',
+								'5호선': '#996CAC',
+								'6호선': '#9E4510',
+								'7호선': '#5D6519',
+								'8호선': '#D6406A',
+								'9호선': '#8E764B',
+								'수인분당선': '#E0A134',
+								'경의중앙선': '#2ABFD0',
+								'공항철도': '#0090D2',
+								'신분당선': '#BB1834',
+								'인천1호선': '#6E98BB',
+								'인천2호선': '#ED8B00',
+								'경춘선': '#0C8E72',
+								'서해선': '#81A914',
+								'김포골드라인': '#A17800',
+								'GTX-A': '#BB1834',
+								'GTX-B': '#0090D2',
+								'GTX-C': '#009D3E'
+							};
+							
+							// 대중교통 색상 결정
+							let transitColor = '#4285F4'; // 기본 버스 색상
+							
+							if (segment.mode === 'BUS') {
+								transitColor = '#4285F4';
+							} else if (segment.mode === 'SUBWAY') {
+								// "수도권" 접두사와 "_숫자" 접미사 제거
+								const lineName = segment.subway_line?.replace(/^수도권/, '').replace(/_\d+$/, '');
+								transitColor = subwayLineColors[lineName] || '#34A853';
+								
+								console.log('🚇 지하철 경로 색상:', {
+									originalLine: segment.subway_line,
+									processedLine: lineName,
+									color: transitColor
+								});
+							}
+							
+							// 메인 경로선
+							const transitPolyline = new window.kakao.maps.Polyline({
+								path: [startPos, endPos],
+								strokeWeight: 8,
+								strokeColor: transitColor,
+								strokeOpacity: 0.8,
+								strokeStyle: 'solid'
+							});
+							transitPolyline.setMap(map);
+
+							// 글로우 효과
+							const glowPolyline = new window.kakao.maps.Polyline({
+								path: [startPos, endPos],
+								strokeWeight: 14,
+								strokeColor: transitColor,
+								strokeOpacity: 0.3,
+								strokeStyle: 'solid'
+							});
+							glowPolyline.setMap(map);
+						}
+					}
+				});
+
+				// 전체 경로를 연결하는 얇은 가이드 라인 (회색 점선)
+				if (allRoutePoints.length > 1) {
+					console.log('🗺️ 전체 연결 경로 그리기:', allRoutePoints.length, '개 좌표점');
+					
+					const guidePolyline = new window.kakao.maps.Polyline({
+						path: allRoutePoints,
+						strokeWeight: 2,
+						strokeColor: '#666666',
+						strokeOpacity: 0.6,
+						strokeStyle: 'shortdash'
+					});
+					guidePolyline.setMap(map);
+				}
+			} else {
+				console.log('🚌 직선 대중교통 경로 사용 (segments 없음)');
+				console.log('📊 segments 상태:', { segments, hasSegments: !!segments, segmentsLength: segments?.length });
+				
+				// segments가 없으면 직선으로 표시 (실선)
+				const transitPolyline = new window.kakao.maps.Polyline({
+					path: [startPosition, endPosition],
+					strokeWeight: 6,
+					strokeColor: '#4285F4',
+					strokeOpacity: 0.8,
+					strokeStyle: 'solid'
+				});
+				transitPolyline.setMap(map);
+			}
+
+			// 지도 범위 조정
+			map.setBounds(bounds);
+
+		} catch (error) {
+			console.error('❌ 대중교통 경로 그리기 실패:', error)
+		}
+	}
+
 	// 경로 그리기
 	const drawRoute = (map, route, startCoords, endCoords) => {
 		try {
-			// 기존 마커와 경로 제거
-			// (실제로는 마커와 폴리라인을 상태로 관리해야 하지만, 단순화)
-
 			// RouteListItem과 같은 색상 배열 사용
 			const colors = [
 				'#e06d6d', // 1번
@@ -331,29 +862,49 @@ const SpotMap = ({
 			const startColor = colors[(startIndex - 1) % 10] || '#e06d6d';
 			const endColor = colors[(endIndex - 1) % 10] || '#e09b6d';
 
-			// 출발지 동그라미 마커
-			const startCircle = new window.kakao.maps.Circle({
-				center: new window.kakao.maps.LatLng(startCoords.lat, startCoords.lng),
-				radius: 50, // 반지름 (미터)
-				strokeWeight: 3,
-				strokeColor: startColor,
-				strokeOpacity: 1,
-				fillColor: startColor,
-				fillOpacity: 0.8
-			});
-			startCircle.setMap(map);
+			// 네온 효과가 적용된 커스텀 마커 생성
+			const startPosition = new window.kakao.maps.LatLng(startCoords.lat, startCoords.lng);
+			const endPosition = new window.kakao.maps.LatLng(endCoords.lat, endCoords.lng);
 
-			// 도착지 동그라미 마커
-			const endCircle = new window.kakao.maps.Circle({
-				center: new window.kakao.maps.LatLng(endCoords.lat, endCoords.lng),
-				radius: 50, // 반지름 (미터)
-				strokeWeight: 3,
-				strokeColor: endColor,
-				strokeOpacity: 1,
-				fillColor: endColor,
-				fillOpacity: 0.8
+			const startMarker = createNeonMarker(startPosition, startColor, startName || '출발지', startIndex);
+			const endMarker = createNeonMarker(endPosition, endColor, endName || '도착지', endIndex);
+
+			startMarker.setMap(map);
+			endMarker.setMap(map);
+
+			// 마커 클릭 이벤트 - 툴팁 표시 (일반 경로)
+			let startTooltip = null;
+			let endTooltip = null;
+
+			// 출발지 마커 클릭 이벤트
+			startMarker.getContent().addEventListener('click', () => {
+				// 기존 툴팁들 제거
+				if (endTooltip) {
+					endTooltip.setMap(null);
+				}
+				if (startTooltip) {
+					startTooltip.setMap(null);
+					startTooltip = null;
+				} else {
+					startTooltip = createTooltip(startPosition, startName || '출발지');
+					startTooltip.setMap(map);
+				}
 			});
-			endCircle.setMap(map);
+
+			// 도착지 마커 클릭 이벤트
+			endMarker.getContent().addEventListener('click', () => {
+				// 기존 툴팁들 제거
+				if (startTooltip) {
+					startTooltip.setMap(null);
+				}
+				if (endTooltip) {
+					endTooltip.setMap(null);
+					endTooltip = null;
+				} else {
+					endTooltip = createTooltip(endPosition, endName || '도착지');
+					endTooltip.setMap(map);
+				}
+			});
 
 			// 모든 섹션의 경로 좌표 수집
 			const allPaths = []
@@ -370,7 +921,7 @@ const SpotMap = ({
 				})
 			})
 
-			// 경로선 그리기 (출발지에서 도착지까지 그라디언트)
+			// 경로선 그리기 (출발지에서 도착지까지 그라디언트, 네온 효과)
 			if (allPaths.length > 0) {
 				// HEX를 RGB로 변환하는 함수
 				const hexToRgb = (hex) => {
@@ -405,14 +956,27 @@ const SpotMap = ({
 					
 					if (segmentPaths.length > 1) {
 						const ratio = i / (segments - 1); // 0에서 1까지
-						const polyline = new window.kakao.maps.Polyline({
+						const currentColor = interpolateColor(ratio);
+						
+						// 메인 경로선
+						const mainPolyline = new window.kakao.maps.Polyline({
 							path: segmentPaths,
 							strokeWeight: 6,
-							strokeColor: interpolateColor(ratio),
-							strokeOpacity: 0.8,
+							strokeColor: currentColor,
+							strokeOpacity: 1,
 							strokeStyle: 'solid'
 						});
-						polyline.setMap(map);
+						mainPolyline.setMap(map);
+						
+						// 네온 글로우 효과를 위한 추가 경로선 (더 굵고 투명)
+						const glowPolyline = new window.kakao.maps.Polyline({
+							path: segmentPaths,
+							strokeWeight: 12,
+							strokeColor: currentColor,
+							strokeOpacity: 0.3,
+							strokeStyle: 'solid'
+						});
+						glowPolyline.setMap(map);
 					}
 				}
 

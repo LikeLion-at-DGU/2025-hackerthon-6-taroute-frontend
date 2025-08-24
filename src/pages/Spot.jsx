@@ -10,7 +10,8 @@ const Spotcontainer = styled.div`
     flex-direction: column;
     align-items: center;
     position: relative;
-    height: 100vh;
+    height: 812px;
+    max-height: 812px;
     overflow: hidden;
 `;
 
@@ -30,7 +31,7 @@ const ContentOverlay = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh;
+    height: 812px;
     pointer-events: none;
     
     & > * {
@@ -99,13 +100,15 @@ const Spot = () => {
             {/* 배경 지도 */}
             <MapBackground>
                 <SpotMap 
-                    height={window.innerHeight || 800}
+                    height={812}
                     start={startCoords}
                     end={endCoords}
                     startIndex={currentRoute?.originIndex || 1}
                     endIndex={currentRoute?.destinationIndex || 2}
                     transportMode={selectedTransport}
                     onRouteInfoChange={handleRouteInfoChange}
+                    startName={currentRoute?.origin?.name || currentRoute?.origin?.place_name || '출발지'}
+                    endName={currentRoute?.destination?.name || currentRoute?.destination?.place_name || '도착지'}
                 />
             </MapBackground>
             

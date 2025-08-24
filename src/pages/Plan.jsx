@@ -23,6 +23,7 @@ const PlanInfo = styled.div`
     padding: 7px 10px 32px 15px;
     font-weight: 600;
     font-size: 24px;
+    
     p{
         margin: 0 0 18px 0;
         line-height: 1.2;
@@ -41,6 +42,8 @@ const PlanInfoBox = styled.div`
     border-radius: 20px;
     font-weight: 300;
     font-size: 20px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
     p{
         padding-bottom: 5px;
         line-height: 1.4;
@@ -78,7 +81,7 @@ const Plan = () => {
             <PlanInfo>
                 <p>복잡한 동선계획? NO ! <br /> 타루트에서는
                     <span style={{ color: "#FFC500" }}> 한 번에</span></p>
-                <PlanInfoBox>
+                <PlanInfoBox onClick={() => navigate('/spot')}>
                     <p>원하는 장소만 골라서 <br />
                         <span style={{ fontSize: "24px", color: "#FFC500", fontWeight: "500" }}>
                             동선 계획하기</span></p>

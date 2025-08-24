@@ -12,10 +12,11 @@ import WikiSearch from '../pages/wiki/Search.jsx'
 import WikiDetail from '../pages/wiki/Detail.jsx'
 import WikiReviewWrite from '../pages/wiki/ReviewWrite.jsx'
 import Plan from '../pages/Plan.jsx'
-// 중복 import 제거
 import Location from '../pages/Location.jsx'
 import LocationMap from '../pages/LocationMap.jsx'
 import Spot from '../pages/Spot.jsx'
+import ShareSpot from '../pages/ShareSpot.jsx'
+
 
 function AppRoutes() {
     return (
@@ -38,6 +39,7 @@ function AppRoutes() {
                 <Route path="/location" element={<Location />} />
                 <Route path="/location-map" element={<LocationMap />} />
                 <Route path="/spot" element={<Spot />} />
+                <Route path="/r/:shareId" element={<ShareSpot />} />
             </Route>
         </Routes>
     )
