@@ -211,12 +211,12 @@ export const DetailInner = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 25px;
+  gap: 20px;
 `
 
 export const DetailImage = styled.img`
-  width: 160px;
-  height: 160px;
+  width: 260px;
+  height: 260px;
   object-fit: cover;
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.35);
@@ -226,7 +226,7 @@ export const DetailTitle = styled.h2`
   margin: 0;
   color:rgb(0, 0, 0);
   font-family: MaruBuriOTF;
-  font-size: 22px;
+  font-size: 34px;
   font-weight: 700;
   letter-spacing: -0.3px;
   text-align: center;
@@ -244,44 +244,68 @@ export const DetailDesc = styled.p`
   margin: 0;
   color:rgb(0, 0, 0);
   font-family: MaruBuriOTF;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.6;
   text-align: center;
-  max-width: 60%;
+  max-width: 80%;
   word-break: keep-all;
   overflow-wrap: anywhere;
-  margin-top: -25px; /* 설명을 조금 더 위로 */
+  margin-top: -10px; /* 설명을 조금 더 위로 */
 `
 
 export const DetailFooter = styled.div`
-  margin-top: 2px;
+  margin-top: 4px;
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  transform: translateY(-18px); /* 버튼을 더 위로 */
+  justify-content: space-between;
+  padding: 0 12px;
 `
 
 export const SmallButton = styled.button`
-  height: 34px;
-  padding: 0 40px;
+  height: 48px;
+  padding: 0 24px;
   border: none;
   border-radius: 8px;
   background: #EBD8B6;
   color: #271932;
   font-family: MaruBuriOTF;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   box-shadow: 0 6px 18px rgba(0,0,0,0.25);
 `
 
 export const DetailPager = styled.div`
-  position: absolute;
-  bottom: 10px;
-  right: 14px;
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
   color: #FFFFFF;
   font-family: MaruBuriOTF;
-  font-size: 12px;
-  opacity: 0.9;
+  font-size: 20px;
+  background: rgba(32, 24, 43, 0.95);
+  padding: 10px 22px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  z-index: 1600;
+`
+
+export const DetailHeartButton = styled.button`
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: #EBD8B6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  cursor: pointer;
+`
+
+export const DetailHeartSvg = styled.img`
+  width: 24px;
+  height: 20px;
+  pointer-events: none;
 `
 

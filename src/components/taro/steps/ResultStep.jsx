@@ -23,6 +23,8 @@ import {
   DetailFooter,
   SmallButton,
   DetailPager,
+  DetailHeartButton,
+  DetailHeartSvg,
 } from '../styles/ResultStep.style.js'
 import PrimaryButton from '../../common/PrimaryButton.jsx'
 import sampleImg from '../../../assets/images/ads_temp/temp1.jpg'
@@ -35,6 +37,7 @@ import detailCardBg from '../../../assets/icons/taro/ResultDetailCard.svg'
 import { savePlaceToServer } from '../../../apis/savePlaceApi'
 import { showToast } from '../../../hooks/common/toast'
 import { useSavedPlaceContext } from '../../../contexts/SavedPlaceContext'
+import { fetchPlaceSummary } from '../../../apis/taroApi'
 
 import { useNavigate } from 'react-router-dom'
 
@@ -115,6 +118,25 @@ function ResultStep({ prev, goTo }) {
 
     return () => clearInterval(timer)
   }, [])
+
+  // 디테일 카드가 열릴 때 /chats/place_summary로 요약을 로드하여 카드에 주입
+  useEffect(() => {
+    const loadSummary = async () => {
+      if (detailIndex === null) return
+      const target = cards[detailIndex]
+      if (!target || target.isRetry) return
+      if (target.summary && target.summary.length > 0) return
+      const placeId = target.place_id || target.google_place_id || target.id
+      if (!placeId) return
+      try {
+        const summary = await fetchPlaceSummary({ place_id: placeId, lang: 'ko' })
+        if (summary) {
+          setCards(prev => prev.map((c, i) => i === detailIndex ? { ...c, summary } : c))
+        }
+      } catch {}
+    }
+    loadSummary()
+  }, [detailIndex, cards])
 
   return (
     <Wrapper>
@@ -216,7 +238,7 @@ function ResultStep({ prev, goTo }) {
             <DetailInner>
               <DetailImage src={cards[detailIndex].img} alt={cards[detailIndex].title} />
               <DetailTitle>{cards[detailIndex].title}</DetailTitle>
-              <DetailDesc>{cards[detailIndex].desc}</DetailDesc>
+              <DetailDesc>{cards[detailIndex].summary}</DetailDesc>
               <DetailFooter>
                 <SmallButton onClick={() => {
                   const target = cards[detailIndex]
@@ -227,6 +249,14 @@ function ResultStep({ prev, goTo }) {
                   }
                   navigate(`/wiki/place/${encodeURIComponent(rawId)}`)
                 }}>지역위키 확인하기</SmallButton>
+                <DetailHeartButton onClick={(e) => {
+                  e.stopPropagation()
+                  const idx = detailIndex
+                  const target = cards[idx]
+                  setCards(prev => prev.map((c, i) => i === idx ? { ...c, liked: !c.liked } : c))
+                }}>
+                  <DetailHeartSvg src={(cards[detailIndex]?.liked ? blackHeartIcon : heartIcon)} alt="찜" />
+                </DetailHeartButton>
               </DetailFooter>
             </DetailInner>
             <DetailPager>{`${detailIndex + 1} / 7`}</DetailPager>
