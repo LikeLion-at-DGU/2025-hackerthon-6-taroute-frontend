@@ -180,6 +180,7 @@ const ErrorText = styled.div`
 
 const Location = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [searchValue, setSearchValue] = useState('');
     const [locations, setLocations] = useState([]);
     const [loading, setLoading] = useState(false);
