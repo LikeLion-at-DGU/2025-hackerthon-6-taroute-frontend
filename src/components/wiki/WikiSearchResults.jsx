@@ -88,7 +88,7 @@ export function WikiSearchResults({ query }) {
                 <Address>{p.address}</Address>
                 <Meta>
                   <img src={timeIcon} alt="time" />
-                  <span>{Array.isArray(p.running_time) && p.running_time.length > 0 ? p.running_time[0] : p.distance_text || '정보 없음'}</span>
+                  <span>{Array.isArray(p.running_time) && p.running_time.length > 0 ? p.running_time[0] : '영업시간 정보 미제공'}</span>
                   <Caret>▾</Caret>
                 </Meta>
               </Left>

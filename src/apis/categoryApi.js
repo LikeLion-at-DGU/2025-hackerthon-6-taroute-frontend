@@ -74,6 +74,7 @@ export async function fetchCategoryPlaces(query) {
     id: p.place_id,
     name: p.place_name,
     images: Array.isArray(p.place_photos) ? p.place_photos.slice(0, 5) : [],
+    running_time: p.running_time || [],
     distance: p.distance,
     address: p.address,
     time: Array.isArray(p.running_time) && p.running_time.length > 0 ? p.running_time[0] : (p.is_open_now === true ? '영업중' : (p.is_open_now === false ? '영업 종료' : '')),

@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { fetchCategoryPlaces } from '../../apis/categoryApi.js'
 import { searchWikiPlaces } from '../../apis/wikiApi.js'
 import timeIcon from '../../assets/icons/time.svg'
+import runningArrow from '../../assets/icons/arrow-down.svg'
 import { useSavedPlaceContext } from '../../contexts/SavedPlaceContext.jsx'
 
 export function PlaceList({ query, itemsOverride }) {
@@ -87,6 +88,58 @@ function PlaceCard({ place }) {
     })
   }, [savedPlaces, place])
 
+  // 영업시간 모달 상태 및 유틸들 (PLAN과 동일한 UX)
+  const [showTimeModal, setShowTimeModal] = useState(false)
+  const selectedDay = new Date().getDay()
+
+  let todaysRunningTime = ''
+  if (place?.running_time) {
+    if (Array.isArray(place.running_time)) {
+      todaysRunningTime = place.running_time[selectedDay] || ''
+    } else if (typeof place.running_time === 'string') {
+      todaysRunningTime = place.running_time === '영업시간 정보 없음' ? '' : place.running_time
+    }
+  }
+
+  const getRunningTimeData = () => {
+    if (!place?.running_time || !Array.isArray(place.running_time)) {
+      return Array(7).fill('정보없음')
+    }
+    return place.running_time.map((time) => {
+      if (!time || time === '정보없음') return '정보없음'
+      if (time.includes('휴무일')) return '휴무일'
+      const m = time.match(/\d{1,2}:\d{2}-\d{1,2}:\d{2}/)
+      return m ? m[0] : time
+    })
+  }
+
+  const isHoliday = (timeText) => timeText === '휴무일'
+
+  const getBreakTime = () => {
+    if (!place?.running_time || !Array.isArray(place.running_time)) return '정보없음'
+    const entry = place.running_time.find((t) => t && t.includes('쉬는 시간'))
+    if (entry) {
+      const m = entry.match(/\d{1,2}:\d{2}-\d{1,2}:\d{2}/)
+      return m ? m[0] : '정보없음'
+    }
+    return '정보없음'
+  }
+
+  const handleTimeClick = () => {
+    setShowTimeModal(true)
+    document.addEventListener('keydown', handleKeyDown)
+  }
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') setShowTimeModal(false)
+  }
+  const handleCloseModal = (e) => {
+    if (e.target.closest('[data-modal-container]')) return
+    setShowTimeModal(false)
+  }
+  useEffect(() => {
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   const toggleLike = () => {
     const normalized = {
       id: place.id,
@@ -96,6 +149,7 @@ function PlaceCard({ place }) {
       address_name: place.address || place.location,
       location: place.address || place.location,
       place_photos: place.images,
+      running_time: place.running_time,
     }
     if (liked) removePlace(normalized)
     else addPlace(normalized)
@@ -118,16 +172,59 @@ function PlaceCard({ place }) {
           <IconMap />
           <Text $ml="-4px">{place.distance || place.location}</Text>
         </Row>
-        <Row>
+        <RunningTimeContainer onClick={handleTimeClick}>
           <IconTime src={timeIcon} alt="시간" />
-          <Text>{place.time}</Text>
-        </Row>
+          <Text>{todaysRunningTime || '영업시간 정보 미제공'}</Text>
+          <ArrowImg src={runningArrow} alt="상세 시간" />
+        </RunningTimeContainer>
       </Info>
       <FavButton onClick={toggleLike} aria-label={liked ? '찜 해제' : '찜하기'} $active={liked}>
         <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.59C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill={liked ? '#E35A5A' : '#ffffff99'} />
         </svg>
       </FavButton>
+
+      {showTimeModal && (
+        <>
+          <ModalOverlay onClick={handleCloseModal} />
+          <ModalContainer data-modal-container>
+            <TimeList>
+              <TimeItem>
+                <DayLabel>월요일</DayLabel>
+                <TimeText $isHoliday={isHoliday(getRunningTimeData()[1])}>{getRunningTimeData()[1]}</TimeText>
+              </TimeItem>
+              <TimeItem>
+                <DayLabel>금요일</DayLabel>
+                <TimeText $isHoliday={isHoliday(getRunningTimeData()[5])}>{getRunningTimeData()[5]}</TimeText>
+              </TimeItem>
+              <TimeItem>
+                <DayLabel>화요일</DayLabel>
+                <TimeText $isHoliday={isHoliday(getRunningTimeData()[2])}>{getRunningTimeData()[2]}</TimeText>
+              </TimeItem>
+              <TimeItem>
+                <DayLabel>토요일</DayLabel>
+                <TimeText $isHoliday={isHoliday(getRunningTimeData()[6])}>{getRunningTimeData()[6]}</TimeText>
+              </TimeItem>
+              <TimeItem>
+                <DayLabel>수요일</DayLabel>
+                <TimeText $isHoliday={isHoliday(getRunningTimeData()[3])}>{getRunningTimeData()[3]}</TimeText>
+              </TimeItem>
+              <TimeItem>
+                <DayLabel>일요일</DayLabel>
+                <TimeText $isHoliday={isHoliday(getRunningTimeData()[0])}>{getRunningTimeData()[0]}</TimeText>
+              </TimeItem>
+              <TimeItem>
+                <DayLabel>목요일</DayLabel>
+                <TimeText $isHoliday={isHoliday(getRunningTimeData()[4])}>{getRunningTimeData()[4]}</TimeText>
+              </TimeItem>
+            </TimeList>
+            <BreakTimeSection>
+              <BreakTimeLabel>쉬는시간</BreakTimeLabel>
+              <BreakTimeText>{getBreakTime()}</BreakTimeText>
+            </BreakTimeSection>
+          </ModalContainer>
+        </>
+      )}
     </Card>
   )
 }
@@ -228,6 +325,11 @@ const IconTime = styled(IconBase)`
   
 `
 
+const ArrowImg = styled(IconBase)`
+  width: 12px;
+  height: 12px;
+`
+
 const Text = styled.span`
   color: #2A2A2A;
 
@@ -237,6 +339,13 @@ const Text = styled.span`
   line-height: 17px;
   letter-spacing: -0.5px;
   margin-left: ${p => p.$ml || '0'};
+`
+
+const RunningTimeContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
 `
 
 const FavButton = styled.button`
@@ -260,4 +369,72 @@ const Empty = styled.div`
   color: #888;
 `
 
+// 영업시간 모달 스타일 (PLAN 컴포넌트와 동일한 크기/타이포 사용)
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2000;
+`
+
+const ModalContainer = styled.div`
+  background: #F0F0F0;
+  border-radius: 12px;
+  padding: 12px 14px 14px 14px;
+  width: 253px;
+  height: 125px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2001;
+`
+
+const TimeList = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px 12px;
+  margin-bottom: 8px;
+`
+
+const TimeItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1px 0;
+`
+
+const DayLabel = styled.span`
+  font-size: 11px;
+  font-weight: 500;
+  color: #374151;
+  min-width: 24px;
+`
+
+const TimeText = styled.span`
+  font-size: 11px;
+  font-weight: 300;
+  color: ${props => props.$isHoliday ? '#F03F40' : '#6B7280'};
+  text-align: right;
+`
+
+const BreakTimeSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`
+
+const BreakTimeLabel = styled.span`
+  font-size: 11px;
+  font-weight: 500;
+  color: #F03F40;
+`
+
+const BreakTimeText = styled.span`
+  font-size: 11px;
+  color: #6B7280;
+`
 
