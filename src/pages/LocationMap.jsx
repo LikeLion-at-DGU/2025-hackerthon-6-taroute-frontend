@@ -40,8 +40,8 @@ const AddressInfo = styled.div`
     right: 0;
     display: flex;
     flex-direction: column;
-    height: 176px;
-    padding: 20px 16px 30px 16px;
+    height: 200px;
+    padding: 20px 16px 50px 16px;
     border-radius: 20px 20px 0 0;
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
