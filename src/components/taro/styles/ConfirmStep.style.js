@@ -24,23 +24,29 @@ export const BackButton = styled.button`
   left: 20px;
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: transparent;
   border: none;
+  border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
-  
+  transition: all 0.2s ease;
+
   &:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
   }
-  
+
+  &:active {
+    transform: scale(0.95);
+  }
+
   &::before {
-    content: "‹";
+    content: "<";
     color: #FFFFFF;
     font-size: 24px;
     font-weight: bold;
+    line-height: 1;
   }
 `;

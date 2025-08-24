@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
     Wrapper,
     Background,
@@ -12,13 +13,15 @@ import {
 import taruIcon from '../../../assets/icons/ResultTaru.svg'
 
 function GoStep({ next }) {
-    // 최소 1초는 보여주고 다음 단계로 이동
+    const navigate = useNavigate()
+    
+    // 최소 1초는 보여주고 TaroResult 페이지로 이동
     useEffect(() => {
         const t = setTimeout(() => {
-            if (typeof next === 'function') next()
-        }, 1000)
+            navigate('/taro/result')
+        }, 500)
         return () => clearTimeout(t)
-    }, [next])
+    }, [navigate])
 
     return (
         <Wrapper>
