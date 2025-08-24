@@ -73,7 +73,7 @@ export default function WikiIndex() {
       <WikiInfo>
         <p>우리가 만들어가는 <br />동네 장소들의 위키백과</p>
         <WikiInfoBox onClick={() => navigate('/wiki/search')}>
-          <p>나만 알기 아까운 장소 <br />
+          <p>나만 알기 <br></br>아까운 장소 <br />
             <span style={{ fontSize: '24px', color: '#FFC500', fontWeight: 500 }}>
               위키 작성하기
             </span>
