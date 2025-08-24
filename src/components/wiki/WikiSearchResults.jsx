@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import BottomSheetSelect from '../common/BottomSheetSelect.jsx'
 import timeIcon from '../../assets/icons/time.svg'
 import runningArrow from '../../assets/icons/arrow-down.svg'
+import placeNoImage from '../../assets/icons/placeNoImage.png'
 import { searchWikiPlaces } from '../../apis/wikiApi.js'
 import { useSelectedLocation } from '../../hooks/useSelectedLocation.js'
 
@@ -134,7 +135,7 @@ export function WikiSearchResults({ query }) {
                   <ArrowImg src={runningArrow} alt="상세 시간" />
                 </Meta>
               </Left>
-              <Thumb src={`https://picsum.photos/seed/${encodeURIComponent(p.place_id)}/240/160`} alt={p.place_name} />
+              <Thumb src={(Array.isArray(p.place_photos) && p.place_photos.length > 0 ? p.place_photos[0] : placeNoImage)} alt={p.place_name} />
             </Row>
           ))}
           {items.length === 0 && (
