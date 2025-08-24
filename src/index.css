@@ -156,7 +156,6 @@ body {
   /* 크기 제한을 더 강력하게 */
   transform: translateZ(0);
   /* fixed 요소들이 #root 기준으로 작동하게 하는 트릭 */
-  scrollbar-gutter: stable;
   background: linear-gradient(
     180deg,
     #2C2A4A 10%,

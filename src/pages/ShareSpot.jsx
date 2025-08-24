@@ -79,11 +79,14 @@ const ShareSpot = () => {
             
             try {
                 const sharedData = await getSharedRoute(shareId);
+                console.log('🔍 ShareSpot - 받아온 공유 데이터:', sharedData);
                 
                 // 공유 데이터를 currentRoute 형식으로 변환
                 if (sharedData?.params) {
                     const { start, end } = sharedData.params;
-                    setCurrentRoute({
+                    console.log('🔍 ShareSpot - 추출된 start/end:', { start, end });
+                    
+                    const newRoute = {
                         origin: {
                             name: start?.name || '출발지',
                             lat: start?.lat,
@@ -100,7 +103,12 @@ const ShareSpot = () => {
                         },
                         originIndex: 1,
                         destinationIndex: 2
-                    });
+                    };
+                    
+                    console.log('🔍 ShareSpot - 생성된 currentRoute:', newRoute);
+                    setCurrentRoute(newRoute);
+                } else {
+                    console.error('❌ ShareSpot - sharedData.params가 없음:', sharedData);
                 }
             } catch (err) {
                 console.error('공유 경로 로드 실패:', err);
@@ -112,11 +120,16 @@ const ShareSpot = () => {
     
         // start와 end 좌표를 useMemo로 최적화하여 무한 렌더링 방지
         const startCoords = useMemo(() => {
-            if (!currentRoute?.origin) return undefined;
+            if (!currentRoute?.origin) {
+                console.log('🔍 ShareSpot - startCoords: origin 없음');
+                return undefined;
+            }
             const origin = currentRoute.origin;
             const lat = origin.location?.latitude || origin.latitude || origin.y || origin.lat;
             const lng = origin.location?.longitude || origin.longitude || origin.x || origin.lng || origin.long;
-            return lat && lng ? { lat, lng } : undefined;
+            const result = lat && lng ? { lat, lng } : undefined;
+            console.log('🔍 ShareSpot - startCoords 계산:', { origin, lat, lng, result });
+            return result;
         }, [
             currentRoute?.origin?.location?.latitude,
             currentRoute?.origin?.latitude,
@@ -130,11 +143,16 @@ const ShareSpot = () => {
         ]);
     
         const endCoords = useMemo(() => {
-            if (!currentRoute?.destination) return undefined;
+            if (!currentRoute?.destination) {
+                console.log('🔍 ShareSpot - endCoords: destination 없음');
+                return undefined;
+            }
             const destination = currentRoute.destination;
             const lat = destination.location?.latitude || destination.latitude || destination.y || destination.lat;
             const lng = destination.location?.longitude || destination.longitude || destination.x || destination.lng || destination.long;
-            return lat && lng ? { lat, lng } : undefined;
+            const result = lat && lng ? { lat, lng } : undefined;
+            console.log('🔍 ShareSpot - endCoords 계산:', { destination, lat, lng, result });
+            return result;
         }, [
             currentRoute?.destination?.location?.latitude,
             currentRoute?.destination?.latitude,
