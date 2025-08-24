@@ -64,19 +64,42 @@ const DragHandle = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 8px 0 6px 0;
+    padding: 12px 0 8px 0;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
-    touch-action: none; /* 가로/세로 스와이프 충돌 방지 */
+    touch-action: none; /* 브라우저 기본 터치 동작 방지 */
+    user-select: none; /* 텍스트 선택 방지 */
     cursor: grab;
+    transition: opacity 0.2s ease;
+    
     &::before {
         content: "";
         width: 40px;
         height: 4px;
         border-radius: 2px;
         background: #E5E7EB;
+        transition: all 0.2s ease;
     }
-    &:active { cursor: grabbing; }
+    
+    &:hover::before {
+        background: #9CA3AF;
+        height: 5px;
+    }
+    
+    &:active { 
+        cursor: grabbing; 
+        opacity: 0.7;
+    }
+    
+    /* 모바일에서 더 큰 터치 영역 */
+    @media (max-width: 768px) {
+        padding: 16px 0 12px 0;
+        
+        &::before {
+            width: 48px;
+            height: 5px;
+        }
+    }
 `;
 
 const WhatWonder = styled.div`
@@ -284,9 +307,6 @@ const PlanWhiteBox = ({ expandedTop = 105, collapsedTop = 390 }) => {
         y,
         dragging,
         onPointerDown,
-        onPointerMove,
-        onPointerUp,
-        snapTo,
     } = useSheetDrag({ expandedTop, collapsedTop, start: 'collapsed' });
 
     // 날짜 포맷팅 (YYYY-MM-DD)
@@ -386,14 +406,12 @@ const PlanWhiteBox = ({ expandedTop = 105, collapsedTop = 390 }) => {
                 style={{
                     transform: `translate3d(0, ${y}px, 0)`,
                     height: `calc(100dvh - ${y}px)`,
-                    transition: dragging ? 'none' : 'transform 240ms cubic-bezier(0.22, 1, 0.36, 1), height 240ms cubic-bezier(0.22, 1, 0.36, 1)'
+                    transition: dragging ? 'none' : 'transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94), height 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94)'
                 }}
             >
                 <DragHandle
                     onPointerDown={onPointerDown}
-                    onPointerMove={onPointerMove}
-                    onPointerUp={onPointerUp}
-                    onPointerCancel={onPointerUp}
+                    onTouchStart={onPointerDown}
                 />
                 <WhatWonder>
                     <Title>
