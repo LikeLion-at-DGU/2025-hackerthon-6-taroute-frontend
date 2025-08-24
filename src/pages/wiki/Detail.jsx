@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useParams, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
@@ -59,21 +59,35 @@ export default function WikiDetail() {
   const [sortKey, setSortKey] = useState('추천순') // 추천순 | 최신순
   const [sortOpen, setSortOpen] = useState(false)
   const [searchKeyword, setSearchKeyword] = useState('')
+  const likeBusyRef = useRef(new Set())
 
   const toggleReviewLike = async (rid) => {
+    // 중복 클릭 방지
+    if (likeBusyRef.current.has(rid)) return
+    likeBusyRef.current.add(rid)
     const target = reviews.find(r => r.id === rid)
     if (!target) return
+    if (target.hasVoted) { likeBusyRef.current.delete(rid); return }
+    // 최초 1회만 허용
+    setReviews(prev => prev.map(r => r.id === rid ? { ...r, liked: true, likes: (r.baseLikes ?? r.likes ?? 0) + 1, hasVoted: true } : r))
     try {
       const res = await likeWikiReview({ id: rid, place_id: place.id })
-      setReviews(prev => prev.map(r => r.id === rid ? { ...r, liked: true, likes: res.like_count ?? (r.likes + 1) } : r))
+      if (res && typeof res.like_count === 'number') {
+        setReviews(prev => prev.map(r => r.id === rid ? { ...r, likes: res.like_count, baseLikes: res.like_count } : r))
+      }
     } catch (e) {
+      // 실패 시 롤백 (다시 누를 수 있도록 hasVoted 해제)
+      setReviews(prev => prev.map(r => r.id === rid ? { ...r, liked: false, hasVoted: false, likes: (r.baseLikes ?? 0) } : r))
       showToast('좋아요 처리에 실패했어요')
+    } finally {
+      likeBusyRef.current.delete(rid)
     }
   }
 
   const sortedReviews = useMemo(() => {
+    const score = (r) => (r.likes ?? r.like_num ?? 0)
     const arr = [...reviews]
-    if (sortKey === '추천순') return arr.sort((a, b) => (b.like_num || b.likes || 0) - (a.like_num || a.likes || 0))
+    if (sortKey === '추천순') return arr.sort((a, b) => score(b) - score(a))
     return arr.sort((a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt))
   }, [reviews, sortKey])
 
@@ -102,9 +116,11 @@ export default function WikiDetail() {
           id: r.id,
           text: r.review_content,
           likes: r.like_num,
+          baseLikes: r.like_num,
           like_num: r.like_num,
           createdAt: r.created_at,
           created_at: r.created_at,
+          hasVoted: false,
         })))
       } catch (e) {
         if (!aborted) setError(e)
@@ -259,11 +275,9 @@ export default function WikiDetail() {
                 <ReviewText>{r.text}</ReviewText>
                 <ReviewActions>
                   <HeartBtn onClick={() => toggleReviewLike(r.id)} aria-label={r.liked ? '좋아요 취소' : '좋아요'}>
-                    <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.59C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill={r.liked ? '#E35A5A' : 'none'} stroke="#9AA0A6" strokeWidth="1.6"/>
-                    </svg>
+                    <HeartIcon $active={r.liked} />
                   </HeartBtn>
-                  <LikeCount>{r.like_num ?? r.likes}</LikeCount>
+                  <LikeCount>{r.likes ?? 0}</LikeCount>
                   <WarnBtn type="button" aria-label="신고" onClick={() => { setReportTarget(r.id); setReportOpen(true) }}>
                     <img src={warningIcon} alt="신고" />
                   </WarnBtn>
@@ -527,19 +541,37 @@ line-height: 17px; /* 141.667% */
 letter-spacing: -0.5px;
 `
 const ReviewActions = styled.div`
-  display: flex; align-items: center; gap: 8px;
+  display: grid;
+  grid-template-columns: 16px 22px 16px; /* heart | count | report */
+  align-items: center;
+  column-gap: 6px;
+  height: 16px;
 `
 const HeartBtn = styled.button`
-  width: 24px; height: 24px; border-radius: 10px; border: none; background: transparent; display: grid; place-items: center; cursor: pointer;
+  width: 16px; height: 16px; border-radius: 10px; border: none; background: transparent; display: grid; place-items: center; cursor: pointer; justify-self: center;
+`
+const HeartIcon = styled.div`
+  width: 16px; height: 16px;
+  background: url('/src/assets/icons/Heart.svg') center/contain no-repeat;
+  filter: ${p => p.$active ? 'none' : 'grayscale(1) opacity(0.6)'};
 `
 const LikeCount = styled.span`
-  min-width: 18px; text-align: center; color: #8A8A8A; font-size: 15px;
+  color: var(--color-neutral-gray, #8A8A8A);
+  text-align: center;
+  font-family: MaruBuriOTF;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: -0.5px;
+  min-width: 22px; /* 고정 폭으로 아이콘 정렬 유지 */
+  display: block;
 `
 
 // 신고 버튼
 const WarnBtn = styled.button`
-  width: 24px; height: 24px; border-radius: 10px; border: none; background: transparent; display: grid; place-items: center; cursor: pointer;
-  img { width: 22px; height: 22px; display: block; }
+  width: 16px; height: 16px; border-radius: 10px; border: none; background: transparent; display: grid; place-items: center; cursor: pointer; justify-self: center;
+  img { width: 16px; height: 16px; display: block; }
 `
 
 // 신고 모달 스타일
