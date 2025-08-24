@@ -21,7 +21,7 @@ export const Background = styled.div`
   background-image: url(${bgImage});
   background-size: cover;
   background-position: center top;
-  filter: brightness(0.80);
+  filter: brightness(0.80) blur(2px);
 `;
 
 export const Overlay = styled.div`
@@ -71,7 +71,7 @@ export const Button = styled.button`
   align-items: center;
   gap: 10px;
   border-radius: 10px;
-  background: var(--color-primary-purple, #271932);
+  background: #25213B;
   color: var(--color-neutral-white, #FFF);
   text-align: center;
   font-family: MaruBuriOTF;
@@ -80,7 +80,11 @@ export const Button = styled.button`
   font-weight: 600;
   line-height: 23px;
   letter-spacing: -0.5px;
-  margin-top: 80px;
-  position: relative;
-  z-index: 10;
+  border: none;
+  cursor: pointer;
+  position: fixed;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
 `;

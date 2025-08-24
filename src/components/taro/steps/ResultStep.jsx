@@ -25,8 +25,9 @@ import {
   DetailPager,
   DetailHeartButton,
   DetailHeartSvg,
+  TaroButton,
 } from '../styles/ResultStep.style.js'
-import PrimaryButton from '../../common/PrimaryButton.jsx'
+
 import sampleImg from '../../../assets/images/ads_temp/temp1.jpg'
 import cardBg from '../../../assets/icons/taro/ResultTaroCard.svg'
 import { useEffect, useMemo, useState } from 'react'
@@ -223,14 +224,9 @@ function ResultStep({ prev, goTo }) {
         <Instruction>카드를 눌러 자세히 확인해보세요</Instruction>
       </Content>
 
-      <PrimaryButton
-        fixedBottom
-        bottomOffset="50px"
-        onClick={() => navigate('/plan')}
-        zIndex={1200}
-      >
+      <TaroButton onClick={() => navigate('/plan')}>
         타로 종료하기
-      </PrimaryButton>
+      </TaroButton>
 
       {detailIndex !== null && cards[detailIndex] && !cards[detailIndex].isRetry && (
         <DetailOverlay onClick={closeDetail}>

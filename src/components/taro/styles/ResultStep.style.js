@@ -359,3 +359,30 @@ export const DetailHeartSvg = styled.img`
   pointer-events: none;
 `
 
+export const TaroButton = styled.button`
+  display: flex;
+  width: 343px;
+  height: 51px;
+  padding: 14px 112px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 10px;
+  background: var(--color-primary-purple, #271932);
+  color: var(--color-neutral-white, #FFF);
+  text-align: center;
+  font-family: MaruBuriOTF;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 23px;
+  letter-spacing: -0.5px;
+  border: none;
+  cursor: pointer;
+  position: fixed;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1200;
+`
+
