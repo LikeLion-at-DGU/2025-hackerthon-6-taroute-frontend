@@ -292,14 +292,14 @@ const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
         <>
             <SavedPlaceItem onClick={() => navigate(`/wiki/place/${encodeURIComponent(place.id || place.gplace_id || place.place_id || '')}`)} role="button">
                 <LeftSection>
-                    <button onClick={handleRemoveClick}>
+                    <button onClick={(e) => { e.stopPropagation(); handleRemoveClick(); }}>
                         <img src={blackHeartIcon} alt="찜 해제" />
                     </button>
                 </LeftSection>
                 <PlaceInfo>
                     <PlaceName>{place.place_name || place.name}</PlaceName>
                     <PlaceAddress>{place.address || place.address_name || place.location}</PlaceAddress>
-                    <RunningTimeContainer onClick={handleTimeClick}>
+                    <RunningTimeContainer onClick={(e) => { e.stopPropagation(); handleTimeClick(); }}>
                         <img src={clockIcon} />
                         <RunningTime>
                             {todaysRunningTime || "영업시간 정보 미제공"}
