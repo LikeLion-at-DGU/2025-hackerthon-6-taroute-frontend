@@ -34,7 +34,6 @@ import {
   ExitModalDescription,
   ExitModalFooter,
   ExitModalButton,
-  SadTaruImage,
 } from '../styles/ResultStep.style.js'
 
 import sampleImg from '../../../assets/images/ads_temp/temp1.jpg'
