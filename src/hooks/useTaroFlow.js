@@ -18,9 +18,14 @@ export default function useTaroFlow({ totalSteps }) {
     })
   }, [totalSteps])
 
+  const goHome = useCallback(() => {
+    // HOME으로 이동 (window.location.href 사용)
+    window.location.href = '/'
+  }, [])
+
   const total = useMemo(() => totalSteps, [totalSteps])
 
-  return { currentStepIndex, goNext, goPrev, goTo, totalSteps: total }
+  return { currentStepIndex, goNext, goPrev, goTo, goHome, totalSteps: total }
 }
 
 

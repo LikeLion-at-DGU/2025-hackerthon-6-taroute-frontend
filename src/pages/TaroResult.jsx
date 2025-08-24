@@ -1,3 +1,5 @@
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Wrapper,
   Overlay,
@@ -34,24 +36,21 @@ import {
   ExitModalDescription,
   ExitModalFooter,
   ExitModalButton,
-} from '../styles/ResultStep.style.js'
+} from '../components/taro/styles/ResultStep.style.js'
 
-import sampleImg from '../../../assets/images/ads_temp/temp1.jpg'
-import cardBg from '../../../assets/icons/taro/ResultTaroCard.svg'
-import { useEffect, useMemo, useState } from 'react'
-import heartIcon from '../../../assets/icons/Heart.svg'
-import blackHeartIcon from '../../../assets/icons/BlackHeart.svg'
-import retryCard from '../../../assets/icons/taro/RetryCard.svg'
-import detailCardBg from '../../../assets/icons/taro/ResultDetailCard.svg'
-import { savePlaceToServer } from '../../../apis/savePlaceApi'
-import { showToast } from '../../../hooks/common/toast'
-import { useSavedPlaceContext } from '../../../contexts/SavedPlaceContext'
-import { fetchPlaceSummary } from '../../../apis/taroApi'
+import sampleImg from '../assets/images/ads_temp/temp1.jpg'
+import cardBg from '../assets/icons/taro/ResultTaroCard.svg'
+import heartIcon from '../assets/icons/Heart.svg'
+import blackHeartIcon from '../assets/icons/BlackHeart.svg'
+import retryCard from '../assets/icons/taro/RetryCard.svg'
+import detailCardBg from '../assets/icons/taro/ResultDetailCard.svg'
+import { savePlaceToServer } from '../apis/savePlaceApi'
+import { showToast } from '../hooks/common/toast'
+import { useSavedPlaceContext } from '../contexts/SavedPlaceContext'
+import { fetchPlaceSummary } from '../apis/taroApi'
+import SadTaruIcon from '../assets/icons/taru/SadTaru.svg'
 
-import { useNavigate } from 'react-router-dom'
-import SadTaruIcon from '../../../assets/icons/taru/SadTaru.svg'
-
-function ResultStep({ prev, goTo }) {
+function TaroResult() {
   const navigate = useNavigate()
   const { addPlace, removePlace } = useSavedPlaceContext()
   const [cards, setCards] = useState(() => ([
@@ -106,15 +105,31 @@ function ResultStep({ prev, goTo }) {
           address: item.address,
           place_photos: item.place_photos,
         }))
-        setCards(prev => {
-          const stableRetry = prev.find(c => c.isRetry)
-          return [...mapped, stableRetry || { id: 'VIII', title: '다시 뽑기', isRetry: true }]
-        })
+        
+        const finalCards = [...mapped, { id: 'VIII', title: '다시 뽑기', isRetry: true }]
+        setCards(finalCards)
+        
+        // 처리된 카드 데이터를 sessionStorage에 저장하여 뒤로가기 시에도 동일한 결과 유지
+        sessionStorage.setItem('taro_processed_cards', JSON.stringify(finalCards))
+        
         return true
       } catch {
         return false
       }
     }
+
+    // 이미 처리된 카드가 있다면 그것을 사용
+    const processedCards = sessionStorage.getItem('taro_processed_cards')
+    if (processedCards) {
+      try {
+        const parsed = JSON.parse(processedCards)
+        setCards(parsed)
+        return
+      } catch {}
+    }
+
+    // 이미 카드가 로드되어 있다면 다시 로드하지 않음
+    if (cards[0].title !== '로딩 중') return
 
     const rawNow = sessionStorage.getItem('taro_selected_result')
     if (rawNow && applyFromStorage(rawNow)) return
@@ -131,7 +146,7 @@ function ResultStep({ prev, goTo }) {
     }, 150)
 
     return () => clearInterval(timer)
-  }, [])
+  }, []) // 의존성 배열을 빈 배열로 유지
 
   // 디테일 카드가 열릴 때 /chats/place_summary로 요약을 로드하여 카드에 주입
   useEffect(() => {
@@ -166,7 +181,7 @@ function ResultStep({ prev, goTo }) {
               isRetry={!!c.isRetry}
               onClick={() => {
                 if (c.isRetry) {
-                  if (typeof goTo === 'function') goTo(0)
+                  navigate('/taro')
                 } else {
                   openDetail(page * pageSize + idx)
                 }
@@ -257,22 +272,14 @@ function ResultStep({ prev, goTo }) {
                     return
                   }
                   
-                  // 방법 1: 현재 페이지를 히스토리에 추가
-                  window.history.pushState({ from: 'taro_result' }, '', window.location.pathname)
-                  
-                  // 방법 2: replace 대신 push 사용하여 히스토리 스택 유지
-                  navigate(`/wiki/place/${encodeURIComponent(rawId)}`, { replace: false })
-                  
-                  // 방법 3: 약간의 지연 후 이동 (히스토리 스택이 제대로 추가되도록)
-                  // setTimeout(() => {
-                  //   navigate(`/wiki/place/${encodeURIComponent(rawId)}`)
-                  // }, 100)
+                  // 지역위키로 이동
+                  navigate(`/wiki/place/${encodeURIComponent(rawId)}`)
                 }}>지역위키 확인하기</SmallButton>
                 <DetailHeartButton onClick={(e) => {
                   e.stopPropagation()
                   const idx = detailIndex
                   const target = cards[idx]
-                  setCards(prev => prev.map((c, i) => i === idx ? { ...c, liked: !c.liked } : c))
+                  setCards(prev => prev.map((c, i) => i === idx ? { ...c, liked: !c.liked } : card))
                 }}>
                   <DetailHeartSvg src={(cards[detailIndex]?.liked ? blackHeartIcon : heartIcon)} alt="찜" />
                 </DetailHeartButton>
@@ -289,7 +296,8 @@ function ResultStep({ prev, goTo }) {
       {showExitModal && (
         <ExitModalOverlay onClick={closeExitModal}>
           <ExitModal onClick={(e) => e.stopPropagation()}>
-            <ExitModalHeader>           
+            <ExitModalHeader>
+             
             </ExitModalHeader>
             <ExitModalContent>
               <ExitModalTitle>타로 서비스를 종료하시겠습니까?</ExitModalTitle>
@@ -310,6 +318,4 @@ function ResultStep({ prev, goTo }) {
   )
 }
 
-export default ResultStep
-
-
+export default TaroResult

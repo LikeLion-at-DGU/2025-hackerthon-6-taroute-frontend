@@ -235,4 +235,3 @@ const GeneratingInner = styled.div`
     font-size: 18px;
   }
 `
-

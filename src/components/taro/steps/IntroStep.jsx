@@ -8,12 +8,12 @@ import {
   BackButton,
 } from '../styles/IntroStep.styles.js'
 
-function IntroStep({ next, prev }) {
+function IntroStep({ next, prev, goHome }) {
   return (
     <Wrapper>
       <Background />
       <Overlay />
-      <BackButton onClick={prev} />
+      <BackButton onClick={goHome} />
       <Title>
         타루와 함께하는
         <br />
