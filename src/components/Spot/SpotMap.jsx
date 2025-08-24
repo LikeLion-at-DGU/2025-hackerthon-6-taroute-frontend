@@ -22,8 +22,8 @@ const MapContainer = styled.div`
  * SpotMap: 카카오맵을 사용한 지도 컴포넌트
  */
 const SpotMap = ({
-	start = { lat: 37.566567545861645, lng: 126.9850380932383 },
-	end = { lat: 37.403049076341794, lng: 127.10331814639885 },
+	start,
+	end,
 	height = 300,
 	startIndex = 1,
 	endIndex = 2,
@@ -32,6 +32,11 @@ const SpotMap = ({
 	startName = '출발지',
 	endName = '도착지'
 }) => {
+	// undefined 처리를 컴포넌트 내부에서 처리
+	const defaultStart = { lat: 37.566567545861645, lng: 126.9850380932383 };
+	const defaultEnd = { lat: 37.403049076341794, lng: 127.10331814639885 };
+	const actualStart = start || defaultStart;
+	const actualEnd = end || defaultEnd;
 	const mapRef = useRef(null)
 	const mapObjRef = useRef(null)
 	const [ready, setReady] = useState(false)
@@ -51,8 +56,12 @@ const SpotMap = ({
 
 		// SDK 로드
 		if (!document.querySelector('script[src*="dapi.kakao.com/v2/maps"]')) {
+			const apiKey = import.meta.env.VITE_KAKAO_MAP_APP_KEY;
+			console.log('🔑 카카오맵 API 키:', apiKey);
+			
 			const script = document.createElement('script')
-			script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${import.meta.env.VITE_KAKAO_MAP_APP_KEY}&autoload=false`
+			script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`
+			console.log('📍 카카오맵 스크립트 URL:', script.src);
 			script.onload = () => {
 				window.kakao.maps.load(() => {
 					setReady(true)
@@ -71,7 +80,7 @@ const SpotMap = ({
 		return () => {
 			mapObjRef.current = null
 		}
-	}, [ready, start?.lat, start?.lng, end?.lat, end?.lng, height, transportMode])
+	}, [ready, actualStart?.lat, actualStart?.lng, actualEnd?.lat, actualEnd?.lng, height, transportMode])
 
 	// 카카오맵 초기화 함수
 	const initKakaoMap = () => {
@@ -80,8 +89,8 @@ const SpotMap = ({
 			const defaultStart = { lat: 37.566567545861645, lng: 126.9850380932383 }
 			const defaultEnd = { lat: 37.403049076341794, lng: 127.10331814639885 }
 			
-			const startCoords = start || defaultStart
-			const endCoords = end || defaultEnd
+			const startCoords = actualStart
+			const endCoords = actualEnd
 
 			// 지도 중심점 계산
 			const centerLat = (startCoords.lat + endCoords.lat) / 2
