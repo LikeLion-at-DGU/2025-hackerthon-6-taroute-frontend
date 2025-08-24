@@ -3,8 +3,10 @@ import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSwipeable } from "react-swipeable";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import Navbar from "../components/common/Navbar";
+import { useTranslation } from "react-i18next";
+
 
 const TABS = ["/", "/plan", "/wiki"]; // 탭 순서
 
@@ -29,13 +31,15 @@ export default function MainLayout() {
 
     const dir = location.state?.dir ?? 0; // 이동 방향(좌/우)
 
+    const { t } = useTranslation();
+
     return (
         <Wrap>
             <Navbar />
             <Tabs>
-                <TabLink to="/" end>HOME</TabLink>
-                <TabLink to="/plan">PLAN</TabLink>
-                <TabLink to="/wiki">WIKI</TabLink>
+                <TabLink to="/" end>{t("HOME")}</TabLink>
+                <TabLink to="/plan">{t("PLAN")}</TabLink>
+                <TabLink to="/wiki">{t("WIKI")}</TabLink>
             </Tabs>
 
             <Content {...swipe}>

@@ -1,0 +1,34 @@
+{
+  "home": {
+    "title": "Where is your destiny",
+    "title2": "headed today?",
+    "what": "When you don't know what to do",
+    "taro": "Check your tarot",
+    "category": "Places by category",
+    "search": "Please enter your search term",
+    "item1": "Restaurants",
+    "item2": "Cafe",
+    "item3": "Cultural facilities",
+    "item4": "Tourist attractions",
+    "recent": "Popular places of destiny these days"
+  },
+  "search": {
+    "title": "Search",
+    "recent": "Popular Searches",
+    "result": "Search Results",
+    "loading": "loading...",
+    "sorttitle": "Sort By",
+    "sortitem0": "Accuracy",
+    "sortitem1": "Distance",
+    "sortitem2": "Reviews",
+    "sortitem3": "Popularity",
+    "sortitem4": "Lowest Price",
+    "sortitem5": "Highest Price",
+    "recommending": "recommend loading...",
+    "noresult": "No results found.",
+    "norecommend": "No recommend found.",
+    "near": "Places to visit nearby",
+    "add": "The place has been saved."
+  }
+
+}

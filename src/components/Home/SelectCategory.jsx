@@ -3,13 +3,8 @@ import styled from "styled-components";
 import { PlaceCard, CATEGORIES, DUMMY_PLACES, filterByCategory } from "../common/PlaceCards";
 import { useNavigate } from 'react-router-dom';
 import { getRecommend } from "../../apis/searchApi";
+import { useTranslation } from "react-i18next";
 
-const LABELS = {
-  restaurant: "음식점", // "식당" -> "음식점"으로 변경 (API 응답과 일치)
-  cafe: "카페",
-  culture: "문화시설",
-  tour: "관광명소",
-};
 
 // 카테고리별 API 코드 매핑
 const CATEGORY_GROUP_CODES = {
@@ -20,12 +15,20 @@ const CATEGORY_GROUP_CODES = {
 };
 
 const SelectCategory = () => {
+  const [ t, i18n ] = useTranslation();
   const [activeCat, setActiveCat] = useState("restaurant"); // 기본: 식당
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(true); // 기본적으로 로딩 상태로 시작
   const [userLocation, setUserLocation] = useState(null);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  const LABELS = useMemo(() => ({
+    restaurant: t("home.item1"),
+    cafe: t("home.item2"),
+    culture: t("home.item3"),
+    tour: t("home.item4"),
+  }), [t, i18n.language]);
 
   // 사용자 위치 정보 가져오기
   useEffect(() => {

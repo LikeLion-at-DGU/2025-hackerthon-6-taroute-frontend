@@ -132,12 +132,6 @@ export const unsavePlaceFromServer = async (placeId) => {
             throw new Error("세션 키가 없습니다. 로그인이 필요할 수 있습니다.");
         }
 
-        console.log('🔍 삭제 요청 파라미터:', {
-            place_id: placeId,
-            session_key: sessionKey,
-            요청URL: `/places/unsave_place?place_id=${encodeURIComponent(placeId)}&session_key=${sessionKey}`
-        });
-
         const res = await instance.get("/places/unsave_place", {
             params: { 
                 place_id: placeId,
@@ -152,20 +146,12 @@ export const unsavePlaceFromServer = async (placeId) => {
             message: '장소가 저장 목록에서 삭제되었습니다.'
         });
 
-        // unsave API 응답에서 남은 장소들 바로 확인
-        const placesData = res.data?.places;
-        console.log('🔄 삭제 후 남은 장소들 확인:', placesData);
-
-        if (placesData && typeof placesData === 'object') {
-            if (Array.isArray(placesData)) {
-                const placeNames = placesData.map(place => place.place_name || place.name).filter(Boolean);
-                console.log('📍 삭제 후 남은 장소 이름들:', placeNames);
-            } else {
-                const placeNames = Object.values(placesData).map(place => place.place_name || place.name).filter(Boolean);
-                console.log('📍 삭제 후 남은 장소 이름들:', placeNames);
-            }
-        } else {
-            console.log('📍 저장된 장소가 없습니다.');
+        // 삭제 후 현재 저장된 장소 목록을 다시 확인
+        console.log('🔄 삭제 후 저장된 장소 목록 확인 중...');
+        try {
+            await getSavedPlaces();
+        } catch (error) {
+            console.error('❌ 삭제 후 목록 확인 실패:', error);
         }
 
         return res.data;
@@ -179,6 +165,7 @@ export const unsavePlaceFromServer = async (placeId) => {
         });
         throw err;
     }
+
 
     
 };

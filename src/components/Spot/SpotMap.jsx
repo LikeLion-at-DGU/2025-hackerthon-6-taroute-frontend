@@ -382,7 +382,6 @@ const SpotMap = ({
 
 			if (response.data.routes && response.data.routes[0]) {
 				const route = response.data.routes[0]
-				setRouteData(route)
 				drawRoute(map, route, startCoords, endCoords)
 				
 				// 상위 컴포넌트에 경로 정보 전달

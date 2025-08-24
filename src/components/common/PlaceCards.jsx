@@ -97,13 +97,13 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   const R = 6371; // 지구 반지름 (km)
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = R * c; // km
-  
+
   // km를 m로 변환하고 적절한 단위로 표시
   if (distance < 1) {
     return `${Math.round(distance * 1000)}m`;
@@ -156,10 +156,10 @@ const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
   const { savedPlaces, addPlace, removePlace } = useSavedPlaceContext();
   const { userLocation: hookUserLocation, locationError } = useUserLocation();
   const navigate = useNavigate();
-  
+
   // props로 받은 위치 정보가 있으면 우선 사용, 없으면 훅에서 가져온 위치 사용
   const userLocation = propUserLocation || hookUserLocation;
-  
+
   // 각 카드마다 개별적으로 저장 상태 계산
   const isSaved = savedPlaces.some(savedPlace => {
     // API 데이터 구조에 맞게 비교
@@ -167,11 +167,11 @@ const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
     const savedPlaceName = savedPlace.place_name || savedPlace.name;
     const currentAddress = place.address || place.address_name || place.location;
     const savedAddress = savedPlace.address || savedPlace.address_name || savedPlace.location;
-    
+
     const nameMatch = currentPlaceName === savedPlaceName;
     const addressMatch = currentAddress === savedAddress;
     const idMatch = savedPlace.id && place.id && savedPlace.id === place.id;
-    
+
     return idMatch || (nameMatch && addressMatch);
   });
 
@@ -179,10 +179,10 @@ const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
   const getDistanceText = () => {
     if (!userLocation) return '위치 확인중...';
     if (locationError) return '위치 정보 없음';
-    
+
     // 장소의 위치 정보 추출
     let placeLat, placeLon;
-    
+
     // API 응답 구조에 맞게 위치 정보 추출
     if (place.location && typeof place.location === 'object') {
       // API에서 받은 location 객체의 경우
@@ -197,7 +197,7 @@ const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
       placeLat = parseFloat(place.y);
       placeLon = parseFloat(place.x);
     }
-    
+
     console.log('🗺️ 위치 정보 디버깅:', {
       place: place,
       placeLat,
@@ -207,25 +207,25 @@ const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
       placeX: place.x,
       placeY: place.y
     });
-    
+
     if (!placeLat || !placeLon) {
       console.log('❌ 장소 위치 정보가 없습니다:', place);
       return '거리 정보 없음';
     }
-    
+
     const distance = calculateDistance(
       userLocation.latitude,
       userLocation.longitude,
       placeLat,
       placeLon
     );
-    
+
     return `내 위치에서 ${distance}`;
   };
 
   const handleFavoriteClick = async (e) => {
     e.stopPropagation();
-    
+
     if (isSaved) {
       // 찜 해제 - 서버에서도 삭제
       try {
@@ -242,7 +242,7 @@ const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
     } else {
       // 찜하기 - Google Place ID 찾기 (여러 가능한 필드명 확인)
       const googlePlaceId = place.google_place_id || place.place_id || place.id;
-      
+
       console.log('🔍 Google Place ID 찾기:', {
         google_place_id: place.google_place_id,
         place_id: place.place_id,
@@ -250,27 +250,27 @@ const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
         선택된_ID: googlePlaceId,
         전체_장소_데이터: place
       });
-      
+
       if (!googlePlaceId) {
         console.error('❌ Google Place ID가 없어서 저장할 수 없습니다:', place);
         return;
       }
-      
+
       try {
         console.log('💾 장소 저장 시작:', {
           googlePlaceId: googlePlaceId,
           originalPlace: place
         });
-        
+
         // Google Place ID를 가진 장소 객체 생성
         const placeToSave = {
           ...place,
           id: googlePlaceId // Google Place ID를 id로 설정
         };
-        
+
         // addPlace 함수가 자동으로 서버 저장 및 로컬 상태 업데이트 처리
         await addPlace(placeToSave);
-        
+
       } catch (error) {
         console.error('❌ 장소 저장 실패:', error);
       }
@@ -285,7 +285,7 @@ const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
     }} role="button">
       <CardImageContainer>
         <Cover>
-          <img 
+          <img
             src={place.place_photos?.[0] || place.image || bg1}
             alt={place.place_name || place.name || '장소 이미지'}
             onError={(e) => {
@@ -300,10 +300,9 @@ const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
           />
         </Cover>
         <HeartButton onClick={handleFavoriteClick}>
-          <img 
-            src={isSaved ? blackHeartIcon : heartIcon} 
-            alt="찜하기" 
-          />
+          <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.59C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill={isSaved ? '#E06D6D' : '#ffffff99'} />
+          </svg>
         </HeartButton>
       </CardImageContainer>
       <Body>
@@ -359,32 +358,27 @@ const Cover = styled.div`
 
 const HeartButton = styled.button`
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 28px;
-  height: 28px;
-  background: rgba(255, 255, 255, 0.8);
+  right: 14px;
+  top: 14px;
+  width: 32px;
+  height: 32px;
+  background: ${p => (p.$active ? 'rgba(0,0,0,0.75)' : 'rgba(0,0,0,0.55)')};
   border: none;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(139, 139, 139, 0.9);
     transform: scale(1.05);
   }
   
   &:active {
     transform: scale(0.95);
   }
-  
-  img {
-    width: 16px;
-    height: 16px;
-  }
+
 `;
 
 const Body = styled.div`
