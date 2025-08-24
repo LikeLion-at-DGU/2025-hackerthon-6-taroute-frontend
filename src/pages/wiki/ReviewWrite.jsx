@@ -11,7 +11,7 @@ import { showToast } from '../../hooks/common/toast.js'
 export default function WikiReviewWrite() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [agreeTruth, setAgreeTruth] = useState(true)
+  const [agreeTruth, setAgreeTruth] = useState(false)
   const [confirmPlace, setConfirmPlace] = useState(false)
   const [rating, setRating] = useState(0)
   const [text, setText] = useState('')

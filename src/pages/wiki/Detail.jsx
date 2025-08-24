@@ -20,6 +20,7 @@ export default function WikiDetail() {
   const [place, setPlace] = useState({ id: '', name: '', address: '', images: [], stars: null, hours: '', running_time: [], phone: '', summary: '' })
   const [reviews, setReviews] = useState([])
   const [averageScore, setAverageScore] = useState(null)
+  const heroPhoto = useMemo(() => (Array.isArray(place.images) && place.images.length > 0 ? place.images[0] : ''), [place.images])
 
   // 보기 좋은 영업시간 렌더링을 위한 파싱 ("일요일 08:00-22:00, 월요일 08:00-22:00, ...")
   const hoursList = useMemo(() => {
@@ -137,6 +138,8 @@ export default function WikiDetail() {
       <Bleed>
       <PageNavbar title="지역위키" />
       </Bleed>
+      <HeroSection style={{ marginLeft: -16, marginRight: -16, padding: '0 16px', minHeight: writeBarTop + 56 }}>
+        <HeroBG $src={heroPhoto} />
         <SearchBar
           placeholder="검색어를 입력해주세요"
           value={searchKeyword}
@@ -149,7 +152,7 @@ export default function WikiDetail() {
           }}
         />
 
-      <Header>
+      <Header style={{ gap: ((place?.name ?? '').length > 14 && (place?.address ?? '').length > 24) ? 0 : 20 }}>
         <Title>{place.name || '...'}</Title>
         <Addr>{place.address || ''}</Addr>
         <Gallery>
@@ -185,6 +188,7 @@ export default function WikiDetail() {
           </Actions>
         )}
       </Header>
+      </HeroSection>
 
       <Sheet
         style={{
@@ -331,13 +335,23 @@ const Bleed = styled.div`
   margin-right: -16px;
 `
 
+const HeroSection = styled.div`
+  position: relative;
+`
+
+const HeroBG = styled.div`
+  position: absolute; inset: 0; z-index: -1;
+  background: ${p => p.$src ? `linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0) 100%), url(${p.$src}) center/cover no-repeat` : 'transparent'};
+  filter: ${p => p.$src ? 'brightness(0.5)' : 'none'};
+`
+
 const Header = styled.div`display:flex; flex-direction:column; gap:20px; margin-top:8px; padding: 0 8px;`
 const Title = styled.h1`
   margin: 10px 0 0;
   color: var(--color-neutral-white, #FFF);
   text-align: center;
   font-family: Paperlogy;
-  font-size: clamp(26px, 7vw, 32px);
+  font-size: 32px;
   font-style: normal;
   font-weight: 800;
   line-height: 1.28;
