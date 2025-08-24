@@ -74,6 +74,7 @@ function Category() {
         const distLabel = distance || 'all'
         const toRadius = (label) => {
           if (!label) return 20000
+          if (label.includes('500m')) return 500
           if (label.includes('1km')) return 1000
           if (label.includes('3km')) return 3000
           if (label.includes('5km')) return 5000

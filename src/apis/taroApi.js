@@ -65,3 +65,31 @@ export const postCardSelect = async () => {
 };
 
 
+/**
+ * 장소 요약 정보를 조회
+ * @param {{ place_id: string, lang?: string }} params
+ * @returns {Promise<string>} 요약 텍스트
+ */
+export const fetchPlaceSummary = async (params) => {
+  const { place_id, lang = 'ko' } = params || {}
+  if (!place_id) return ''
+  try {
+    const res = await instance.get('/chats/place_summary', { params: { place_id, lang } })
+    // 기대 형태: { place_summary: string, ... } 또는 { data: { place_summary } }
+    // 하위 호환: summary 키도 허용
+    const d = res?.data || {}
+    const dd = d?.data || {}
+    return (
+      d.place_summary || d.summary || dd.place_summary || dd.summary || ''
+    )
+  } catch (err) {
+    console.error('❌ fetchPlaceSummary 실패', {
+      message: err.message,
+      status: err.response?.status,
+      data: err.response?.data,
+    })
+    return ''
+  }
+}
+
+

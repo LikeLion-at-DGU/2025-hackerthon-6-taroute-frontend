@@ -23,8 +23,20 @@ import {
   DetailFooter,
   SmallButton,
   DetailPager,
+  DetailHeartButton,
+  DetailHeartSvg,
+  TaroButton,
+  ExitModalOverlay,
+  ExitModal,
+  ExitModalHeader,
+  ExitModalContent,
+  ExitModalTitle,
+  ExitModalDescription,
+  ExitModalFooter,
+  ExitModalButton,
+  BackButton,
 } from '../styles/ResultStep.style.js'
-import PrimaryButton from '../../common/PrimaryButton.jsx'
+
 import sampleImg from '../../../assets/images/ads_temp/temp1.jpg'
 import cardBg from '../../../assets/icons/taro/ResultTaroCard.svg'
 import { useEffect, useMemo, useState } from 'react'
@@ -35,8 +47,10 @@ import detailCardBg from '../../../assets/icons/taro/ResultDetailCard.svg'
 import { savePlaceToServer } from '../../../apis/savePlaceApi'
 import { showToast } from '../../../hooks/common/toast'
 import { useSavedPlaceContext } from '../../../contexts/SavedPlaceContext'
+import { fetchPlaceSummary } from '../../../apis/taroApi'
 
 import { useNavigate } from 'react-router-dom'
+import SadTaruIcon from '../../../assets/icons/taru/SadTaru.svg'
 
 function ResultStep({ prev, goTo }) {
   const navigate = useNavigate()
@@ -63,6 +77,12 @@ function ResultStep({ prev, goTo }) {
   const [detailIndex, setDetailIndex] = useState(null) // 0..6 중 하나, retry는 제외
   const openDetail = (globalIndex) => setDetailIndex(globalIndex)
   const closeDetail = () => setDetailIndex(null)
+  const goPrev = () => setDetailIndex(i => (i === null ? i : Math.max(0, i - 1)))
+  const goNext = () => setDetailIndex(i => (i === null ? i : Math.min(cards.length - 2, i + 1))) // retry 제외
+  
+  const [showExitModal, setShowExitModal] = useState(false)
+  const openExitModal = () => setShowExitModal(true)
+  const closeExitModal = () => setShowExitModal(false)
 
   // 세션에 저장된 20장 추천 결과 중 7장을 무작위로 골라 카드 타이틀/desc를 채움
   useEffect(() => {
@@ -100,8 +120,8 @@ function ResultStep({ prev, goTo }) {
     const rawNow = sessionStorage.getItem('taro_selected_result')
     if (rawNow && applyFromStorage(rawNow)) return
 
-    // 데이터가 아직 없으면 잠시 폴링 (최대 ~6초)
-    let attempts = 20
+    // 데이터 폴링: 더 빠른 간격으로 체크하여 결과 화면 진입 시 바로 표시
+    let attempts = 40
     const timer = setInterval(() => {
       const raw = sessionStorage.getItem('taro_selected_result')
       if (raw && applyFromStorage(raw)) {
@@ -109,14 +129,34 @@ function ResultStep({ prev, goTo }) {
       } else if (--attempts <= 0) {
         clearInterval(timer)
       }
-    }, 300)
+    }, 150)
 
     return () => clearInterval(timer)
   }, [])
 
+  // 디테일 카드가 열릴 때 /chats/place_summary로 요약을 로드하여 카드에 주입
+  useEffect(() => {
+    const loadSummary = async () => {
+      if (detailIndex === null) return
+      const target = cards[detailIndex]
+      if (!target || target.isRetry) return
+      if (target.summary && target.summary.length > 0) return
+      const placeId = target.place_id || target.google_place_id || target.id
+      if (!placeId) return
+      try {
+        const summary = await fetchPlaceSummary({ place_id: placeId, lang: 'ko' })
+        if (summary) {
+          setCards(prev => prev.map((c, i) => i === detailIndex ? { ...c, summary } : c))
+        }
+      } catch {}
+    }
+    loadSummary()
+  }, [detailIndex, cards])
+
   return (
     <Wrapper>
       <Overlay />
+      <BackButton onClick={prev} />
       <Content>
         <Title>운명의 카드</Title>
 
@@ -199,14 +239,9 @@ function ResultStep({ prev, goTo }) {
         <Instruction>카드를 눌러 자세히 확인해보세요</Instruction>
       </Content>
 
-      <PrimaryButton
-        fixedBottom
-        bottomOffset="50px"
-        onClick={() => navigate('/plan')}
-        zIndex={1200}
-      >
+      <TaroButton onClick={openExitModal}>
         타로 종료하기
-      </PrimaryButton>
+      </TaroButton>
 
       {detailIndex !== null && cards[detailIndex] && !cards[detailIndex].isRetry && (
         <DetailOverlay onClick={closeDetail}>
@@ -214,7 +249,7 @@ function ResultStep({ prev, goTo }) {
             <DetailInner>
               <DetailImage src={cards[detailIndex].img} alt={cards[detailIndex].title} />
               <DetailTitle>{cards[detailIndex].title}</DetailTitle>
-              <DetailDesc>{cards[detailIndex].desc}</DetailDesc>
+              <DetailDesc>{cards[detailIndex].summary}</DetailDesc>
               <DetailFooter>
                 <SmallButton onClick={() => {
                   const target = cards[detailIndex]
@@ -225,13 +260,44 @@ function ResultStep({ prev, goTo }) {
                   }
                   navigate(`/wiki/place/${encodeURIComponent(rawId)}`)
                 }}>지역위키 확인하기</SmallButton>
+                <DetailHeartButton onClick={(e) => {
+                  e.stopPropagation()
+                  const idx = detailIndex
+                  const target = cards[idx]
+                  setCards(prev => prev.map((c, i) => i === idx ? { ...c, liked: !c.liked } : c))
+                }}>
+                  <DetailHeartSvg src={(cards[detailIndex]?.liked ? blackHeartIcon : heartIcon)} alt="찜" />
+                </DetailHeartButton>
               </DetailFooter>
             </DetailInner>
             <DetailPager>{`${detailIndex + 1} / 7`}</DetailPager>
+            <ChevronLeft onClick={(e)=>{ e.stopPropagation(); goPrev(); }}>{'‹'}</ChevronLeft>
+            <ChevronRight onClick={(e)=>{ e.stopPropagation(); goNext(); }}>{'›'}</ChevronRight>
           </DetailCard>
         </DetailOverlay> 
       )}
 
+      {/* 타로 종료 확인 모달 */}
+      {showExitModal && (
+        <ExitModalOverlay onClick={closeExitModal}>
+          <ExitModal onClick={(e) => e.stopPropagation()}>
+            <ExitModalHeader>
+             
+            </ExitModalHeader>
+            <ExitModalContent>
+              <ExitModalTitle>타로 서비스를 종료하시겠습니까?</ExitModalTitle>
+              <ExitModalDescription>지나간 운명의 카드는 돌아오지 않습니다.</ExitModalDescription>
+            </ExitModalContent>
+            <ExitModalFooter>
+              <ExitModalButton onClick={closeExitModal}>닫기</ExitModalButton>
+              <ExitModalButton $primary onClick={() => {
+                closeExitModal()
+                navigate('/plan')
+              }}>종료</ExitModalButton>
+            </ExitModalFooter>
+          </ExitModal>
+        </ExitModalOverlay>
+      )}
       
     </Wrapper>
   )

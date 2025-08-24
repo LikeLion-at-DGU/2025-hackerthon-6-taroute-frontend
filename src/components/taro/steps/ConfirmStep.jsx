@@ -7,6 +7,7 @@ import {
   BubbleContent,
   ButtonPrev,
   ButtonNext,
+  BackButton,
 } from '../styles/ConfirmStep.style.js'
 import taruSvg from '../../../assets/icons/taru.svg'
 import useTextAnimation from '../../../hooks/useTextAnimation'
@@ -23,6 +24,7 @@ function ConfirmStep({ next, prev }) {
   return (
     <Wrapper>
       <Overlay />
+      <BackButton onClick={prev} />
       <TaruMascot src={taruSvg} alt="타루" aria-label="타루" role="img" />
 
       <BubbleHeader>

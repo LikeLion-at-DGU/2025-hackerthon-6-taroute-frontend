@@ -6,7 +6,6 @@ import warning from '../../assets/icons/warning.svg'
 import taru from '../../assets/icons/taru/WikiPlanTaru.svg'
 import useSheetDrag from '../../hooks/common/useSheetDrag.js'
 import rotateLeft from '../../assets/icons/rotateLeft.svg'
-import timeIcon from '../../assets/icons/time.svg'
 import { useState, useEffect } from 'react'
 import { getRecentWiki, getTopLikedWiki, searchWikiPlaces } from '../../apis/wikiApi.js'
 import { useSelectedLocation } from '../../hooks/useSelectedLocation.js'
@@ -74,7 +73,7 @@ export default function WikiIndex() {
       <WikiInfo>
         <p>우리가 만들어가는 <br />동네 장소들의 위키백과</p>
         <WikiInfoBox onClick={() => navigate('/wiki/search')}>
-          <p>나만 알기 아까운 장소 <br />
+          <p>나만 알기 <br></br>아까운 장소 <br />
             <span style={{ fontSize: '24px', color: '#FFC500', fontWeight: 500 }}>
               위키 작성하기
             </span>
@@ -274,6 +273,7 @@ const WikiInfoBox = styled.div`
 const Section = styled.section`
 
 `
+
 // TitleBox: 세로 플렉스
 const TitleBox = styled.div`
   display: flex;
@@ -305,7 +305,6 @@ const TitleText = styled.span`
   font-size: 20px;
   font-weight: 500;
   letter-spacing: -0.5px;
-  padding: 6px 0;
 
 `
 const Stamp = styled.span`
@@ -463,7 +462,7 @@ const Sheet = styled.div`
 const Handle = styled.div`
   position: sticky; top: 0; z-index: 2;
   display: flex; justify-content: center; align-items: center;
-  padding: 10px 0 8px 0; cursor: grab;
+  padding: 8px 0 6px 0; cursor: grab;
   &::before { content: ""; width: 40px; height: 4px; border-radius: 2px; background: #E5E7EB; }
   &:active { cursor: grabbing; }
 `

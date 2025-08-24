@@ -5,13 +5,15 @@ import {
   Title,
   Description,
   Button,
+  BackButton,
 } from '../styles/IntroStep.styles.js'
 
-function IntroStep({ next }) {
+function IntroStep({ next, prev }) {
   return (
     <Wrapper>
       <Background />
       <Overlay />
+      <BackButton onClick={prev} />
       <Title>
         타루와 함께하는
         <br />

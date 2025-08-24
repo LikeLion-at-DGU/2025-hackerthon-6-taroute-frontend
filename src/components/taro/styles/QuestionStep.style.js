@@ -104,3 +104,30 @@ export const OptionButton = styled.button`
 
   &:active { transform: scale(0.98); }
 `
+
+export const BackButton = styled.button`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  &::before {
+    content: "‹";
+    color: #FFFFFF;
+    font-size: 24px;
+    font-weight: bold;
+  }
+`;
