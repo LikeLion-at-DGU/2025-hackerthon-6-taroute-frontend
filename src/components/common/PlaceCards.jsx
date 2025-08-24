@@ -6,7 +6,7 @@ import bg1 from '../../assets/images/bg_1.jpg';
 import maapin from "../../assets/icons/mappin.svg";
 import heartIcon from "../../assets/icons/Heart.svg"; // 빈 하트
 import blackHeartIcon from "../../assets/icons/BlackHeart.svg"; // 찜한 하트
-import { savePlaceToServer } from "../../apis/savePlaceApi";
+import { savePlaceToServer, unsavePlaceFromServer } from "../../apis/savePlaceApi";
 
 // 카테고리: restaurant, cafe, culture, tour
 export const CATEGORIES = ["restaurant", "cafe", "culture", "tour"];
@@ -227,8 +227,18 @@ const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
     e.stopPropagation();
     
     if (isSaved) {
-      // 찜 해제
-      removePlace(place);
+      // 찜 해제 - 서버에서도 삭제
+      try {
+        const placeId = place.google_place_id || place.place_id || place.id;
+        if (placeId) {
+          await unsavePlaceFromServer(placeId);
+        }
+        removePlace(place);
+      } catch (error) {
+        console.error('❌ 찜 해제 실패:', error);
+        // 서버 요청이 실패해도 로컬에서는 제거 진행
+        removePlace(place);
+      }
     } else {
       // 찜하기 - Google Place ID 찾기 (여러 가능한 필드명 확인)
       const googlePlaceId = place.google_place_id || place.place_id || place.id;

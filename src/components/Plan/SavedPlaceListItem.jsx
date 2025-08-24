@@ -5,6 +5,7 @@ import clockIcon from '../../assets/icons/time.svg';
 import heartIcon from '../../assets/icons/Heart.svg';
 import blackHeartIcon from '../../assets/icons/BlackHeart.svg';
 import { useSavedPlaceContext } from '../../contexts/SavedPlaceContext';
+import { unsavePlaceFromServer } from '../../apis/savePlaceApi';
 import runningArrow from '../../assets/icons/arrow-down.svg';
 import placeNoImage from '../../assets/icons/placeNoImage.png';
 
@@ -196,14 +197,29 @@ const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
     // 이미지 URL 처리 - place_photos 배열의 첫 번째 이미지 또는 image 필드 사용
     const imageUrl = place.place_photos?.[0] || place.image || '/default-place.jpg';
 
-    const handleRemoveClick = () => {
-        // 먼저 토스트 콜백 호출 (복구를 위해 장소 정보 전달)
-        if (onRemove) {
-            onRemove(place);
-        }
+    const handleRemoveClick = async () => {
+        try {
+            // 서버에서 찜 해제
+            const placeId = place.id || place.place_id;
+            if (placeId) {
+                await unsavePlaceFromServer(placeId);
+            }
 
-        // 그 다음 실제 제거 실행 - place 객체 전체를 전달
-        removePlace(place);
+            // 먼저 토스트 콜백 호출 (복구를 위해 장소 정보 전달)
+            if (onRemove) {
+                onRemove(place);
+            }
+
+            // 그 다음 실제 제거 실행 - place 객체 전체를 전달
+            removePlace(place);
+        } catch (error) {
+            console.error('❌ 찜 해제 실패:', error);
+            // 서버 요청이 실패해도 로컬에서는 제거 진행
+            if (onRemove) {
+                onRemove(place);
+            }
+            removePlace(place);
+        }
     };
 
     // 영업시간 모달 열기
