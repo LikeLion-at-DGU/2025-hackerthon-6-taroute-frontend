@@ -124,11 +124,11 @@ body {
   width: 100vw;
   overflow: hidden;
   /* lock window scroll; scroll only inside #root */
-  background: #e5e5e5;
-  /* 프레임 밖 배경색을 더 진한 회색으로 */
+  background: white;
+  /* 프레임 밖 배경색을 흰색으로 */
   margin: 0;
-  padding: 0;
-
+  padding-top: 20px;
+  padding-bottom: 40px;
 
   /* 마우스 이벤트로 인한 스크롤 완전 방지 */
   pointer-events: auto;
