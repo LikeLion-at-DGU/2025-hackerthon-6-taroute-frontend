@@ -11,12 +11,15 @@ import {
 } from '../styles/ConfirmStep.style.js'
 import taruSvg from '../../../assets/icons/taru.svg'
 import useTextAnimation from '../../../hooks/useTextAnimation'
+import { useTranslation } from "react-i18next";
+
 
 function ConfirmStep({ next, prev }) {
+  const { t } = useTranslation();
   const lines = [
-    "질문에 답해줘서 고마워!",
-    "너의 답변을 바탕으로 카드를 만들어볼게",
-    "잠시만 기다려줘"
+    t("taro.thank"),
+    t("taro.thank2"),
+    t("taro.thank3")
   ]
   
   const { displayText, isAnimating, showComplete, handleTextClick, alwaysShowArrow } = useTextAnimation(lines, next)
@@ -28,8 +31,8 @@ function ConfirmStep({ next, prev }) {
       <TaruMascot src={taruSvg} alt="타루" aria-label="타루" role="img" />
 
       <BubbleHeader>
-        <span className="name">타루</span>
-        <span className="role">타로마스터</span>
+        <span className="name">{t("taro.name")}</span>
+        <span className="role">{t("taro.job")}</span>
       </BubbleHeader>
 
       <BubbleContent>

@@ -8,6 +8,9 @@ import useSheetDrag from "../../hooks/common/useSheetDrag";
 import RouteListItem from "./RouteListItem";
 import { useSavedPlaceContext } from "../../contexts/SavedPlaceContext";
 import ShareModal from "./ShareModal";
+import { useTranslation } from "react-i18next";
+
+
 
 
 const SpotWhiteBoxContainer = styled.div`
@@ -119,6 +122,7 @@ const ActionButton = styled.button`
 
 const SpotWhiteBox = ({ expandedTop = 96, collapsedTop = 520 }) => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     // 저장된 장소들을 관리하는 커스텀 훅
     const { savedPlaces, setSavedPlaces } = useSavedPlaceContext();
@@ -227,7 +231,7 @@ const SpotWhiteBox = ({ expandedTop = 96, collapsedTop = 520 }) => {
                 />
 
                 <Title>
-                    항목을 꾹 눌러 순서를 변경해주세요
+                    {t("spot.change")}
                 </Title>
                 <SavedPlaceList>
                     {savedPlaces && savedPlaces.length > 0 ? (
@@ -257,8 +261,8 @@ const SpotWhiteBox = ({ expandedTop = 96, collapsedTop = 520 }) => {
                         })()
                     ) : (
                         <div style={{ textAlign: 'center', color: '#8A8A8A', fontSize: 14, padding: '40px 20px' }}>
-                            저장된 장소가 없습니다.<br />
-                            마음에 드는 장소를 찜해보세요!
+                            {t("spot.noplace")}<br />
+                            {t("spot.pick")}
                         </div>
                     )}
                 </SavedPlaceList>

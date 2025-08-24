@@ -3,6 +3,8 @@ import styled from 'styled-components'
 import { Wrapper, Overlay } from '../styles/ConsentStep.style.js'
 import Map from '../../Location/Map.jsx'
 import locationIcon from '../../../assets/icons/location.svg'
+import { useTranslation } from "react-i18next";
+
 
 const Panel = styled.div`
   position: relative;
@@ -106,6 +108,7 @@ const PrimaryButton = styled.button`
 `
 
 function LocationStep({ goTo }) {
+  const { t } = useTranslation();
   const [markerPosition, setMarkerPosition] = useState({ lat: 37.566826, lng: 126.9786567 })
   const [isLoading, setIsLoading] = useState(false)
   const [address, setAddress] = useState('')
@@ -156,13 +159,13 @@ function LocationStep({ goTo }) {
       <BackButton onClick={() => goTo(2)} />
       <Panel>
         <Header>
-          <Title>위치를 선택해 주세요</Title>
-          <Hint>지도를 드래그해서 위치를 정하세요.<br></br> 마커를 끌면 더 정확하게 조절할 수 있어요.</Hint>
+          <Title>{t("taro.locate")}</Title>
+          <Hint>{t("taro.map")}<br></br> {t("taro.marker")}</Hint>
         </Header>
 
         <AddressBar>
           <AddressIcon src={locationIcon} alt="위치" />
-          <AddressText>{address ? address : '주소 확인 중...'}</AddressText>
+          <AddressText>{address ? address : t("taro.addressing")}</AddressText>
         </AddressBar>
 
         <MapBox>
@@ -177,9 +180,9 @@ function LocationStep({ goTo }) {
 
         <FooterActions>
           <GhostButton type="button" onClick={getCurrentPosition} disabled={isLoading}>
-            {isLoading ? '현재 위치 불러오는 중...' : '현재 위치로'}
+            {isLoading ? t("taro.nowlocation") : t("taro.nowlocate")}
           </GhostButton>
-          <PrimaryButton type="button" onClick={handleConfirm}>이 위치로 설정</PrimaryButton>
+          <PrimaryButton type="button" onClick={handleConfirm}>{t("taro.fixlocate")}</PrimaryButton>
         </FooterActions>
       </Panel>
     </Wrapper>

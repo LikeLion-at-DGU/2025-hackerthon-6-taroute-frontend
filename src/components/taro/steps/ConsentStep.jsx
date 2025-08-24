@@ -11,15 +11,18 @@ import {
 } from '../styles/ConsentStep.style.js'
 import taruSvg from '../../../assets/icons/taru.svg'
 import useTextAnimation from '../../../hooks/useTextAnimation'
+import { useTranslation } from "react-i18next";
+
 
 function ConsentStep({ next, prev }) {
+  const { t } = useTranslation();
   console.log('ConsentStep rendered with next:', next, 'prev:', prev)
 
   const lines = [
-    "안녕! 난 타로마스터 '타루'라고 해",
-    "본격적인 상담에 앞서 네가 어떤 고민을 가지고 있는지",
-    "들어보고 너의 상황에 맞는 추천을 해줄게",
-    "너에게 더 적합한 답변을 선택해줘"
+    t("taro.detail"),
+    t("taro.detail2"),
+    t("taro.detail3"),
+    t("taro.detail4")
   ]
 
   const { displayText, isAnimating, showComplete, handleTextClick, alwaysShowArrow } = useTextAnimation(lines, next)
@@ -31,8 +34,8 @@ function ConsentStep({ next, prev }) {
       <TaruMascot src={taruSvg} alt="타루" aria-label="타루" role="img" />
 
       <BubbleHeader>
-        <span className="name">타루</span>
-        <span className="role">타로마스터</span>
+        <span className="name">{t("taro.name")}</span>
+        <span className="role">{t("taro.job")}</span>
       </BubbleHeader>
 
       <BubbleContent>

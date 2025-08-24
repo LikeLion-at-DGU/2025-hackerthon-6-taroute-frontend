@@ -9,6 +9,8 @@ import PageNavbar from "../components/common/PageNavbar";
 import SearchBar from "../components/common/SearchBar";
 import RecommendPlace from "../components/search/RecommendPlace";
 import { SortBar } from "../components/search/SortBar";
+import { useTranslation } from "react-i18next";
+
 
 const SearchContainer = styled.div`
     display: flex;
@@ -46,6 +48,7 @@ const NoResultContainer = styled.div`
 
 
 export default function SearchResults() {
+    const { t } = useTranslation();
     const [params] = useSearchParams();
     const initialQ = (params.get("q") || "").trim();
 
@@ -146,7 +149,7 @@ export default function SearchResults() {
 
     return (
         <SearchContainer>
-            <PageNavbar title="검색결과" />
+            <PageNavbar title={t("search.result")} />
             <SearchBar
                 value={q}
                 onChange={setQ}
@@ -158,11 +161,11 @@ export default function SearchResults() {
                 bordered borderColor="#363636" borderWidth="0.5px"
             />
             {!loading && <SortBar onSortChange={handleSortChange} selectedSort={sortType} />}
-            {loading && <div>로딩중...</div>}
+            {loading && <div>{t("search.loading")}</div>}
             {!loading && rows.length === 0 &&
                 <NoResultContainer>
                     <img src={noresult} style={{ width: "126px"}} />
-                    <h3>검색 결과가 없습니다.</h3>
+                    <h3>{t("search.noresult")}</h3>
                 </NoResultContainer>}
             <ResultsContainer>
                 {rows.map((place, idx) => (

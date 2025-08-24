@@ -9,8 +9,11 @@ import rotateLeft from '../../assets/icons/rotateLeft.svg'
 import { useState, useEffect } from 'react'
 import { getRecentWiki, getTopLikedWiki, searchWikiPlaces } from '../../apis/wikiApi.js'
 import { useSelectedLocation } from '../../hooks/useSelectedLocation.js'
+import { useTranslation } from "react-i18next";
+
 
 export default function WikiIndex() {
+  const { t } = useTranslation();
   const navigate = useNavigate()
   const [recent, setRecent] = useState([])
   const [hot, setHot] = useState([])
@@ -61,7 +64,7 @@ export default function WikiIndex() {
   return (
     <Wrap>
       <SearchBar
-        placeholder="검색어를 입력해주세요"
+        placeholder={t("wiki.subtitletop")}
         asButton
         readOnly
         onClick={() => navigate('/wiki/search')}
@@ -71,11 +74,11 @@ export default function WikiIndex() {
 
       {/* 검색바 아래 */}
       <WikiInfo>
-        <p>우리가 만들어가는 <br />동네 장소들의 위키백과</p>
+        <p>{t("wiki.title")} <br />{t("wiki.title2")}</p>
         <WikiInfoBox onClick={() => navigate('/wiki/search')}>
-          <p>나만 알기 <br></br>아까운 장소 <br />
+          <p>{t("wiki.subtitle")} <br></br>아까운 장소 <br />
             <span style={{ fontSize: '24px', color: '#FFC500', fontWeight: 500 }}>
-              위키 작성하기
+              {t("wiki.subtitle2")}
             </span>
           </p>
           <img src={taru} alt="타루" />
@@ -106,7 +109,7 @@ export default function WikiIndex() {
         <Section>
           <TitleBox>
             <TitleRow>
-              <TitleText>최근 업데이트된 위키</TitleText>
+              <TitleText>{t("wiki.recent")}</TitleText>
             </TitleRow>
             <StampRow>
               <Stamp>
@@ -154,7 +157,7 @@ export default function WikiIndex() {
 
         <HotSection>
           <TitleRow>
-            <TitleText>현재 핫한 게시판</TitleText>
+            <TitleText>{t("wiki.hot")}</TitleText>
           </TitleRow>
           <HotList>
             {hot.map((item, idx) => (

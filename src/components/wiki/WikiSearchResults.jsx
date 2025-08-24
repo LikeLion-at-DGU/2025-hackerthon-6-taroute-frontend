@@ -7,10 +7,14 @@ import runningArrow from '../../assets/icons/arrow-down.svg'
 import placeNoImage from '../../assets/icons/placeNoImage.png'
 import { searchWikiPlaces } from '../../apis/wikiApi.js'
 import { useSelectedLocation } from '../../hooks/useSelectedLocation.js'
+import { useTranslation } from "react-i18next";
+
 
 const SORT_OPTIONS = ['정확도순', '거리순', '후기순', '인기순']
 
 export function WikiSearchResults({ query }) {
+  const { t } = useTranslation();
+
   const navigate = useNavigate()
   const { location } = useSelectedLocation()
   const [items, setItems] = useState([])
@@ -104,21 +108,21 @@ export function WikiSearchResults({ query }) {
   return (
     <Wrap>
       <Header>
-        <h3>검색결과</h3>
+        <h3>{t("search.result")}</h3>
         <SortWrap>
           <SortButton onClick={() => setSortOpen(true)}>{sortKey} ▾</SortButton>
         </SortWrap>
       </Header>
       <BottomSheetSelect
         visible={sortOpen}
-        title="정렬 기준"
+        title={t("search.sorttitle")}
         options={SORT_OPTIONS.map(o => ({ label: o, value: o }))}
         value={sortKey}
         onSelect={(v) => { setSortKey(v); setSortOpen(false) }}
         onClose={() => setSortOpen(false)}
       />
-      {loading && <Empty>불러오는 중…</Empty>}
-      {error && <Empty>문제가 발생했어요. 잠시 후 다시 시도해주세요.</Empty>}
+      {loading && <Empty>{t("search.loading2")}</Empty>}
+      {error && <Empty>{t("search.error")}</Empty>}
       {!loading && !error && (
         <List>
           {items.map((p) => (
@@ -139,7 +143,7 @@ export function WikiSearchResults({ query }) {
             </Row>
           ))}
           {items.length === 0 && (
-            <Empty>검색 결과가 없습니다.</Empty>
+            <Empty>{t("search.noresult")}</Empty>
           )}
         </List>
       )}
@@ -149,36 +153,36 @@ export function WikiSearchResults({ query }) {
           <ModalContainer data-modal-container>
             <TimeList>
               <TimeItem>
-                <DayLabel>월요일</DayLabel>
+                <DayLabel>{t("category.day1")}</DayLabel>
                 <TimeText $isHoliday={isHoliday(getRunningTimeData()[1])}>{getRunningTimeData()[1]}</TimeText>
               </TimeItem>
               <TimeItem>
-                <DayLabel>금요일</DayLabel>
+                <DayLabel>{t("category.day5")}</DayLabel>
                 <TimeText $isHoliday={isHoliday(getRunningTimeData()[5])}>{getRunningTimeData()[5]}</TimeText>
               </TimeItem>
               <TimeItem>
-                <DayLabel>화요일</DayLabel>
+                <DayLabel>{t("category.day2")}</DayLabel>
                 <TimeText $isHoliday={isHoliday(getRunningTimeData()[2])}>{getRunningTimeData()[2]}</TimeText>
               </TimeItem>
               <TimeItem>
-                <DayLabel>토요일</DayLabel>
+                <DayLabel>{t("category.day6")}</DayLabel>
                 <TimeText $isHoliday={isHoliday(getRunningTimeData()[6])}>{getRunningTimeData()[6]}</TimeText>
               </TimeItem>
               <TimeItem>
-                <DayLabel>수요일</DayLabel>
+                <DayLabel>{t("category.day3")}</DayLabel>
                 <TimeText $isHoliday={isHoliday(getRunningTimeData()[3])}>{getRunningTimeData()[3]}</TimeText>
               </TimeItem>
               <TimeItem>
-                <DayLabel>일요일</DayLabel>
+                <DayLabel>{t("category.day7")}</DayLabel>
                 <TimeText $isHoliday={isHoliday(getRunningTimeData()[0])}>{getRunningTimeData()[0]}</TimeText>
               </TimeItem>
               <TimeItem>
-                <DayLabel>목요일</DayLabel>
+                <DayLabel>{t("category.day4")}</DayLabel>
                 <TimeText $isHoliday={isHoliday(getRunningTimeData()[4])}>{getRunningTimeData()[4]}</TimeText>
               </TimeItem>
             </TimeList>
             <BreakTimeSection>
-              <BreakTimeLabel>쉬는시간</BreakTimeLabel>
+              <BreakTimeLabel>{t("category.break")}</BreakTimeLabel>
               <BreakTimeText>{getBreakTime()}</BreakTimeText>
             </BreakTimeSection>
           </ModalContainer>

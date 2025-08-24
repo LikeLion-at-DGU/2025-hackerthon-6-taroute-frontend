@@ -5,8 +5,10 @@ import taru from '../../assets/icons/WikiTaru.svg'
 import PageNavbar from '../../components/common/PageNavbar.jsx'
 import { WikiSearchResults } from '../../components/wiki/WikiSearchResults.jsx'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from "react-i18next";
 
 export default function WikiSearch() {
+    const { t } = useTranslation();
     const location = useLocation()
     const navigate = useNavigate()
     const [keyword, setKeyword] = useState('')
@@ -22,9 +24,9 @@ export default function WikiSearch() {
 
     return (
         <Wrapper>
-            <PageNavbar title="지역위키" />
+            <PageNavbar title={t("wiki.titletop")} />
             <SearchBar
-                placeholder="검색어를 입력해주세요"
+                placeholder={t("wiki.subtitletop")}
                 value={keyword}
                 onChange={(v) => {
                     setKeyword(v)
@@ -55,7 +57,7 @@ export default function WikiSearch() {
             ) : (
                 <Hero>
                     <Mascot src={taru} alt="위키 마스코트" />
-                    <Copy>궁금한 장소를 입력해주세요</Copy>
+                    <Copy>{t("wiki.nowiki")}</Copy>
                 </Hero>
             )}
         </Wrapper>

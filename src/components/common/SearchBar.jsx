@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import searchIcon from '../../assets/icons/search.svg';
+import { useTranslation } from "react-i18next";
+
 
 const Bar = styled.form`
     width: 343px;
@@ -12,7 +14,7 @@ const Bar = styled.form`
 const Box = styled.div`
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 12px;
     width: 343px;
     height: 51px;
     padding: 6px 22px 6px 15px;
@@ -48,7 +50,8 @@ const ButtonLike = styled.button`
 const SearchIconImg = styled.img`
   width: 17px;
   height: 17px;
-  flex: 0 0 auto;
+  flex-shrink: 0;
+  min-width: 17px;
 `;
 
 const PlaceholderText = styled.span`
@@ -57,7 +60,8 @@ const PlaceholderText = styled.span`
 `;
 
 const Input = styled.input`
-    flex: 1 1 auto;
+    flex: 1;
+    min-width: 0;
     border: none;
     outline: none;
     font-size: 14px;
@@ -67,21 +71,26 @@ const Input = styled.input`
     font-weight: 400;
 `;
 
-export default function SearchBar({
-    placeholder = '검색어를 입력해주세요',
-    value, /*입력 값(문자열)  */
-    onChange, /* 값이 바뀔때마다 호출 */
-    onSubmit,
-    onKeyDown, /* 키를 누르는 순간마다 실행 */
-    onClick,
-    autoFocus = false, /* 커서 깜빡임 */
-    name,
-    asButton = false,
-    readOnly = false,
-    bordered = false,
-    borderColor = '#000',
-    borderWidth = '1px',
-}) {
+export default function SearchBar(props) {
+    const { t } = useTranslation();
+    const {
+        placeholder,
+        value, /*입력 값(문자열)  */
+        onChange, /* 값이 바뀔때마다 호출 */
+        onSubmit,
+        onKeyDown, /* 키를 누르는 순간마다 실행 */
+        onClick,
+        autoFocus = false, /* 커서 깜빡임 */
+        name,
+        asButton = false,
+        readOnly = false,
+        bordered = false,
+        borderColor = '#000',
+        borderWidth = '1px',
+    } = props;
+
+    const ph = placeholder ?? t('home.search');
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if (onSubmit) onSubmit();
@@ -90,7 +99,7 @@ export default function SearchBar({
     if (asButton) {
         return (
             <ButtonLike type="button" onClick={onClick} aria-label="검색 열기" $bordered={bordered} $borderColor={borderColor} $borderWidth={borderWidth}>
-                <PlaceholderText>{placeholder}</PlaceholderText>
+                <PlaceholderText>{ph}</PlaceholderText>
                 <SearchIconImg src={searchIcon} />
             </ButtonLike>
         );

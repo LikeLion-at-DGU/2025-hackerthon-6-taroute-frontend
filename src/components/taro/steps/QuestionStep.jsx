@@ -15,8 +15,11 @@ import {
 import taruSvg from '../../../assets/icons/taru.svg'
 import { fetchSlotQuestions } from '../../../apis/taroApi'
 import shuffleTaru from '../../../assets/icons/ShuffleTaru.svg'
+import { useTranslation } from "react-i18next";
+
 
 function QuestionStep({ next, prev, goTo }) {
+  const { t } = useTranslation();
   const [questions, setQuestions] = useState([])
   const [qIdx, setQIdx] = useState(0)
   const [answers, setAnswers] = useState([])
@@ -27,8 +30,8 @@ function QuestionStep({ next, prev, goTo }) {
   const [pendingNextAfterFirst, setPendingNextAfterFirst] = useState(false)
 
   const defaultFirstQuestion = {
-    question: `현재 방문하고 싶은 지역이 ‘${currentLocationLabel}’가 맞아?`,
-    options: ["맞아", "아니야"],
+    question: `${t("taro.location")} ‘${currentLocationLabel}’${t("taro.location2")}`,
+    options: [t("taro.yes"), t("taro.no")],
   }
 
   const getFallbackQuestions = () => ([
@@ -144,7 +147,7 @@ function QuestionStep({ next, prev, goTo }) {
 
     // 첫 번째(디폴트) 질문 분기 처리
     if (qIdx === 0) {
-      if (label === '아니야') {
+      if (label === t("taro.no")) {
         // LocationStep으로 이동. 돌아오면 오버레이 최소시간 + 질문 준비 확인 후 2번째 질문부터 재개
         sessionStorage.setItem('taro_resume_after_location', '1')
         setGenerating(true)
@@ -192,8 +195,8 @@ function QuestionStep({ next, prev, goTo }) {
 
 
       <QuestionBox>
-        <QuestionTitle>{qIdx + 1}번째 질문</QuestionTitle>
-        <QuestionText>{qIdx === 0 ? defaultFirstQuestion.question : (questions[qIdx - 1]?.question || '질문을 불러오는 중...')}</QuestionText>
+        <QuestionTitle>{qIdx + 1}{t("taro.que")}</QuestionTitle>
+        <QuestionText>{qIdx === 0 ? defaultFirstQuestion.question : (questions[qIdx - 1]?.question || t("taro.queloading"))}</QuestionText>
       </QuestionBox>
 
       <Options>

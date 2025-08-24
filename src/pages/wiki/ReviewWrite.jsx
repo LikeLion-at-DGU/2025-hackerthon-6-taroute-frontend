@@ -6,9 +6,12 @@ import SearchBar from '../../components/common/SearchBar.jsx'
 import PrimaryButton from '../../components/common/PrimaryButton.jsx'
 import { getWikiDetail, postWikiReview } from '../../apis/wikiApi.js'
 import { showToast } from '../../hooks/common/toast.js'
+import { useTranslation } from "react-i18next";
+
 
 
 export default function WikiReviewWrite() {
+  const { t } = useTranslation();
   const { id } = useParams()
   const navigate = useNavigate()
   const [agreeTruth, setAgreeTruth] = useState(false)
@@ -58,19 +61,19 @@ export default function WikiReviewWrite() {
 
   const onSubmitReview = async () => {
     if (!agreeTruth || !confirmPlace) {
-      showToast('체크리스트를 확인해주세요')
+      showToast(t("toast.check"))
       return
     }
     if (rating <= 0) {
-      showToast('별점을 선택해주세요')
+      showToast(t("toast.star"))
       return
     }
     if (!text.trim()) {
-      showToast('내용을 입력해주세요')
+      showToast(t("toast.content"))
       return
     }
     if (!placeName || !id) {
-      showToast('장소 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요')
+      showToast(t("toast.again"))
       return
     }
 
@@ -101,11 +104,11 @@ export default function WikiReviewWrite() {
   return (
     <Wrap>
       <Bleed>
-        <PageNavbar title="지역위키" />
+        <PageNavbar title={t("wiki.titletop")} />
         </Bleed>
       <Content>
           <SearchBar
-            placeholder="검색어를 입력해주세요"
+            placeholder={t("wiki.subtitletop")}
             value={searchKeyword}
             onChange={setSearchKeyword}
             bordered
@@ -124,26 +127,26 @@ export default function WikiReviewWrite() {
         <NoticeCard>
   <HeadingBox>
     <Dot />
-    <HeadingText>작성 전 아래 내용을 확인해주세요</HeadingText>
+    <HeadingText>{t("wiki.check")}</HeadingText>
   </HeadingBox>
-  <P>푸드 위키는 실제 후기를 바탕으로 정보를 공유하는 서비스입니다.</P>
-  <P>거짓 없이 진실만을 바탕으로 내용을 작성할 것을 약속해주세요</P>
+  <P>{t("wiki.wikidetail1")}</P>
+  <P>{t("wiki.wikidetail2")}</P>
 </NoticeCard>
 
         <CheckList>
           <CheckRow>
-            <CheckLabel>진실된 내용만을 작성할 것을 약속합니다</CheckLabel>
+            <CheckLabel>{t("wiki.promise")}</CheckLabel>
             <CheckBox role="checkbox" aria-checked={agreeTruth} $checked={agreeTruth} onClick={() => setAgreeTruth(v => !v)} />
           </CheckRow>
           <CheckRow>
-            <CheckLabel>작성할 식당이 ‘{placeName}’가 맞습니까?</CheckLabel>
+            <CheckLabel>{t("wiki.true")} ‘{placeName}’{t("wiki.true2")}</CheckLabel>
             <CheckBox role="checkbox" aria-checked={confirmPlace} $checked={confirmPlace} onClick={() => setConfirmPlace(v => !v)} />
           </CheckRow>
         </CheckList>
 
         <DividerTitle>
           <Dot />
-          <span>해당 식당의 별점을 작성해주세요</span>
+          <span>{t("wiki.addstar")}</span>
         </DividerTitle>
 
         <Stars>
@@ -156,19 +159,19 @@ export default function WikiReviewWrite() {
 
         <DividerTitle>
           <Dot />
-          <span>내용을 작성해주세요</span>
+          <span>{t("wiki.addcontent")}</span>
         </DividerTitle>
 
         <TextArea
           rows={8}
-          placeholder="내용을 입력해주세요."
+          placeholder={t("wiki.addcontent")}
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
 
         <DividerTitle>
           <Dot />
-          <span>사진을 등록해주세요</span>
+          <span>{t("wiki.addphoto")}</span>
         </DividerTitle>
 
         <UploadWrap>
@@ -176,7 +179,7 @@ export default function WikiReviewWrite() {
             {previews.length === 0 ? (
               <>
                 <UploadIcon>⇪</UploadIcon>
-                <UploadText>사진을 업로드해주세요</UploadText>
+                <UploadText>{t("wiki.upload")}</UploadText>
               </>
             ) : (
               <PreviewGrid>
@@ -194,7 +197,7 @@ export default function WikiReviewWrite() {
       </Content>
 
       <PrimaryButton fixedBottom onClick={onSubmitReview} disabled={submitting || placeLoading}>
-        게시판 작성
+        {t("wiki.enter")}
       </PrimaryButton>
     </Wrap>
   )
