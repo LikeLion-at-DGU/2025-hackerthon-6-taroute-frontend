@@ -103,6 +103,16 @@ const Copy = styled.div`
 
 const Results = styled.div`
   margin-top: 4px; /* 검색바 바로 아래 붙도록 간격 축소 */
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 16px;
+  /* 스크롤은 되지만 스크롤바는 숨김 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+  &::-webkit-scrollbar { /* Chrome, Safari, Opera */
+    display: none;
+  }
 `
 
 

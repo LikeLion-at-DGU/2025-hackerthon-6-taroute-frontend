@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import BottomSheetSelect from '../common/BottomSheetSelect.jsx'
 import timeIcon from '../../assets/icons/time.svg'
+import runningArrow from '../../assets/icons/arrow-down.svg'
+import placeNoImage from '../../assets/icons/placeNoImage.png'
 import { searchWikiPlaces } from '../../apis/wikiApi.js'
 import { useSelectedLocation } from '../../hooks/useSelectedLocation.js'
 
@@ -16,6 +18,8 @@ export function WikiSearchResults({ query }) {
   const [error, setError] = useState(null)
   const [sortOpen, setSortOpen] = useState(false)
   const [sortKey, setSortKey] = useState(SORT_OPTIONS[0])
+  const [showTimeModal, setShowTimeModal] = useState(false)
+  const [modalTimes, setModalTimes] = useState([])
 
   const rankPreference = useMemo(() => {
     if (sortKey === '정확도순') return 'RELEVANCE'
@@ -58,6 +62,45 @@ export function WikiSearchResults({ query }) {
     return () => { aborted = true }
   }, [query?.keyword, location?.x, location?.y, rankPreference, sortKey])
 
+  const selectedDay = new Date().getDay()
+  const openTimeModal = (e, times) => {
+    e.stopPropagation()
+    setModalTimes(Array.isArray(times) ? times : [])
+    setShowTimeModal(true)
+    document.addEventListener('keydown', handleKeyDown)
+  }
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') setShowTimeModal(false)
+  }
+  const handleCloseModal = (e) => {
+    if (e.target.closest('[data-modal-container]')) return
+    setShowTimeModal(false)
+  }
+
+  const todaysText = (times) => {
+    if (!Array.isArray(times) || times.length === 0) return ''
+    return times[selectedDay] || ''
+  }
+  const getRunningTimeData = () => {
+    if (!Array.isArray(modalTimes)) return Array(7).fill('정보없음')
+    return modalTimes.map((t) => {
+      if (!t || t === '정보없음') return '정보없음'
+      if (t.includes('휴무일')) return '휴무일'
+      const m = t.match(/\d{1,2}:\d{2}-\d{1,2}:\d{2}/)
+      return m ? m[0] : t
+    })
+  }
+  const isHoliday = (text) => text === '휴무일'
+  const getBreakTime = () => {
+    if (!Array.isArray(modalTimes)) return '정보없음'
+    const entry = modalTimes.find((t) => t && t.includes('쉬는 시간'))
+    if (entry) {
+      const m = entry.match(/\d{1,2}:\d{2}-\d{1,2}:\d{2}/)
+      return m ? m[0] : '정보없음'
+    }
+    return '정보없음'
+  }
+
   return (
     <Wrap>
       <Header>
@@ -86,19 +129,60 @@ export function WikiSearchResults({ query }) {
               <Left>
                 <Title>{p.place_name}</Title>
                 <Address>{p.address}</Address>
-                <Meta>
+                <Meta onClick={(e) => openTimeModal(e, p.running_time)}>
                   <img src={timeIcon} alt="time" />
-                  <span>{Array.isArray(p.running_time) && p.running_time.length > 0 ? p.running_time[0] : p.distance_text || '정보 없음'}</span>
-                  <Caret>▾</Caret>
+                  <span>{todaysText(p.running_time) || '영업시간 정보 미제공'}</span>
+                  <ArrowImg src={runningArrow} alt="상세 시간" />
                 </Meta>
               </Left>
-              <Thumb src={`https://picsum.photos/seed/${encodeURIComponent(p.place_id)}/240/160`} alt={p.place_name} />
+              <Thumb src={(Array.isArray(p.place_photos) && p.place_photos.length > 0 ? p.place_photos[0] : placeNoImage)} alt={p.place_name} />
             </Row>
           ))}
           {items.length === 0 && (
             <Empty>검색 결과가 없습니다.</Empty>
           )}
         </List>
+      )}
+      {showTimeModal && (
+        <>
+          <ModalOverlay onClick={handleCloseModal} />
+          <ModalContainer data-modal-container>
+            <TimeList>
+              <TimeItem>
+                <DayLabel>월요일</DayLabel>
+                <TimeText $isHoliday={isHoliday(getRunningTimeData()[1])}>{getRunningTimeData()[1]}</TimeText>
+              </TimeItem>
+              <TimeItem>
+                <DayLabel>금요일</DayLabel>
+                <TimeText $isHoliday={isHoliday(getRunningTimeData()[5])}>{getRunningTimeData()[5]}</TimeText>
+              </TimeItem>
+              <TimeItem>
+                <DayLabel>화요일</DayLabel>
+                <TimeText $isHoliday={isHoliday(getRunningTimeData()[2])}>{getRunningTimeData()[2]}</TimeText>
+              </TimeItem>
+              <TimeItem>
+                <DayLabel>토요일</DayLabel>
+                <TimeText $isHoliday={isHoliday(getRunningTimeData()[6])}>{getRunningTimeData()[6]}</TimeText>
+              </TimeItem>
+              <TimeItem>
+                <DayLabel>수요일</DayLabel>
+                <TimeText $isHoliday={isHoliday(getRunningTimeData()[3])}>{getRunningTimeData()[3]}</TimeText>
+              </TimeItem>
+              <TimeItem>
+                <DayLabel>일요일</DayLabel>
+                <TimeText $isHoliday={isHoliday(getRunningTimeData()[0])}>{getRunningTimeData()[0]}</TimeText>
+              </TimeItem>
+              <TimeItem>
+                <DayLabel>목요일</DayLabel>
+                <TimeText $isHoliday={isHoliday(getRunningTimeData()[4])}>{getRunningTimeData()[4]}</TimeText>
+              </TimeItem>
+            </TimeList>
+            <BreakTimeSection>
+              <BreakTimeLabel>쉬는시간</BreakTimeLabel>
+              <BreakTimeText>{getBreakTime()}</BreakTimeText>
+            </BreakTimeSection>
+          </ModalContainer>
+        </>
       )}
     </Wrap>
   )
@@ -223,6 +307,12 @@ const Caret = styled.span`
   margin-left: 6px;
 `
 
+const ArrowImg = styled.img`
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+`
+
 const Thumb = styled.img`
   width: 80px;
   height: 80px;
@@ -231,4 +321,72 @@ const Thumb = styled.img`
   justify-self: end; 
 `
 
+// Modal styles (aligned with PLAN/Category)
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2000;
+`
+
+const ModalContainer = styled.div`
+  background: #F0F0F0;
+  border-radius: 12px;
+  padding: 12px 14px 14px 14px;
+  width: 253px;
+  height: 125px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2001;
+`
+
+const TimeList = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px 12px;
+  margin-bottom: 8px;
+`
+
+const TimeItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1px 0;
+`
+
+const DayLabel = styled.span`
+  font-size: 11px;
+  font-weight: 500;
+  color: #374151;
+  min-width: 24px;
+`
+
+const TimeText = styled.span`
+  font-size: 11px;
+  font-weight: 300;
+  color: ${props => props.$isHoliday ? '#F03F40' : '#6B7280'};
+  text-align: right;
+`
+
+const BreakTimeSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`
+
+const BreakTimeLabel = styled.span`
+  font-size: 11px;
+  font-weight: 500;
+  color: #F03F40;
+`
+
+const BreakTimeText = styled.span`
+  font-size: 11px;
+  color: #6B7280;
+`
 

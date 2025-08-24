@@ -355,6 +355,8 @@ const HotTitle = styled.span`
   color: var(--color-neutral-black, #2A2A2A);
   font-size: 14px;
   letter-spacing: -0.3px;
+  padding-left: 10px;
+  padding-right: 10px;
 `
 const HotRight = styled.div`
   display: flex;

@@ -64,7 +64,9 @@ export function FilterBar({
               visible={sheet.type === 'distance'}
               title="거리"
               options={[
+                { label: '전체', value: '전체' },
                 { label: '1km 이내', value: '1km 이내' },
+
                 { label: '3km 이내', value: '3km 이내' },
                 { label: '5km 이내', value: '5km 이내' },
               ]}
@@ -77,6 +79,7 @@ export function FilterBar({
               visible={sheet.type === 'visitTime'}
               title="방문시간"
               options={[
+                { label: '전체', value: '전체' },
                 { label: '아침 (6:00 - 12:00)', value: '아침 (6:00 - 12:00)' },
                 { label: '낮 (12:00 - 17:00)', value: '낮 (12:00 - 17:00)' },
                 { label: '저녁 (17:00 - 21:00)', value: '저녁 (17:00 - 21:00)' },
@@ -92,6 +95,7 @@ export function FilterBar({
               visible={sheet.type === 'visitDay'}
               title="방문요일"
               options={[
+                { label: '전체', value: '전체' },
                 { label: '월요일', value: '월요일' },
                 { label: '화요일', value: '화요일' },
                 { label: '수요일', value: '수요일' },
@@ -101,7 +105,7 @@ export function FilterBar({
                 { label: '일요일', value: '일요일' },
               ]}
               value={visitDay}
-              onSelect={(v) => { onChangeVisitDay(v); setSheet({ type: null }) }}
+              onSelect={(v) => { onChangeVisitDay(v === '전체' ? '' : v); setSheet({ type: null }) }}
               onClose={() => setSheet({ type: null })}
             />
         </Bar>
