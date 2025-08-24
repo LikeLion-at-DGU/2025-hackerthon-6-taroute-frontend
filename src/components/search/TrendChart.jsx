@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelectedLocation } from "../../hooks/useSelectedLocation";
+import { searchWikiPlaces } from "../../apis/wikiApi";
 import styled from "styled-components";
 import rotateLeft from "../../assets/icons/rotateLeft.svg";
 import { getTop10Keyword } from "../../apis/searchApi";
@@ -50,6 +53,7 @@ const Keyword = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    cursor: pointer;
 `;
 
 
@@ -59,6 +63,8 @@ const TrendChart = () => {
         "CGV", "노랑통닭", "투썸플레이스", "파리바게뜨", "GS25"
     ]); // 기본값으로 더미 데이터 사용
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+    const { location: selectedLocation } = useSelectedLocation();
 
     const getFormattedDate = () => {
         const currentDate = new Date();
@@ -118,6 +124,32 @@ const TrendChart = () => {
         loadTop10Keywords(); // 새로고침 시 API 재호출
     };
 
+    const handleKeywordClick = async (keyword) => {
+        if (!keyword) return;
+        try {
+            // 위치 정보가 있으면 바로 위키 검색해서 첫 결과로 이동
+            if (selectedLocation?.x && selectedLocation?.y) {
+                const results = await searchWikiPlaces({
+                    latitude: selectedLocation.y,
+                    longitude: selectedLocation.x,
+                    place_name: keyword,
+                    radius: 20000,
+                    rankPreference: 'RELEVANCE',
+                });
+                const first = Array.isArray(results) && results.length > 0 ? results[0] : null;
+                const placeId = first?.place_id || first?.id;
+                if (placeId) {
+                    navigate(`/wiki/place/${encodeURIComponent(placeId)}`);
+                    return;
+                }
+            }
+        } catch (e) {
+            // 무시하고 검색 페이지로 폴백
+        }
+        // 폴백: 위키 검색 페이지로 이동
+        navigate(`/wiki/search?q=${encodeURIComponent(keyword)}`);
+    };
+
     return (
         <TrendChartContainer>
             <Standard>
@@ -148,7 +180,7 @@ const TrendChart = () => {
                             {rankingList.slice(0, 5).map((place, idx) => (
                                 <div key={`left-${idx}`} style={{ display: 'flex', alignItems: 'center', gap: 15, marginBottom: 8 }}>
                                     <span style={{ fontWeight: 700, color: '#271932', width: 18 }}>{idx + 1}</span>
-                                    <Keyword title={place}>{place}</Keyword>
+                                    <Keyword title={place} role="button" onClick={() => handleKeywordClick(place)}>{place}</Keyword>
                                 </div>
                             ))}
                         </Ranking>
@@ -156,7 +188,7 @@ const TrendChart = () => {
                             {rankingList.slice(5, 10).map((place, idx) => (
                                 <div key={`right-${idx}`} style={{ display: 'flex', alignItems: 'center', gap: 15, marginBottom: 8 }}>
                                     <span style={{ fontWeight: 700, color: '#271932', width: 18 }}>{idx + 6}</span>
-                                    <Keyword title={place}>{place}</Keyword>
+                                    <Keyword title={place} role="button" onClick={() => handleKeywordClick(place)}>{place}</Keyword>
                                 </div>
                             ))}
                         </Ranking>
