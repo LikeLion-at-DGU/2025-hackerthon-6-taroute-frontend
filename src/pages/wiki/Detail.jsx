@@ -17,20 +17,39 @@ export default function WikiDetail() {
   const { savedPlaces, addPlace, removePlace } = useSavedPlaceContext()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [place, setPlace] = useState({ id: '', name: '', address: '', images: [], stars: null, hours: '', phone: '', summary: '' })
+  const [place, setPlace] = useState({ id: '', name: '', address: '', images: [], stars: null, hours: '', running_time: [], phone: '', summary: '' })
   const [reviews, setReviews] = useState([])
   const [averageScore, setAverageScore] = useState(null)
+
+  // 보기 좋은 영업시간 렌더링을 위한 파싱 ("일요일 08:00-22:00, 월요일 08:00-22:00, ...")
+  const hoursList = useMemo(() => {
+    const text = place?.hours || ''
+    if (!text) return []
+    return text
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+      .map(line => {
+        const m = line.match(/^(일|월|화|수|목|금|토)요일\s*(.*)$/)
+        if (m) return { day: `${m[1]}요일`, time: m[2] || '' }
+        return { day: '', time: line }
+      })
+  }, [place?.hours])
 
   // 뷰포트 기준으로 접힌 상태 높이를 작게(≈220px) 유지
   const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 812
   const expandedTop = 80
-  const collapsedTop = Math.max(expandedTop, Math.round(viewportHeight * 0.55))
+  const collapsedTop = Math.max(expandedTop, Math.round(viewportHeight * 0.60))
 
   const { y, dragging, onPointerDown, onPointerMove, onPointerUp } = useSheetDrag({
     expandedTop,
     collapsedTop,
     start: 'collapsed',
   })
+
+  // 고정형 "게시판 작성" 바 위치 (시트 드래그와 무관하게 고정)
+  const writeBarTop = Math.max(120, Math.round(viewportHeight * 0.52))
+  const showWriteBar = y > writeBarTop + 12
 
   const isLiked = useMemo(() => savedPlaces.some(p => (
     p.id ? p.id === place.id : (p.name||p.place_name) === place.name && (p.address||p.address_name||p.location) === place.address
@@ -138,30 +157,33 @@ export default function WikiDetail() {
             <Img key={i} src={src} alt={`${place.name}-${i + 1}`} />
           ))}
         </Gallery>
-        <Actions>
-          <WriteBtn onClick={() => navigate(`/wiki/place/${encodeURIComponent(place.id)}/review/new`)}>게시판 작성</WriteBtn>
-          <LikeIconButton
-            $active={isLiked}
-            onClick={() => {
-              const normalized = {
-                id: place.id,
-                name: place.name,
-                place_name: place.name,
-                address: place.address,
-                address_name: place.address,
-                location: place.address,
-                place_photos: place.images,
-              }
-              if (isLiked) removePlace(normalized)
-              else addPlace(normalized)
-            }}
-            aria-label={isLiked ? '찜 해제' : '찜하기'}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.59C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill={isLiked ? '#E35A5A' : '#C8C8C8'} />
-            </svg>
-          </LikeIconButton>
-        </Actions>
+        {showWriteBar && (
+          <Actions style={{ position: 'fixed', top: writeBarTop, left: '50%', transform: 'translateX(-50%)', width: 'min(375px, 100vw)', paddingLeft: 16, paddingRight: 16, zIndex: 45 }}>
+            <WriteBtn onClick={() => navigate(`/wiki/place/${encodeURIComponent(place.id)}/review/new`)}>게시판 작성</WriteBtn>
+            <LikeIconButton
+              $active={isLiked}
+              onClick={() => {
+                const normalized = {
+                  id: place.id,
+                  name: place.name,
+                  place_name: place.name,
+                  address: place.address,
+                  address_name: place.address,
+                  location: place.address,
+                  place_photos: place.images,
+                  running_time: place.running_time,
+                }
+                if (isLiked) removePlace(normalized)
+                else addPlace(normalized)
+              }}
+              aria-label={isLiked ? '찜 해제' : '찜하기'}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.59C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill={isLiked ? '#E35A5A' : '#C8C8C8'} />
+              </svg>
+            </LikeIconButton>
+          </Actions>
+        )}
       </Header>
 
       <Sheet
@@ -192,7 +214,21 @@ export default function WikiDetail() {
   <SecTitle><Dot /><TitleText>기본 정보</TitleText></SecTitle>
   <Info>
     <div>위치: {place.address || '-'}</div>
-    <div>영업 시간:<br />{place.hours || '-'}</div>
+    <HoursBlock>
+      <HoursTitle>영업 시간</HoursTitle>
+      <HoursList>
+        {hoursList.length > 0 ? (
+          hoursList.map((h, i) => (
+            <HoursRow key={i}>
+              {h.day && <HoursDay>{h.day}</HoursDay>}
+              <HoursTime>{h.time || '정보없음'}</HoursTime>
+            </HoursRow>
+          ))
+        ) : (
+          <HoursTime>-</HoursTime>
+        )}
+      </HoursList>
+    </HoursBlock>
     <div>전화번호: {place.phone || '-'}</div>
   </Info>
 </Section>
@@ -201,7 +237,7 @@ export default function WikiDetail() {
           <Section>
   <SecTitle><Dot /><TitleText>게시판</TitleText></SecTitle>
   <SortBar>
-    <PillButton type="button" onClick={() => setSortOpen(true)}>{sortKey} ▾</PillButton>
+    <PillButton type="button" onClick={() => setSortOpen(true)}>{sortKey}</PillButton>
   </SortBar>
 
           
@@ -295,17 +331,19 @@ const Bleed = styled.div`
   margin-right: -16px;
 `
 
-const Header = styled.div`display:flex; flex-direction:column; gap:8px; margin-top:8px;`
+const Header = styled.div`display:flex; flex-direction:column; gap:20px; margin-top:8px; padding: 0 8px;`
 const Title = styled.h1`
-  margin-top: 10px;
+  margin: 10px 0 0;
   color: var(--color-neutral-white, #FFF);
   text-align: center;
   font-family: Paperlogy;
-  font-size: 32px;
+  font-size: clamp(26px, 7vw, 32px);
   font-style: normal;
-  font-weight: 700;
-  line-height: 17px; /* 53.125% */
+  font-weight: 800;
+  line-height: 1.28;
   letter-spacing: -0.5px;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 `
 
 
@@ -317,8 +355,11 @@ const Addr = styled.div`
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
-  line-height: 17px; 
-  margin-bottom: 20px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  padding: 0 12px;
 `
 const Gallery = styled.div`display:flex; gap:8px; overflow-x:auto;`
 const Img = styled.img`width: 140px; height: 100px; object-fit: cover; border-radius: 8px;`
@@ -353,7 +394,19 @@ const LikeIconButton = styled.button`
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
   
 `
-const Section = styled.section`margin-top:16px;`
+const Section = styled.section`
+  margin-top:16px;
+  /* Section 내부 기본 타이포 (TitleText는 자체 스타일 유지) */
+  & * {
+    color: var(--color-neutral-black, #2A2A2A);
+    font-family: Paperlogy;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 17px; /* 141.667% */
+    letter-spacing: -0.5px;
+  }
+`
 const SecTitle = styled.h3`
   display: flex; align-items: center; gap: 8px;
   margin: 16px 0 8px;
@@ -373,11 +426,56 @@ const Info = styled.div`display:flex; flex-direction:column; gap:4px;
 margin-left: 10px;
 margin-right: 10px;
 `
+const HoursBlock = styled.div`
+  margin: 6px 0 4px;
+`
+const HoursTitle = styled.div`
+  color: var(--color-neutral-black, #2A2A2A);
+  font-family: Paperlogy;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 17px; /* 141.667% */
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+`
+const HoursList = styled.div`
+  display: grid; grid-template-columns: auto 1fr; row-gap: 4px; column-gap: 10px;
+`
+const HoursRow = styled.div`
+  display: contents;
+`
+const HoursDay = styled.div`
+  color: var(--color-neutral-black, #2A2A2A);
+  font-family: Paperlogy;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 17px; /* 141.667% */
+  letter-spacing: -0.5px;
+`
+const HoursTime = styled.div`
+  color: var(--color-neutral-black, #2A2A2A);
+  font-family: Paperlogy;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 17px; /* 141.667% */
+  letter-spacing: -0.5px;
+`
 const Review = styled.div`padding:12px 0; border-top:1px solid rgba(0,0,0,0.06);`
 
 // 게시판 정렬/리스트 스타일
 const SortBar = styled.div`
   display: flex; justify-content: flex-start; margin: 8px 0 6px;
+  color: var(--color-neutral-black, #2A2A2A);
+font-family: Paperlogy;
+font-size: 10px;
+font-style: normal;
+font-weight: 600;
+line-height: 17px; /* 170% */
+letter-spacing: -0.5px;
+
 `
 const PillButton = styled.button`
   height: 22px;
@@ -528,7 +626,7 @@ const Dot = styled.span`display:inline-block; width:4px; height:4px; border-radi
 const TitleText = styled.span`
   color: var(--color-neutral-black, #2A2A2A);
   font-family: Paperlogy;
-  font-size: 14px;
+  font-size: 20px;
   font-style: normal;
   font-weight: 500;
   line-height: 17px;
