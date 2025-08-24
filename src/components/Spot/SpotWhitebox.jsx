@@ -56,7 +56,6 @@ const DragHandle = styled.div`
 `;
 const Title = styled.p`
     font-size: 12px;
-    font-family: 'MaruBuri';
     font-weight: 300;
     margin: 10px 0 6px 0;
     padding-left: 18px;
