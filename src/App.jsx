@@ -11,7 +11,7 @@ function App() {
       <BrowserRouter>
         <SavedPlaceProvider>
           <LanguageGate>
-          <AppRoutes />
+            <AppRoutes />
           </LanguageGate>
         </SavedPlaceProvider>
       </BrowserRouter>
