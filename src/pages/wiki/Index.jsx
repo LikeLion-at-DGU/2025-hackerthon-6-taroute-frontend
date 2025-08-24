@@ -8,12 +8,14 @@ import useSheetDrag from '../../hooks/common/useSheetDrag.js'
 import rotateLeft from '../../assets/icons/rotateLeft.svg'
 import timeIcon from '../../assets/icons/time.svg'
 import { useState, useEffect } from 'react'
-import { getRecentWiki, getTopLikedWiki } from '../../apis/wikiApi.js'
+import { getRecentWiki, getTopLikedWiki, searchWikiPlaces } from '../../apis/wikiApi.js'
+import { useSelectedLocation } from '../../hooks/useSelectedLocation.js'
 
 export default function WikiIndex() {
   const navigate = useNavigate()
   const [recent, setRecent] = useState([])
   const [hot, setHot] = useState([])
+  const { location: selectedLocation } = useSelectedLocation()
 
   const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 812
   const expandedTop = 102
@@ -72,7 +74,7 @@ export default function WikiIndex() {
       <WikiInfo>
         <p>우리가 만들어가는 <br />동네 장소들의 위키백과</p>
         <WikiInfoBox onClick={() => navigate('/wiki/search')}>
-          <p>내가 방문한 장소 <br />
+          <p>나만 알기 아까운 장소 <br />
             <span style={{ fontSize: '24px', color: '#FFC500', fontWeight: 500 }}>
               위키 작성하기
             </span>
@@ -121,7 +123,28 @@ export default function WikiIndex() {
 
           <RecentList>
             {recent.map((r, i) => (
-              <RecentRow key={`${r.place_name}-${i}`}>
+              <RecentRow key={`${r.place_name}-${i}`} onClick={async () => {
+                try {
+                  const id = r.place_id || r.id
+                  if (id) {
+                    navigate(`/wiki/place/${encodeURIComponent(id)}`)
+                    return
+                  }
+                  // fallback: 이름으로 검색 후 첫 결과 이동
+                  const results = await searchWikiPlaces({
+                    latitude: selectedLocation?.y,
+                    longitude: selectedLocation?.x,
+                    place_name: r.place_name,
+                    radius: 20000,
+                    rankPreference: 'RELEVANCE',
+                  })
+                  const first = Array.isArray(results) && results.length > 0 ? results[0] : null
+                  const placeId = first?.place_id || first?.id
+                  if (placeId) navigate(`/wiki/place/${encodeURIComponent(placeId)}`)
+                } catch {
+                  // 무시
+                }
+              }} role="button">
                 <IndexBadge>{i + 1}</IndexBadge>
                 <RowTitle>{r.place_name}</RowTitle>
                 <RightText>{r.time_text}</RightText>
@@ -136,7 +159,10 @@ export default function WikiIndex() {
           </TitleRow>
           <HotList>
             {hot.map((item, idx) => (
-              <HotRow key={item.id ?? idx}>
+              <HotRow key={item.id ?? idx} onClick={() => {
+                const id = item.place_id || item.gplace_id || item.id
+                if (id) navigate(`/wiki/place/${encodeURIComponent(id)}`)
+              }} role="button">
                 <HotLeft>
                   <HotPlaceLine>
                     <PlaceDot />

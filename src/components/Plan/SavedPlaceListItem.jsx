@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import clockIcon from '../../assets/icons/time.svg';
 import heartIcon from '../../assets/icons/Heart.svg';
 import blackHeartIcon from '../../assets/icons/BlackHeart.svg';
@@ -173,6 +174,7 @@ const BreakTimeText = styled.span`
 `;
 
 const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
+    const navigate = useNavigate();
     const { removePlace } = useSavedPlaceContext();
     const [showTimeModal, setShowTimeModal] = useState(false);
 
@@ -288,16 +290,16 @@ const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
 
     return (
         <>
-            <SavedPlaceItem>
+            <SavedPlaceItem onClick={() => navigate(`/wiki/place/${encodeURIComponent(place.id || place.gplace_id || place.place_id || '')}`)} role="button">
                 <LeftSection>
-                    <button onClick={handleRemoveClick}>
+                    <button onClick={(e) => { e.stopPropagation(); handleRemoveClick(); }}>
                         <img src={blackHeartIcon} alt="찜 해제" />
                     </button>
                 </LeftSection>
                 <PlaceInfo>
                     <PlaceName>{place.place_name || place.name}</PlaceName>
                     <PlaceAddress>{place.address || place.address_name || place.location}</PlaceAddress>
-                    <RunningTimeContainer onClick={handleTimeClick}>
+                    <RunningTimeContainer onClick={(e) => { e.stopPropagation(); handleTimeClick(); }}>
                         <img src={clockIcon} />
                         <RunningTime>
                             {todaysRunningTime || "영업시간 정보 미제공"}

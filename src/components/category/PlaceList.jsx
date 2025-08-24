@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { useEffect, useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { fetchCategoryPlaces } from '../../apis/categoryApi.js'
 import { searchWikiPlaces } from '../../apis/wikiApi.js'
 import timeIcon from '../../assets/icons/time.svg'
@@ -78,6 +79,7 @@ export function PlaceList({ query, itemsOverride }) {
 }
 
 function PlaceCard({ place }) {
+  const navigate = useNavigate()
   const { savedPlaces, addPlace, removePlace } = useSavedPlaceContext()
   const liked = useMemo(() => {
     return savedPlaces.some(p => {
@@ -140,7 +142,8 @@ function PlaceCard({ place }) {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  const toggleLike = () => {
+  const toggleLike = (e) => {
+    e.stopPropagation()
     const normalized = {
       id: place.id,
       name: place.name,
@@ -156,7 +159,7 @@ function PlaceCard({ place }) {
   }
 
   return (
-    <Card>
+    <Card onClick={() => navigate(`/wiki/place/${encodeURIComponent(place.id)}`)} role="button">
       <Gallery>
         <ThumbList>
           {(place.images || []).map((src, i) => (
@@ -172,7 +175,7 @@ function PlaceCard({ place }) {
           <IconMap />
           <Text $ml="-4px">{place.distance || place.location}</Text>
         </Row>
-        <RunningTimeContainer onClick={handleTimeClick}>
+        <RunningTimeContainer onClick={(e)=>{ e.stopPropagation(); handleTimeClick(); }}>
           <IconTime src={timeIcon} alt="시간" />
           <Text>{todaysRunningTime || '영업시간 정보 미제공'}</Text>
           <ArrowImg src={runningArrow} alt="상세 시간" />
@@ -241,6 +244,7 @@ const Card = styled.div`
   grid-template-columns: 1fr;
   gap: 12px;
   padding: 12px;
+  cursor: pointer;
 `
 
 const Gallery = styled.div`

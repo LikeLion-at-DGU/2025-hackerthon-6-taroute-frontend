@@ -216,7 +216,15 @@ function ResultStep({ prev, goTo }) {
               <DetailTitle>{cards[detailIndex].title}</DetailTitle>
               <DetailDesc>{cards[detailIndex].desc}</DetailDesc>
               <DetailFooter>
-                <SmallButton onClick={() => { /* 위치 확인 연결 자리 */ }}>지역위키 확인하기</SmallButton>
+                <SmallButton onClick={() => {
+                  const target = cards[detailIndex]
+                  const rawId = target?.place_id || target?.google_place_id || target?.id
+                  if (!rawId) {
+                    showToast('해당 장소의 상세 정보를 찾을 수 없어요.')
+                    return
+                  }
+                  navigate(`/wiki/place/${encodeURIComponent(rawId)}`)
+                }}>지역위키 확인하기</SmallButton>
               </DetailFooter>
             </DetailInner>
             <DetailPager>{`${detailIndex + 1} / 7`}</DetailPager>

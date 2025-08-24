@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { useState, useEffect } from "react";
 import { useSavedPlaceContext } from "../../contexts/SavedPlaceContext";
+import { useNavigate } from 'react-router-dom';
 import bg1 from '../../assets/images/bg_1.jpg';
 import maapin from "../../assets/icons/mappin.svg";
 import heartIcon from "../../assets/icons/Heart.svg"; // 빈 하트
@@ -154,6 +155,7 @@ function useUserLocation() {
 const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
   const { savedPlaces, addPlace, removePlace } = useSavedPlaceContext();
   const { userLocation: hookUserLocation, locationError } = useUserLocation();
+  const navigate = useNavigate();
   
   // props로 받은 위치 정보가 있으면 우선 사용, 없으면 훅에서 가져온 위치 사용
   const userLocation = propUserLocation || hookUserLocation;
@@ -266,7 +268,11 @@ const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
   };
 
   return (
-    <Card>
+    <Card onClick={() => {
+      const rawId = place.google_place_id || place.place_id || place.id;
+      if (!rawId) return;
+      navigate(`/wiki/place/${encodeURIComponent(rawId)}`);
+    }} role="button">
       <CardImageContainer>
         <Cover>
           <img 
