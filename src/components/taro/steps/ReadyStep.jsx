@@ -18,7 +18,7 @@ function ReadyStep({ next, prev }) {
       if (typeof next === 'function') next()
     }, 2000)
     return () => clearTimeout(timer)
-  }, [next])      
+  }, [next])
   return (
     <Wrapper>
       <Background />

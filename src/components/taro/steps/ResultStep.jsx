@@ -63,6 +63,8 @@ function ResultStep({ prev, goTo }) {
   const [detailIndex, setDetailIndex] = useState(null) // 0..6 중 하나, retry는 제외
   const openDetail = (globalIndex) => setDetailIndex(globalIndex)
   const closeDetail = () => setDetailIndex(null)
+  const goPrev = () => setDetailIndex(i => (i === null ? i : Math.max(0, i - 1)))
+  const goNext = () => setDetailIndex(i => (i === null ? i : Math.min(cards.length - 2, i + 1))) // retry 제외
 
   // 세션에 저장된 20장 추천 결과 중 7장을 무작위로 골라 카드 타이틀/desc를 채움
   useEffect(() => {
@@ -100,8 +102,8 @@ function ResultStep({ prev, goTo }) {
     const rawNow = sessionStorage.getItem('taro_selected_result')
     if (rawNow && applyFromStorage(rawNow)) return
 
-    // 데이터가 아직 없으면 잠시 폴링 (최대 ~6초)
-    let attempts = 20
+    // 데이터 폴링: 더 빠른 간격으로 체크하여 결과 화면 진입 시 바로 표시
+    let attempts = 40
     const timer = setInterval(() => {
       const raw = sessionStorage.getItem('taro_selected_result')
       if (raw && applyFromStorage(raw)) {
@@ -109,7 +111,7 @@ function ResultStep({ prev, goTo }) {
       } else if (--attempts <= 0) {
         clearInterval(timer)
       }
-    }, 300)
+    }, 150)
 
     return () => clearInterval(timer)
   }, [])
@@ -228,6 +230,8 @@ function ResultStep({ prev, goTo }) {
               </DetailFooter>
             </DetailInner>
             <DetailPager>{`${detailIndex + 1} / 7`}</DetailPager>
+            <ChevronLeft onClick={(e)=>{ e.stopPropagation(); goPrev(); }}>{'‹'}</ChevronLeft>
+            <ChevronRight onClick={(e)=>{ e.stopPropagation(); goNext(); }}>{'›'}</ChevronRight>
           </DetailCard>
         </DetailOverlay> 
       )}

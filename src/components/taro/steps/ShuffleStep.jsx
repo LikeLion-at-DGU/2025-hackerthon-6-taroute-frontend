@@ -14,7 +14,7 @@ function ShuffleStep({ next, prev }) {
     // 셔플 애니메이션이 끝나면 자동으로 다음 단계로 이동
     const timer = setTimeout(() => {
       next()
-    }, 3000) // 3초 후 자동 이동
+    }, 1000) // 2초 후 자동 이동
 
     return () => clearTimeout(timer)
   }, [next])

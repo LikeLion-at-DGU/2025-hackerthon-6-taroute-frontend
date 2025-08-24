@@ -12,7 +12,7 @@ import {
 import taruIcon from '../../../assets/icons/ResultTaru.svg'
 
 function GoStep({ next }) {
-    // 1초 후 결과(ResultStep)로 이동
+    // 최소 1초는 보여주고 다음 단계로 이동
     useEffect(() => {
         const t = setTimeout(() => {
             if (typeof next === 'function') next()
