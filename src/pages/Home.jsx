@@ -5,6 +5,7 @@ import SearchBar from '../components/common/SearchBar';
 import Ads from '../components/Home/Ads';
 import WhiteBox from '../components/Home/WhiteBox';
 import taru from '../assets/icons/taru/taruHome.png';
+import { useTranslation } from 'react-i18next';
 
 const HomeContainer = styled.div`
     position: relative;
@@ -52,6 +53,8 @@ const GoTaroButton = styled.div`
 
 const Home = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
+
     return (
         <HomeContainer>
             <div>
@@ -61,7 +64,11 @@ const Home = () => {
                 />
             </div>
             <GoTaro>
-                <p>오늘의 운명은 <br /> 어디로 향하고 있을까요?</p>
+                <p>
+                    {t("home.title")}
+                    <br/>
+                    {t("home.title2")}
+                </p>
                 <GoTaroButton onClick={() => navigate('/taro')}>
                     <p>무엇을 할지 모를 때는 <br />
                         <span style={{ fontSize: "24px", color: "#FFC500", fontWeight: "500" }}>

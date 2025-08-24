@@ -196,9 +196,6 @@ const useLoadSavedPlace = () => {
                     return !(placeName === targetName && placeAddress === targetAddress);
                 });
             }
-            
-            console.log('✅ 로컬 상태에서 장소 제거 완료');
-            showToast('장소를 찜 목록에서 제거했습니다.');
             return updated;
         });
     };

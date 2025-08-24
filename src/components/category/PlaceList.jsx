@@ -355,7 +355,7 @@ const RunningTimeContainer = styled.div`
 const FavButton = styled.button`
   position: absolute;
   right: 14px;
-  bottom: 14px;
+  bottom: 17px;
   width: 32px;
   height: 32px;
   border: none;
@@ -364,7 +364,16 @@ const FavButton = styled.button`
   cursor: pointer;
   border-radius:5px;
   background: ${p => (p.$active ? 'rgba(0,0,0,0.75)' : 'rgba(0,0,0,0.55)')};
-  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+    
+    &:hover {
+        background: rgba(139, 139, 139, 0.9);
+        transform: scale(1.05);
+    }
+    
+    &:active {
+        transform: scale(0.95);
+    }
 `
 
 const Empty = styled.div`

@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { useNavigate } from 'react-router-dom';
 import useSheetDrag from "../../hooks/common/useSheetDrag";
 import { useSavedPlaceContext } from "../../contexts/SavedPlaceContext";
+import { unsavePlaceFromServer } from "../../apis/savePlaceApi";
 import Calendar from "./Calendar";
 import SavedPlaceListItem from "./SavedPlaceListItem";
 import calendarIcon from '../../assets/icons/calendar.svg';
@@ -342,8 +343,34 @@ const PlanWhiteBox = ({ expandedTop = 105, collapsedTop = 390 }) => {
     };
 
     // 전체삭제 확인
-    const handleConfirmDelete = () => {
-        handleClearAll();
+    const handleConfirmDelete = async () => {
+        try {
+            // 저장된 모든 장소의 ID들을 수집
+            const placeIds = savedPlaces
+                .map(place => place.id || place.place_id)
+                .filter(Boolean); // null/undefined 제거
+            
+            if (placeIds.length > 0) {
+                // 각 장소를 개별적으로 서버에서 삭제
+                const deletePromises = placeIds.map(placeId => 
+                    unsavePlaceFromServer(placeId).catch(error => {
+                        console.error(`❌ 장소 ${placeId} 삭제 실패:`, error);
+                        return null; // 개별 실패는 무시하고 계속 진행
+                    })
+                );
+                
+                await Promise.all(deletePromises);
+                console.log('🗑️ 전체 삭제 완료:', placeIds);
+            }
+            
+            // 로컬 상태도 초기화
+            handleClearAll();
+        } catch (error) {
+            console.error('❌ 전체 삭제 중 오류:', error);
+            // 서버 요청이 실패해도 로컬은 초기화
+            handleClearAll();
+        }
+        
         setShowDeleteConfirm(false);
     };
 

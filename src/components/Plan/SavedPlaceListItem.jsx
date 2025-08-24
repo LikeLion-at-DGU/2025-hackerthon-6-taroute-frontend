@@ -5,6 +5,7 @@ import clockIcon from '../../assets/icons/time.svg';
 import heartIcon from '../../assets/icons/Heart.svg';
 import blackHeartIcon from '../../assets/icons/BlackHeart.svg';
 import { useSavedPlaceContext } from '../../contexts/SavedPlaceContext';
+import { unsavePlaceFromServer } from '../../apis/savePlaceApi';
 import runningArrow from '../../assets/icons/arrow-down.svg';
 import placeNoImage from '../../assets/icons/placeNoImage.png';
 
@@ -101,6 +102,27 @@ const LeftSection = styled.div`
     align-items: flex-end;
     gap: 8px;
     flex-shrink: 0;
+`;
+
+const HeartButton = styled.button`
+    width: 32px;
+    height: 32px;
+    background: rgba(0,0,0,0.55);
+    border: none;
+    border-radius: 5px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        background: rgba(139, 139, 139, 0.9);
+        transform: scale(1.05);
+    }
+    
+    &:active {
+        transform: scale(0.95);
+    }
 `;
 
 // 영업시간 모달 관련 스타일
@@ -209,7 +231,7 @@ const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
     // 영업시간 모달 열기
     const handleTimeClick = () => {
         setShowTimeModal(true);
-        
+
         // 키보드 이벤트 리스너 추가
         document.addEventListener('keydown', handleKeyDown);
     };
@@ -238,17 +260,17 @@ const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
         if (!place.running_time || !Array.isArray(place.running_time)) {
             return Array(7).fill('정보없음');
         }
-        
+
         return place.running_time.map(time => {
             if (!time || time === '정보없음') {
                 return '정보없음';
             }
-            
+
             // "일요일 휴무일" 형태에서 "휴무일"만 추출
             if (time.includes('휴무일')) {
                 return '휴무일';
             }
-            
+
             // "월요일 10:30-22:30" 형태에서 시간 부분만 추출
             const timeMatch = time.match(/\d{1,2}:\d{2}-\d{1,2}:\d{2}/);
             return timeMatch ? timeMatch[0] : time;
@@ -265,18 +287,18 @@ const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
         if (!place.running_time || !Array.isArray(place.running_time)) {
             return '정보없음';
         }
-        
+
         // "쉬는 시간 매일 14:50-17:00" 형태의 데이터 찾기
-        const breakTimeEntry = place.running_time.find(time => 
+        const breakTimeEntry = place.running_time.find(time =>
             time && time.includes('쉬는 시간')
         );
-        
+
         if (breakTimeEntry) {
             // "쉬는 시간 매일 14:50-17:00"에서 시간 부분만 추출
             const timeMatch = breakTimeEntry.match(/\d{1,2}:\d{2}-\d{1,2}:\d{2}/);
             return timeMatch ? timeMatch[0] : '정보없음';
         }
-        
+
         return '정보없음';
     };
 
@@ -292,9 +314,11 @@ const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
         <>
             <SavedPlaceItem onClick={() => navigate(`/wiki/place/${encodeURIComponent(place.id || place.gplace_id || place.place_id || '')}`)} role="button">
                 <LeftSection>
-                    <button onClick={(e) => { e.stopPropagation(); handleRemoveClick(); }}>
-                        <img src={blackHeartIcon} alt="찜 해제" />
-                    </button>
+                    <HeartButton onClick={(e) => { e.stopPropagation(); handleRemoveClick(); }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.59C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill='#E06D6D'/>
+                        </svg>
+                    </HeartButton>
                 </LeftSection>
                 <PlaceInfo>
                     <PlaceName>{place.place_name || place.name}</PlaceName>

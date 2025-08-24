@@ -647,8 +647,8 @@ const SpotMap = ({
 					if (firstStartPos) {
 						const walkToFirst = new window.kakao.maps.Polyline({
 							path: [startPosition, firstStartPos],
-							strokeWeight: 5,
-							strokeColor: '#666666',
+							strokeWeight: 4,
+							strokeColor: '#F0F0F0',
 							strokeOpacity: 0.8,
 							strokeStyle: 'shortdash'
 						});
@@ -671,47 +671,13 @@ const SpotMap = ({
 					if (lastEndPos) {
 						const walkFromLast = new window.kakao.maps.Polyline({
 							path: [lastEndPos, endPosition],
-							strokeWeight: 5,
-							strokeColor: '#666666',
+							strokeWeight: 4,
+							strokeColor: '#F0F0F0',
 							strokeOpacity: 0.8,
 							strokeStyle: 'shortdash'
 						});
 						walkFromLast.setMap(map);
 						console.log('🚶 마지막 하차지→도착지 도보 경로 그리기');
-					}
-				}
-				
-				// 교통수단 간 환승 도보 그리기
-				for (let i = 0; i < transitSegments.length - 1; i++) {
-					const currentTransit = transitSegments[i];
-					const nextTransit = transitSegments[i + 1];
-					
-					let currentEndPos, nextStartPos;
-					
-					// 현재 교통수단 하차지
-					if (currentTransit.mode === 'BUS') {
-						currentEndPos = new window.kakao.maps.LatLng(currentTransit.end_blat, currentTransit.end_blon);
-					} else if (currentTransit.mode === 'SUBWAY') {
-						currentEndPos = new window.kakao.maps.LatLng(currentTransit.end_slat, currentTransit.end_slon);
-					}
-					
-					// 다음 교통수단 탑승지
-					if (nextTransit.mode === 'BUS') {
-						nextStartPos = new window.kakao.maps.LatLng(nextTransit.start_blat, nextTransit.start_blon);
-					} else if (nextTransit.mode === 'SUBWAY') {
-						nextStartPos = new window.kakao.maps.LatLng(nextTransit.start_slat, nextTransit.start_slon);
-					}
-					
-					if (currentEndPos && nextStartPos) {
-						const transferWalk = new window.kakao.maps.Polyline({
-							path: [currentEndPos, nextStartPos],
-							strokeWeight: 5,
-							strokeColor: '#666666',
-							strokeOpacity: 0.8,
-							strokeStyle: 'shortdash'
-						});
-						transferWalk.setMap(map);
-						console.log(`🚶 환승 도보 경로 그리기: ${currentTransit.mode} → ${nextTransit.mode}`);
 					}
 				}
 

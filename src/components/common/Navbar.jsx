@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import LocationIcon from '../../assets/icons/location.svg';
+import { useTranslation } from "react-i18next";
+import { useRecoilState } from "recoil";
+import { languageState } from "../../contexts/recoil/languageState";
+
 
 const NavbarContainer = styled.div`
     display: flex;
@@ -85,7 +89,28 @@ const LanguageSwitch = styled.div`
 const Navbar = ({ LocationBarColor }) => {
     const navigate = useNavigate();
     const [currentLocationName, setCurrentLocationName] = useState('충무로 3가');
-    const [isKorean, setIsKorean] = useState(true); // 언어 상태 (true: KOR, false: ENG)
+    const [lang, setIsKorean] = useRecoilState(languageState);
+    const isKorean = lang === 'ko';
+    // const [isKorean, setIsKorean] = useState(true); // 언어 상태 (true: KOR, false: ENG)
+
+    const { t, i18n } = useTranslation();
+
+    // 첫 마운트 시 저장된 언어/전역값과 동기화
+    useEffect(() => {
+        const saved = localStorage.getItem("language");
+        const initialLang = saved || lang || "ko";
+        // setLang(initialLang);
+        i18n.changeLanguage(initialLang);
+        setIsKorean(initialLang);
+    }, []);
+
+    const handleLanguageSwitch = () => {
+        const newLang = isKorean ? "en" : "ko"; // 토글 상태에 따라 언어 결정
+        // setIsKorean(!isKorean);
+        setIsKorean(newLang); // Recoil 상태 업데이트
+        i18n.changeLanguage(newLang); // i18n 언어 변경
+        localStorage.setItem("language", newLang); // localStorage에 언어 상태 저장
+    };
 
     // 컴포넌트 마운트 시 localStorage에서 위치 정보 로드
     useEffect(() => {
@@ -123,10 +148,6 @@ const Navbar = ({ LocationBarColor }) => {
 
     const handleLocationClick = () => {
         navigate('/location');
-    };
-
-    const handleLanguageSwitch = () => {
-        setIsKorean(!isKorean);
     };
 
     return (
