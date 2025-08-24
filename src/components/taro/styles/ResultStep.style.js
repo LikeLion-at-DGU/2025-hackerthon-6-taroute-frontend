@@ -111,13 +111,13 @@ export const FooterLabel = styled.div`
   background: #EBD8B6;
   color: #271932;
   height: 22px;
-  padding: 0 10px;
+  padding: 0 0px;
   font-family: MaruBuriOTF;
-  font-size: 12px;
+  font-size: 10px;
   line-height: 1;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
 `
 
 export const HeartButton = styled.button`
