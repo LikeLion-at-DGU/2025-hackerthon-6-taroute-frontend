@@ -7,6 +7,7 @@ import {
   BubbleContent,
   ButtonPrev,
   ButtonNext,
+  BackButton,
 } from '../styles/ConsentStep.style.js'
 import taruSvg from '../../../assets/icons/taru.svg'
 import useTextAnimation from '../../../hooks/useTextAnimation'
@@ -26,6 +27,7 @@ function ConsentStep({ next, prev }) {
   return (
     <Wrapper>
       <Overlay />
+      <BackButton onClick={prev} />
       <TaruMascot src={taruSvg} alt="타루" aria-label="타루" role="img" />
 
       <BubbleHeader>

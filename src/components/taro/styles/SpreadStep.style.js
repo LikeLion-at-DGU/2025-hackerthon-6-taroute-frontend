@@ -167,3 +167,30 @@ export const SwipeInstruction = styled.p`
   text-align: center;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
 `;
+
+export const BackButton = styled.button`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  &::before {
+    content: "‹";
+    color: #FFFFFF;
+    font-size: 24px;
+    font-weight: bold;
+  }
+`;

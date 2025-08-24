@@ -15,7 +15,8 @@ import {
   NavigationHint,
   ArrowContainer,
   ArrowButton,
-  SwipeInstruction
+  SwipeInstruction,
+  BackButton
 } from '../styles/SpreadStep.style'
 import tarocardBg from '../../../assets/icons/taro/tarocard_bg.svg'
 import tarocard from '../../../assets/icons/taro/tarocard.svg'
@@ -139,6 +140,7 @@ function SpreadStep({ next, prev }) {
     <Wrapper>
       <Background />
       <Overlay />
+      <BackButton onClick={prev} />
       <ContentContainer>
         <CardPlaceholder>
           <CardBackgroundImage src={tarocardBg} alt="카드 배경" />

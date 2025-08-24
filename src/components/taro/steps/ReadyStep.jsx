@@ -7,7 +7,8 @@ import {
   TaruIcon,
   Title,
   ButtonContainer,
-  Button
+  Button,
+  BackButton
 } from '../styles/ReadyStep.style'
 import taruIcon from '../../../assets/icons/ReadTaru.svg'
 
@@ -23,6 +24,7 @@ function ReadyStep({ next, prev }) {
     <Wrapper>
       <Background />
       <Overlay />
+      <BackButton onClick={prev} />
       <ContentContainer>
         <TaruIcon src={taruIcon} alt="타루 캐릭터" />
         <Title>카드 해석 중</Title>

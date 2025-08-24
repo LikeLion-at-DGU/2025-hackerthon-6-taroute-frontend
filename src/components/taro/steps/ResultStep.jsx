@@ -34,6 +34,7 @@ import {
   ExitModalDescription,
   ExitModalFooter,
   ExitModalButton,
+  BackButton,
 } from '../styles/ResultStep.style.js'
 
 import sampleImg from '../../../assets/images/ads_temp/temp1.jpg'
@@ -155,6 +156,7 @@ function ResultStep({ prev, goTo }) {
   return (
     <Wrapper>
       <Overlay />
+      <BackButton onClick={prev} />
       <Content>
         <Title>운명의 카드</Title>
 

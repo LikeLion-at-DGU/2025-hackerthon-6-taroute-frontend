@@ -5,7 +5,8 @@ import {
   Overlay,
   ContentContainer,
   TaruIcon,
-  Title
+  Title,
+  BackButton
 } from '../styles/ShuffleStep.style'
 import taruIcon from '../../../assets/icons/ShuffleTaru.svg'
 
@@ -23,6 +24,7 @@ function ShuffleStep({ next, prev }) {
     <Wrapper>
       <Background />
       <Overlay />
+      <BackButton onClick={prev} />
       <ContentContainer>
         <TaruIcon src={taruIcon} alt="타루 캐릭터" />
         <Title>카드 셔플 중</Title>

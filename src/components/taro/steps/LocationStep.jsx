@@ -153,6 +153,7 @@ function LocationStep({ goTo }) {
   return (
     <Wrapper>
       <Overlay style={{ pointerEvents: 'none' }} />
+      <BackButton onClick={() => goTo(2)} />
       <Panel>
         <Header>
           <Title>위치를 선택해 주세요</Title>

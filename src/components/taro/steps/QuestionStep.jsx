@@ -10,6 +10,7 @@ import {
   QuestionText,
   Options,
   OptionButton,
+  BackButton,
 } from '../styles/QuestionStep.style.js'
 import taruSvg from '../../../assets/icons/taru.svg'
 import { fetchSlotQuestions } from '../../../apis/taroApi'
@@ -177,6 +178,7 @@ function QuestionStep({ next, prev, goTo }) {
   return (
     <Wrapper>
       <Overlay />
+      <BackButton onClick={prev} />
       {generating && (
         <GeneratingOverlay>
           <GeneratingInner>

@@ -240,6 +240,8 @@ export const DetailTitle = styled.h2`
   overflow: hidden;
   word-break: keep-all;
   margin-top: -6px; /* 텍스트 블록을 위로 살짝 올림 */
+  padding-left: 10px;
+  padding-right: 10px;
 `
 
 export const TitleContainer = styled.div`
@@ -455,4 +457,31 @@ export const ExitModalButton = styled.button`
     opacity: 0.9;
   }
 `
+
+export const BackButton = styled.button`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  &::before {
+    content: "‹";
+    color: #FFFFFF;
+    font-size: 24px;
+    font-weight: bold;
+  }
+`;
 
