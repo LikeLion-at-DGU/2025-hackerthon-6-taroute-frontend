@@ -199,7 +199,7 @@ export const DetailCard = styled.div`
   width: 360px;
   max-width: calc(100% - 32px);
   border-radius: 16px;
-
+  
   background-image: url(${props => props.bg || 'none'});
   background-repeat: no-repeat;
   background-size: contain;
@@ -215,8 +215,9 @@ export const DetailInner = styled.div`
 `
 
 export const DetailImage = styled.img`
-  width: 260px;
-  height: 260px;
+  width: 170px;
+  height: 170px;
+  margin-top: 20px;
   object-fit: cover;
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.35);
@@ -224,13 +225,14 @@ export const DetailImage = styled.img`
 
 export const DetailTitle = styled.h2`
   margin: 0;
-  color:rgb(0, 0, 0);
-  font-family: MaruBuriOTF;
-  font-size: 34px;
-  font-weight: 700;
-  letter-spacing: -0.3px;
+  color: var(--color-neutral-black, #2A2A2A);
   text-align: center;
-  line-height: 1.3;
+  font-family: MaruBuriOTF;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: -0.5px;
   max-width: 90%;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -240,71 +242,119 @@ export const DetailTitle = styled.h2`
   margin-top: -6px; /* 텍스트 블록을 위로 살짝 올림 */
 `
 
+export const TitleContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: -6px;
+`
+
+export const GoogleRating = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #FFD700;
+  color: #000;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-family: MaruBuriOTF;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+`
+
 export const DetailDesc = styled.p`
   margin: 0;
-  color:rgb(0, 0, 0);
+  color: var(--color-neutral-black, #2A2A2A);
   font-family: MaruBuriOTF;
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  letter-spacing: -0.5px;
   text-align: center;
   max-width: 80%;
   word-break: keep-all;
   overflow-wrap: anywhere;
   margin-top: -10px; /* 설명을 조금 더 위로 */
+  padding-left: 10px;
+  padding-right: 10px;
 `
 
 export const DetailFooter = styled.div`
   margin-top: 4px;
-  width: 100%;
+  width: 80%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 12px;
+  margin-bottom: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
 `
 
 export const SmallButton = styled.button`
-  height: 48px;
-  padding: 0 24px;
-  border: none;
-  border-radius: 8px;
-  background: #EBD8B6;
-  color: #271932;
-  font-family: MaruBuriOTF;
-  font-size: 16px;
-  cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+display: flex;
+width: 175px;
+height: 32px;
+padding: 5px;
+justify-content: center;
+align-items: center;
+gap: 10px;
+flex-shrink: 0;
+border-radius: 10px;
+background: #D6BC87;
+border: none;
 `
 
 export const DetailPager = styled.div`
   position: fixed;
   left: 50%;
-  bottom: 20px;
+  bottom: 150px;
   transform: translateX(-50%);
-  color: #FFFFFF;
+ 
+  display: inline-flex;
+  height: 39px;
+  padding: 10px 49px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  color: #FFF;
+  border-radius: 10px;
+  background: var(--color-primary-purple, #25213B);
+  text-align: center;
   font-family: MaruBuriOTF;
-  font-size: 20px;
-  background: rgba(32, 24, 43, 0.95);
-  padding: 10px 22px;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: -0.5px;
+  font-style: normal;
   z-index: 1600;
 `
 
 export const DetailHeartButton = styled.button`
-  width: 48px;
-  height: 48px;
-  border: none;
-  border-radius: 12px;
-  background: #EBD8B6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+display: flex;
+width: 28px;
+height: 28px;
+padding: 6px 5px;
+justify-content: center;
+align-items: center;
+gap: 10px;
+flex-shrink: 0;
+border-radius: 0px;
+border: none;
+background: #D6BC87;
+background: url(<path-to-image>) lightgray 50% / cover no-repeat, radial-gradient(50% 50% at 50% 50%, #F4E4C1 0%, #E0CFA8 100%), rgba(140, 107, 66, 0.20);
+background-blend-mode: multiply, normal, overlay;
+  
   cursor: pointer;
 `
 
 export const DetailHeartSvg = styled.img`
-  width: 24px;
+  width: 20px;
   height: 20px;
   pointer-events: none;
 `
