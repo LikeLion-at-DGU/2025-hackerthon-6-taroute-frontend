@@ -1,10 +1,12 @@
 import styled from 'styled-components'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useSwipeable } from 'react-swipeable'
 import BottomSheetSelect from '../common/BottomSheetSelect.jsx'
 import { useTranslation } from "react-i18next";
+import { useRecoilValue } from 'recoil';
+import { languageState } from '../../contexts/recoil/languageState.jsx';
 
-const CATEGORIES = ['1', '2', '3', '4']
+const CATEGORIES = ['restaurant', 'cafe', 'culture', 'tourist']
 
 export function FilterBar({
     selectedCategory,
@@ -16,8 +18,28 @@ export function FilterBar({
     visitDay,
     onChangeVisitDay,
 }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const currentLanguage = useRecoilValue(languageState);
     const [sheet, setSheet] = useState({ type: null })
+    
+    // 언어가 변경될 때 i18n 언어도 업데이트
+    useEffect(() => {
+        if (i18n.isInitialized && i18n.language !== currentLanguage) {
+            i18n.changeLanguage(currentLanguage);
+        }
+    }, [currentLanguage, i18n]);
+    
+    // 카테고리 값을 번역 키로 변환
+    const getCategoryTranslationKey = (category) => {
+        const categoryMap = {
+            'restaurant': 'item1',
+            'cafe': 'item2',
+            'culture': 'item3',
+            'tourist': 'item4'
+        }
+        return categoryMap[category] || 'item1'
+    }
+    
     const currentIndex = useMemo(() => {
         const i = CATEGORIES.indexOf(selectedCategory)
         return i === -1 ? 0 : i
@@ -50,7 +72,7 @@ export function FilterBar({
                         key={c}
                         $active={selectedCategory === c}
                         onClick={() => onSelectCategory(c)}
-                    >{t(`category.item${c}`)}
+                    >{t(`category.${getCategoryTranslationKey(c)}`)}
                     </Chip>
                 ))}
             </Chips>
@@ -66,7 +88,6 @@ export function FilterBar({
               title={t("category.sortlocation")}
               options={[
                 { label: t("category.location4"), value: '전체' },
-                { label: t("category.location0"), value: '500m 이내' },
                 { label: t("category.location1"), value: '1km 이내' },
                 { label: t("category.location2"), value: '3km 이내' },
                 { label: t("category.location3"), value: '5km 이내' },
