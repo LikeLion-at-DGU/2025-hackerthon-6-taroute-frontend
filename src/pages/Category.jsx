@@ -9,11 +9,14 @@ import { useLocation, useSearchParams } from 'react-router-dom'
 import { useSelectedLocation } from '../hooks/useSelectedLocation'
 import { searchWikiPlaces, getWikiDetail } from '../apis/wikiApi'
 import { useTranslation } from "react-i18next";
+import { useRecoilValue } from 'recoil';
+import { languageState } from '../contexts/recoil/languageState.jsx';
 
 // 검색은 카테고리 API(text_query)만 사용
 
 function Category() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLanguage = useRecoilValue(languageState);
   const { location: selectedLoc } = useSelectedLocation()
   const [submittedKeyword, setSubmittedKeyword] = useState('')
   const [wikiItems, setWikiItems] = useState(null)
@@ -30,20 +33,12 @@ function Category() {
     setVisitDay,
   } = useCategoryFilters()
 
-  const query = useMemo(() => ({
-    // 필수/기본 파라미터 포함
-    category: selectedCategory,
-    distance: distance || 'all',
-    visitTime: visitTime || 'all',
-    visitDay,
-    sortBy: 'relevance',
-    limit: 10,
-    x: selectedLoc?.x ?? 126.98364611778,
-    y: selectedLoc?.y ?? 37.565315667212,
-    // 선택: 검색어
-    keyword: (submittedKeyword || '').trim() || undefined,
-  }), [selectedCategory, distance, visitTime, visitDay, selectedLoc?.x, selectedLoc?.y, submittedKeyword])
-  // 위키 검색 fallback 제거: 카테고리 API(text_query)만 사용
+  // 언어가 변경될 때 i18n 언어도 업데이트
+  useEffect(() => {
+    if (i18n.language !== currentLanguage) {
+      i18n.changeLanguage(currentLanguage);
+    }
+  }, [currentLanguage, i18n]);
 
   const location = useLocation()
   const [searchParams] = useSearchParams()
@@ -52,7 +47,7 @@ function Category() {
     const fromState = location.state?.initialCategory
     const fromQuery = searchParams.get('cat')
     const initCat = fromState || fromQuery
-    const allowed = ['식당', '카페', '문화시설', '관광명소']
+    const allowed = ['restaurant', 'cafe', 'culture', 'tourist']
     if (initCat && allowed.includes(initCat)) {
       setSelectedCategory(initCat)
     }
@@ -77,7 +72,6 @@ function Category() {
         const distLabel = distance || 'all'
         const toRadius = (label) => {
           if (!label) return 20000
-          if (label.includes('500m')) return 500
           if (label.includes('1km')) return 1000
           if (label.includes('3km')) return 3000
           if (label.includes('5km')) return 5000
@@ -120,6 +114,27 @@ function Category() {
     })()
     return () => { cancelled = true }
   }, [submittedKeyword, distance, selectedLoc?.x, selectedLoc?.y])
+
+  const query = useMemo(() => {
+    const queryObj = {
+      // 필수/기본 파라미터 포함
+      category: selectedCategory,
+      distance: distance || 'all',
+      visitTime: visitTime || 'all',
+      visitDay,
+      sortBy: 'relevance',
+      limit: 10,
+      x: selectedLoc?.x ?? 126.98364611778,
+      y: selectedLoc?.y ?? 37.565315667212,
+      // 선택: 검색어
+      keyword: (submittedKeyword || '').trim() || undefined,
+    }
+    
+    // 디버깅용 로그
+    console.log('Category query:', queryObj)
+    
+    return queryObj
+  }, [selectedCategory, distance, visitTime, visitDay, selectedLoc?.x, selectedLoc?.y, submittedKeyword])
 
   return (
     <Wrapper>
