@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import taru from '../assets/icons/taru/taruPlan.png';
 import PlanWhiteBox from '../components/Plan/PlanWhitebox';
 import { useSavedPlaceContext } from '../contexts/SavedPlaceContext';
+import { useTranslation } from 'react-i18next';
 
 const PlanContainer = styled.div`
     display: flex;
@@ -36,8 +37,8 @@ const PlanInfoBox = styled.div`
     width: 343px;
     height: 180px;
     align-items: center;
-    justify-content: center;
-    gap: 20px;
+    justify-content: space-around;
+    gap: 10px;
     background-color: rgba(0, 0, 0, 0.505);
     border-radius: 20px;
     font-weight: 300;
@@ -47,6 +48,7 @@ const PlanInfoBox = styled.div`
     p{
         padding-bottom: 5px;
         line-height: 1.4;
+        margin-left: ${({ $isKo }) => ($isKo ? "0px" : "16px")};
     }
 `;
 
@@ -54,6 +56,7 @@ const Plan = () => {
     const navigate = useNavigate();
     const [q, setQ] = useState("");
     const { savedPlaces, loadSavedPlaces } = useSavedPlaceContext();
+    const { t } = useTranslation();
 
     // 최초 진입 또는 컨텍스트가 비어있을 때만 서버에서 로드
     useEffect(() => {
@@ -79,13 +82,13 @@ const Plan = () => {
                 />
             </div>
             <PlanInfo>
-                <p>복잡한 동선계획? NO ! <br /> 타루트에서는
-                    <span style={{ color: "#FFC500" }}> 한 번에</span></p>
+                <p>{t("plan.title")} <br /> {t("plan.title2")}
+                    <span style={{ color: "#FFC500" }}> {t("plan.title3")}</span></p>
                 <PlanInfoBox onClick={() => navigate('/spot')}>
-                    <p>원하는 장소만 골라서 <br />
+                    <p>{t("plan.subtitle")}<br />
                         <span style={{ fontSize: "24px", color: "#FFC500", fontWeight: "500" }}>
-                            동선 계획하기</span></p>
-                    <img src={taru} />
+                            {t("plan.subtitle2")}</span></p>
+                    <img src={taru} style={{marginRight:"10px"}}/>
                 </PlanInfoBox>
             </PlanInfo>
             <PlanWhiteBox />

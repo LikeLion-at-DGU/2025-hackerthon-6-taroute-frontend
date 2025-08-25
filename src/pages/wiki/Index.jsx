@@ -76,7 +76,7 @@ export default function WikiIndex() {
       <WikiInfo>
         <p>{t("wiki.title")} <br />{t("wiki.title2")}</p>
         <WikiInfoBox onClick={() => navigate('/wiki/search')}>
-          <p>{t("wiki.subtitle")} <br></br>아까운 장소 <br />
+          <p>{t("wiki.subtitle0")} <br></br>{t("wiki.subtitle1")} <br />
             <span style={{ fontSize: '24px', color: '#FFC500', fontWeight: 500 }}>
               {t("wiki.subtitle2")}
             </span>
