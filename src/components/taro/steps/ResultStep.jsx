@@ -285,30 +285,30 @@ function ResultStep({ prev, goTo }) {
 
       {detailIndex !== null && cards[detailIndex] && !cards[detailIndex].isRetry && (
         <DetailOverlay onClick={closeDetail}>
+          {/* 뒤로가기 버튼을 전체 화면에 위치 */}
+          <div style={{
+            position: 'absolute',
+            top: '20px',
+            left: '20px',
+            zIndex: 1000,
+            cursor: 'pointer',
+            background: 'transparent',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '20px'
+          }} onClick={(e) => {
+            e.stopPropagation()
+            closeDetail()
+          }}>
+            &lt;
+          </div>
+          
           <DetailCard onClick={(e) => e.stopPropagation()} bg={detailCardBg}>
-            {/* 뒤로가기 버튼 추가 */}
-            <div style={{
-              position: 'absolute',
-              top: '20px',
-              left: '20px',
-              zIndex: 10,
-              cursor: 'pointer',
-              background: 'rgba(0,0,0,0.5)',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: '20px'
-            }} onClick={(e) => {
-              e.stopPropagation()
-              closeDetail()
-            }}>
-              ←
-            </div>
-            
             <DetailInner>
               <DetailImage src={cards[detailIndex].img} alt={cards[detailIndex].title} />
               <DetailTitle>{cards[detailIndex].title}</DetailTitle>
