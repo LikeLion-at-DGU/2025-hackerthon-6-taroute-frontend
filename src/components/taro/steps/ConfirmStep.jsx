@@ -12,11 +12,12 @@ import {
 import taruSvg from '../../../assets/icons/taru.svg'
 import homeIcon from '../../../assets/icons/home.svg'
 import useTextAnimation from '../../../hooks/useTextAnimation'
-
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from "react-i18next";
 
 
 function ConfirmStep({ next, prev }) {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const lines = [
     t("taro.thank"),
@@ -67,5 +68,3 @@ function ConfirmStep({ next, prev }) {
 }
 
 export default ConfirmStep
-
-

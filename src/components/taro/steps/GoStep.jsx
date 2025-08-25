@@ -14,9 +14,11 @@ import taruIcon from '../../../assets/icons/ResultTaru.svg'
 import { useTranslation } from "react-i18next";
 
 function GoStep({ next }) {
+    const navigate = useNavigate()
+    
+    // 최소 1초는 보여주고 TaroResult 페이지로 이동
     const { t } = useTranslation();
 
-    // 최소 1초는 보여주고 다음 단계로 이동
 
     useEffect(() => {
         const t = setTimeout(() => {
@@ -37,7 +39,7 @@ function GoStep({ next }) {
     )
 }
 
-export default GoStep
+export default GoStep;
 
 
 

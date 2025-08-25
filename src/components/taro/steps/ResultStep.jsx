@@ -322,9 +322,16 @@ function ResultStep({ prev, goTo }) {
                     return
                   }
 
-                  navigate(`/wiki/place/${encodeURIComponent(rawId)}`)
+                  
+                  // 방법 1: 현재 페이지를 히스토리에 추가
+                  window.history.pushState({ from: 'taro_result' }, '', window.location.pathname)
+                  
+                  // 방법 2: replace 대신 push 사용하여 히스토리 스택 유지
+                  navigate(`/wiki/place/${encodeURIComponent(rawId)}`, { replace: false })
+                
                 }}>{t("taro.gowiki")}</SmallButton>
-                <DetailHeartButton onClick={(e) => {
+                
+                <DetailHeartButton onClick={async (e) => {
 
                   e.stopPropagation()
                   const idx = detailIndex

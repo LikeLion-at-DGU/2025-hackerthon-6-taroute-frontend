@@ -12,11 +12,15 @@ import {
 import taruSvg from '../../../assets/icons/taru.svg'
 import homeIcon from '../../../assets/icons/home.svg'
 import useTextAnimation from '../../../hooks/useTextAnimation'
+import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
 import { useTranslation } from "react-i18next";
 
 
 function ConsentStep({ next, prev }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
 
   console.log('ConsentStep rendered with next:', next, 'prev:', prev)
 
@@ -69,4 +73,4 @@ function ConsentStep({ next, prev }) {
   )
 }
 
-export default ConsentStep
+export default ConsentStep;

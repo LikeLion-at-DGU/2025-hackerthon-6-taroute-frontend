@@ -10,10 +10,9 @@ import {
 import { useTranslation } from "react-i18next";
 
 
-
-function IntroStep({ next, prev }) {
+function IntroStep({ next, prev, goHome }) {
   const { t } = useTranslation();
-  
+
   return (
     <Wrapper>
       <Background />

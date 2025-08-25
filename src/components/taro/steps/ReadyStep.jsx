@@ -16,7 +16,6 @@ import { useTranslation } from "react-i18next";
 function ReadyStep({ next, prev }) {
   // 해석중에서 2초 후 결과확인하기(GoStep)로 이동하는 타이머
   const { t } = useTranslation();
-
   useEffect(() => {
     const timer = setTimeout(() => {
       if (typeof next === 'function') next()
