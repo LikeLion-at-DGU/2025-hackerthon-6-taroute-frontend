@@ -88,13 +88,15 @@ const sortOptions = [
     "가격높은순"
 ];
 
-export const SortBar = ({ onSortChange, selectedSort = t(`search.sortitem${idx}`) }) => {
+export const SortBar = ({ onSortChange, selectedSort }) => {
     const [showSelect, setShowSelect] = useState(false);
     const { t } = useTranslation();
+    const selectedIdx = Math.max(0, sortOptions.indexOf(selectedSort ?? sortOptions[0]));
+
 
     const handleSelect = (option) => {
         setShowSelect(false);
-        
+
         // 상위 컴포넌트에 정렬 변경 알림
         if (onSortChange) {
             onSortChange(option);
@@ -104,11 +106,11 @@ export const SortBar = ({ onSortChange, selectedSort = t(`search.sortitem${idx}`
     return (
         <>
             <SortBarContainer>
-                <p style={{margin:'0', fontSize:'17px'}}>{t("search.result")}</p>
+                <p style={{ margin: '0', fontSize: '17px' }}>{t("search.result")}</p>
                 <Barbutton onClick={() => setShowSelect(true)}>
                     <BarbuttonInner>
-                        <p style={{ fontSize: "10px", fontWeight:"400" }}>
-                            {t(`search.sortitem${sortOptions.indexOf(selectedSort)}`)}
+                        <p style={{ fontSize: "10px", fontWeight: "400" }}>
+                            {t(`search.sortitem${selectedIdx + 1}`)}
                         </p>
                         <img src={arrow_down} style={{ width: 10 }} />
                     </BarbuttonInner>
@@ -132,7 +134,7 @@ export const SelectSort = ({ onSelect, selected }) => {
     return (
         <SelectContainer>
             <Title>{t("search.sorttitle")}</Title>
-            {sortOptions.map(option => (
+            {sortOptions.map((option,idx) => (
                 <OptionButton
                     key={option}
                     onClick={() => onSelect(option)}
