@@ -111,6 +111,7 @@ export const SortBar = ({ onSortChange, selectedSort }) => {
                     <BarbuttonInner>
                         <p style={{ fontSize: "10px", fontWeight: "400" }}>
                             {t(`search.sortitem${selectedIdx}`)}
+                        {/* git 반영 확인 */}
                         </p>
                         <img src={arrow_down} style={{ width: 10 }} />
                     </BarbuttonInner>
