@@ -7,6 +7,8 @@ import useSheetDrag from '../../hooks/common/useSheetDrag.js'
 import SearchBar from '../../components/common/SearchBar.jsx'
 import { useSavedPlaceContext } from '../../contexts/SavedPlaceContext.jsx'
 import warningIcon from '../../assets/icons/warning.svg'
+import heartIcon from '../../assets/icons/Heart.svg'
+import blackHeartIcon from '../../assets/icons/BlackHeart.svg'
 import { getWikiDetail, likeWikiReview } from '../../apis/wikiApi.js'
 import { showToast } from '../../hooks/common/toast.js'
 import BottomSheetSelect from '../../components/common/BottomSheetSelect.jsx'
@@ -555,7 +557,7 @@ const HeartBtn = styled.button`
 `
 const HeartIcon = styled.div`
   width: 16px; height: 16px;
-  background: url('/src/assets/icons/Heart.svg') center/contain no-repeat;
+  background: url(${props => props.$active ? blackHeartIcon : heartIcon}) center/contain no-repeat;
   filter: ${p => p.$active ? 'none' : 'grayscale(1) opacity(0.6)'};
 `
 const LikeCount = styled.span`
