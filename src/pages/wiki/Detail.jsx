@@ -280,7 +280,15 @@ export default function WikiDetail() {
                 <ReviewText>{r.text}</ReviewText>
                 <ReviewActions>
                   <HeartBtn onClick={() => toggleReviewLike(r.id)} aria-label={r.liked ? '좋아요 취소' : '좋아요'}>
-                    <HeartIcon $active={r.liked} />
+                    <img 
+                      src={r.liked ? blackHeartIcon : heartIcon} 
+                      alt={r.liked ? '좋아요 취소' : '좋아요'}
+                      style={{
+                        width: '16px',
+                        height: '16px',
+                        filter: r.liked ? 'none' : 'grayscale(1) opacity(0.6)'
+                      }}
+                    />
                   </HeartBtn>
                   <LikeCount>{r.likes ?? 0}</LikeCount>
                   <WarnBtn type="button" aria-label="신고" onClick={() => { setReportTarget(r.id); setReportOpen(true) }}>
@@ -554,11 +562,6 @@ const ReviewActions = styled.div`
 `
 const HeartBtn = styled.button`
   width: 16px; height: 16px; border-radius: 10px; border: none; background: transparent; display: grid; place-items: center; cursor: pointer; justify-self: center;
-`
-const HeartIcon = styled.div`
-  width: 16px; height: 16px;
-  background: url(${props => props.$active ? blackHeartIcon : heartIcon}) center/contain no-repeat;
-  filter: ${p => p.$active ? 'none' : 'grayscale(1) opacity(0.6)'};
 `
 const LikeCount = styled.span`
   color: var(--color-neutral-gray, #8A8A8A);
