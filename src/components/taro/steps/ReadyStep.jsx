@@ -10,9 +10,13 @@ import {
   Button,
 } from '../styles/ReadyStep.style'
 import taruIcon from '../../../assets/icons/ReadTaru.svg'
+import { useTranslation } from "react-i18next";
+
 
 function ReadyStep({ next, prev }) {
-  // 해석중에서 2초 후 GoStep으로 이동하는 타이머
+  // 해석중에서 2초 후 결과확인하기(GoStep)로 이동하는 타이머
+  const { t } = useTranslation();
+
   useEffect(() => {
     const timer = setTimeout(() => {
       if (typeof next === 'function') next()
@@ -26,7 +30,7 @@ function ReadyStep({ next, prev }) {
       <Overlay />
       <ContentContainer>
         <TaruIcon src={taruIcon} alt="타루 캐릭터" />
-        <Title>카드 해석 중</Title>
+        <Title>{t("taro.loading2")}</Title>
       </ContentContainer>
     </Wrapper>
   )

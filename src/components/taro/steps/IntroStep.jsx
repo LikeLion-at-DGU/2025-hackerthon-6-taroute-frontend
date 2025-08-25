@@ -7,36 +7,41 @@ import {
   Button,
   BackButton,
 } from '../styles/IntroStep.styles.js'
+import { useTranslation } from "react-i18next";
 
-function IntroStep({ next, prev, goHome }) {
+
+
+function IntroStep({ next, prev }) {
+  const { t } = useTranslation();
+  
   return (
     <Wrapper>
       <Background />
       <Overlay />
       <BackButton onClick={goHome} />
       <Title>
-        타루와 함께하는
+        {t("taro.title")}
         <br />
-        나만의 타로
+        {t("taro.title2")}
       </Title>
 
       <Description>
-        우리는 살아가며
+        {t("taro.subtitle")}
         <br />
-        수많은 식당과 장소, 순간을 만납니다.
+        {t("taro.subtitle2")}
         <br />
-        하지만 그 모든 경험이 만족스럽지는 않았죠.
-        <br />
-        <br />
-        저희는 잠깐의 만남이라도 당신에게
-        <br />
-        오래도록 좋은 기억으로 남기를 바랍니다.
+        {t("taro.subtitle3")}
         <br />
         <br />
-        지금, 당신의 설레는 운명을 마주해보세요.
+        {t("taro.subtitle4")}
+        <br />
+        {t("taro.subtitle5")}
+        <br />
+        <br />
+        {t("taro.subtitle6")}
       </Description>
 
-      <Button type="button" onClick={next}>타로 확인하기</Button>
+      <Button type="button" onClick={next}>{t("taro.gotaro")}</Button>
     </Wrapper>
   )
 }

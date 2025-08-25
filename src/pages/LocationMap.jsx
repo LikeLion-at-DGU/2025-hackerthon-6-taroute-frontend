@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { triggerLocationUpdate } from "../hooks/useSelectedLocation";
 import Map from "../components/Location/Map";
+import { useTranslation } from "react-i18next";
+
 
 const Background = styled.div`
     position: fixed;
@@ -38,8 +40,8 @@ const AddressInfo = styled.div`
     right: 0;
     display: flex;
     flex-direction: column;
-    height: 176px;
-    padding: 20px 16px 30px 16px;
+    height: 200px;
+    padding: 20px 16px 50px 16px;
     border-radius: 20px 20px 0 0;
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
@@ -99,6 +101,7 @@ const ErrorText = styled.div`
 `;
 
 const LocationMap = () => {
+    const { t } = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
     const [currentLocation, setCurrentLocation] = useState(null);
@@ -252,10 +255,10 @@ const LocationMap = () => {
     return (
         <Background>
             <NavbarContainer>
-                <PageNavbar title="위치 찾기" />
+                <PageNavbar title={t("location.navtitle")} />
             </NavbarContainer>
             <MapContainer>
-                {loading && <LoadingText>위치 정보를 가져오는 중...</LoadingText>}
+                {loading && <LoadingText>{t("location.locating")}</LoadingText>}
                 
                 {error && <ErrorText>{error}</ErrorText>}
                 
@@ -274,10 +277,10 @@ const LocationMap = () => {
                             <AddressInfo>
                                 <AddressText>{address}</AddressText>
                                 <CoordinateText>
-                                    위도: {markerPosition.lat.toFixed(6)}, 경도: {markerPosition.lng.toFixed(6)}
+                                    {t("location.lat")}: {markerPosition.lat.toFixed(6)}, {t("location.lon")}: {markerPosition.lng.toFixed(6)}
                                 </CoordinateText>
                                 <SetLocationButton onClick={handleSetLocation}>
-                                    위치 설정하기
+                                    {t("location.pick")}
                                 </SetLocationButton>
                             </AddressInfo>
                         )}

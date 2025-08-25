@@ -26,11 +26,13 @@ const GoTaro = styled.div`
     padding: 7px 10px 32px 15px;
     font-weight: 600;
     font-size: 24px;
-    p{
-        margin: 0 0 18px 0;
-        line-height: 1.2;
-    }
     margin-bottom: 30px;
+`;
+
+const GoTaroText = styled.p`
+    margin: 0 0 18px 0;
+    line-height: 1.2;
+    padding-left: ${({ $isKo }) => ($isKo ? "0px" : "10px")};
 `;
 
 const GoTaroButton = styled.div`
@@ -48,12 +50,14 @@ const GoTaroButton = styled.div`
     p{
         padding-bottom: 5px;
         line-height: 1.4;
+        margin-left: ${({ $isKo }) => ($isKo ? "0px" : "10px")};
     }
 `;
 
 const Home = () => {
     const navigate = useNavigate();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const isKo = i18n.language?.startsWith("ko");
 
     return (
         <HomeContainer>
@@ -64,15 +68,15 @@ const Home = () => {
                 />
             </div>
             <GoTaro>
-                <p>
+                <GoTaroText $isKo={isKo}> 
                     {t("home.title")}
                     <br/>
                     {t("home.title2")}
-                </p>
-                <GoTaroButton onClick={() => navigate('/taro')}>
-                    <p>무엇을 할지 모를 때는 <br />
+                </GoTaroText>
+                <GoTaroButton $isKo={isKo} onClick={() => navigate('/taro')}>
+                    <p>{t("home.what")} <br />
                         <span style={{ fontSize: "24px", color: "#FFC500", fontWeight: "500" }}>
-                            타로점 확인하기 &gt;</span></p>
+                            {t("home.taro")} &gt;</span></p>
                     <img src={taru} />
                 </GoTaroButton>
             </GoTaro>

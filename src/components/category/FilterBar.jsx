@@ -2,8 +2,9 @@ import styled from 'styled-components'
 import { useMemo, useState } from 'react'
 import { useSwipeable } from 'react-swipeable'
 import BottomSheetSelect from '../common/BottomSheetSelect.jsx'
+import { useTranslation } from "react-i18next";
 
-const CATEGORIES = ['식당', '카페', '문화시설', '관광명소']
+const CATEGORIES = ['1', '2', '3', '4']
 
 export function FilterBar({
     selectedCategory,
@@ -15,6 +16,7 @@ export function FilterBar({
     visitDay,
     onChangeVisitDay,
 }) {
+    const { t } = useTranslation();
     const [sheet, setSheet] = useState({ type: null })
     const currentIndex = useMemo(() => {
         const i = CATEGORIES.indexOf(selectedCategory)
@@ -48,27 +50,26 @@ export function FilterBar({
                         key={c}
                         $active={selectedCategory === c}
                         onClick={() => onSelectCategory(c)}
-                    >
-                        {c}
+                    >{t(`category.item${c}`)}
                     </Chip>
                 ))}
             </Chips>
 
             <Selectors>
-                <PillButton onClick={() => setSheet({ type: 'distance' })}>{distance || '거리'}</PillButton>
-                <PillButton onClick={() => setSheet({ type: 'visitTime' })}>{visitTime || '방문시간'}</PillButton>
-                <PillButton onClick={() => setSheet({ type: 'visitDay' })}>{visitDay || '방문요일'}</PillButton>
-            </Selectors>
+                <PillButton onClick={() => setSheet({ type: 'distance' })}>{distance || t("category.sortlocation")}</PillButton>
+                <PillButton onClick={() => setSheet({ type: 'visitTime' })}>{visitTime || t("category.sorttime")}</PillButton>
+                <PillButton onClick={() => setSheet({ type: 'visitDay' })}>{visitDay || t("category.sortday")}</PillButton>
+                </Selectors>
 
             <BottomSheetSelect
               visible={sheet.type === 'distance'}
-              title="거리"
+              title={t("category.sortlocation")}
               options={[
                 { label: '전체', value: '전체' },
                 { label: '500m 이내', value: '500m 이내' },
-                { label: '1km 이내', value: '1km 이내' },
-                { label: '3km 이내', value: '3km 이내' },
-                { label: '5km 이내', value: '5km 이내' },
+                { label: t("category.location1"), value: '1km 이내' },
+                { label: t("category.location2"), value: '3km 이내' },
+                { label: t("category.location3"), value: '5km 이내' },
               ]}
               value={distance}
               onSelect={(v) => { onChangeDistance(v); setSheet({ type: null }) }}
@@ -77,14 +78,14 @@ export function FilterBar({
 
             <BottomSheetSelect
               visible={sheet.type === 'visitTime'}
-              title="방문시간"
+              title={t("category.sorttime")}
               options={[
                 { label: '전체', value: '전체' },
-                { label: '아침 (6:00 - 12:00)', value: '아침 (6:00 - 12:00)' },
-                { label: '낮 (12:00 - 17:00)', value: '낮 (12:00 - 17:00)' },
-                { label: '저녁 (17:00 - 21:00)', value: '저녁 (17:00 - 21:00)' },
-                { label: '밤 (21:00 ~ 24:00)', value: '밤 (21:00 ~ 24:00)' },
-                { label: '새벽 (00:00 ~ 6:00)', value: '새벽 (00:00 ~ 6:00)' },
+                { label: t("category.time1"), value: '아침 (6:00 - 12:00)' },
+                { label: t("category.time2"), value: '낮 (12:00 - 17:00)' },
+                { label: t("category.time3"), value: '저녁 (17:00 - 21:00)' },
+                { label: t("category.time4"), value: '밤 (21:00 ~ 24:00)' },
+                { label: t("category.time5"), value: '새벽 (00:00 ~ 6:00)' },
               ]}
               value={visitTime}
               onSelect={(v) => { onChangeVisitTime(v); setSheet({ type: null }) }}
@@ -93,16 +94,16 @@ export function FilterBar({
 
             <BottomSheetSelect
               visible={sheet.type === 'visitDay'}
-              title="방문요일"
+              title={t("category.sortday")}
               options={[
                 { label: '전체', value: '전체' },
-                { label: '월요일', value: '월요일' },
-                { label: '화요일', value: '화요일' },
-                { label: '수요일', value: '수요일' },
-                { label: '목요일', value: '목요일' },
-                { label: '금요일', value: '금요일' },
-                { label: '토요일', value: '토요일' },
-                { label: '일요일', value: '일요일' },
+                { label: t("category.day1"), value: '월요일' },
+                { label: t("category.day2"), value: '화요일' },
+                { label: t("category.day3"), value: '수요일' },
+                { label: t("category.day4"), value: '목요일' },
+                { label: t("category.day5"), value: '금요일' },
+                { label: t("category.day6"), value: '토요일' },
+                { label: t("category.day7"), value: '일요일' },
               ]}
               value={visitDay}
               onSelect={(v) => { onChangeVisitDay(v === '전체' ? '' : v); setSheet({ type: null }) }}

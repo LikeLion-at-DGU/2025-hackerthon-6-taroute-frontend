@@ -5,6 +5,8 @@ import SearchBar from "../components/common/SearchBar";
 import styled from "styled-components";
 import TrendChart from "../components/search/TrendChart";
 import Ads from "../components/Home/Ads";
+import { useTranslation } from "react-i18next";
+
 
 const SearchContainer = styled.div`
     display: flex;
@@ -30,6 +32,7 @@ const TrendKeyword = styled.div`
 
 
 const Search = () => {
+    const { t } = useTranslation();
     const [q, setQ] = useState("");
     const navigate = useNavigate(); // 추가
 
@@ -40,7 +43,7 @@ const Search = () => {
 
     return (
         <SearchContainer>
-            <PageNavbar title="검색하기" />
+            <PageNavbar title={t("search.title")} />
             <SearchBar
                 value={q}
                 onChange={setQ}
@@ -52,7 +55,7 @@ const Search = () => {
                 bordered borderColor="#363636" borderWidth="0.5px"
             />
             <TrendKeyword>
-                <p>현재 인기있는 검색어</p>
+                <p>{t("search.recent")}</p>
                 <TrendChart />
             </TrendKeyword>
             <Ads />

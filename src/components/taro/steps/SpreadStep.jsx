@@ -22,6 +22,8 @@ import {
 import tarocardBg from '../../../assets/icons/taro/tarocard_bg.svg'
 import tarocard from '../../../assets/icons/taro/tarocard.svg'
 import { postCardSelect } from '../../../apis/taroApi'
+import { useTranslation } from "react-i18next";
+
 
 function SpreadStep({ next, prev }) {
   const navigate = useNavigate()
@@ -32,6 +34,7 @@ function SpreadStep({ next, prev }) {
   const [selectedCards, setSelectedCards] = useState([])
   const cardSpreadRef = useRef(null)
   const hasRequestedRef = useRef(false)
+  const { t } = useTranslation();
 
   const totalCards = 25
   const cardsPerView = 25 //카드 퍼짐 넓이 조절
@@ -167,7 +170,7 @@ function SpreadStep({ next, prev }) {
         </CardPlaceholder>
 
         <InstructionText>
-          {selectedCards.length === 7 ? '카드 선택 완료!' : '7장을 뽑아주세요'}
+          {selectedCards.length === 7 ? t("taro.finish") : t("taro.choice")}
         </InstructionText>
 
         <CardSpread 
@@ -219,7 +222,7 @@ function SpreadStep({ next, prev }) {
             </ArrowButton>
           </ArrowContainer>
           <SwipeInstruction>
-            좌우로 스와이프해주세요
+            {t("taro.swipe")}
           </SwipeInstruction>
         </NavigationHint>
       </ContentContainer>

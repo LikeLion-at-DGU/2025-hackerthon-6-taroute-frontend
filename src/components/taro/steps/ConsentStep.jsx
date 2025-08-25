@@ -12,49 +12,19 @@ import {
 import taruSvg from '../../../assets/icons/taru.svg'
 import homeIcon from '../../../assets/icons/home.svg'
 import useTextAnimation from '../../../hooks/useTextAnimation'
-import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
+import { useTranslation } from "react-i18next";
 
-const HomeButton = styled.button`
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 40px;
-  height: 40px;
-  background: transparent;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.05);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  img {
-    width: 18px;
-    height: 21px;
-    filter: brightness(0) invert(1);
-  }
-`;
 
 function ConsentStep({ next, prev }) {
-  const navigate = useNavigate();
+  const { t } = useTranslation();
+
   console.log('ConsentStep rendered with next:', next, 'prev:', prev)
 
   const lines = [
-    "안녕! 난 타로마스터 '타루'라고 해",
-    "본격적인 상담에 앞서 네가 어떤 고민을 가지고 있는지",
-    "들어보고 너의 상황에 맞는 추천을 해줄게",
-    "너에게 더 적합한 답변을 선택해줘"
+    t("taro.detail"),
+    t("taro.detail2"),
+    t("taro.detail3"),
+    t("taro.detail4")
   ]
 
   const { displayText, isAnimating, showComplete, handleTextClick, alwaysShowArrow } = useTextAnimation(lines, next)
@@ -73,8 +43,8 @@ function ConsentStep({ next, prev }) {
       <TaruMascot src={taruSvg} alt="타루" aria-label="타루" role="img" />
 
       <BubbleHeader>
-        <span className="name">타루</span>
-        <span className="role">타로마스터</span>
+        <span className="name">{t("taro.name")}</span>
+        <span className="role">{t("taro.job")}</span>
       </BubbleHeader>
 
       <BubbleContent>

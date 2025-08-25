@@ -4,6 +4,8 @@ import { PlaceCard } from "../common/PlaceCards";
 import { getRecommend } from "../../apis/searchApi";
 import { useSelectedLocation } from "../../hooks/useSelectedLocation";
 import searchHeart from "../../assets/icons/searchHeart.png";
+import { useTranslation } from "react-i18next";
+
 
 const RecommendPlaceContainer = styled.div`
     display: flex;
@@ -42,6 +44,7 @@ const Title = styled.div`
 
 
 export default function RecommendPlace() {
+    const { t } = useTranslation();
     const [recommendedPlaces, setRecommendedPlaces] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -131,10 +134,10 @@ export default function RecommendPlace() {
             <RecommendPlaceContainer>
                 <Title>
                     <img style={{ height: '24px' }} src={searchHeart} />
-                    <p>주변에 가볼만한 곳</p>
+                    <p>{t("search.near")}</p>
                 </Title>
                 <div style={{ color: '#8A8A8A', fontSize: '14px', padding: '20px 0' }}>
-                    추천 장소를 불러오는 중...
+                    {t("search.recommending")}
                 </div>
             </RecommendPlaceContainer>
         );
@@ -145,7 +148,7 @@ export default function RecommendPlace() {
             <RecommendPlaceContainer>
                 <Title>
                     <img style={{ height: '24px' }} src={searchHeart} />
-                    <p>주변에 가볼만한 곳</p>
+                    <p>{t("search.near")}</p>
                 </Title>
                 <div style={{ color: '#FF4444', fontSize: '14px', padding: '20px 0' }}>
                     {error}
@@ -159,10 +162,10 @@ export default function RecommendPlace() {
             <RecommendPlaceContainer>
                 <Title>
                     <img style={{ height: '24px' }} src={searchHeart} />
-                    <p>주변에 가볼만한 곳</p>
+                    <p>{t("search.near")}</p>
                 </Title>
                 <div style={{ color: '#8A8A8A', fontSize: '14px', padding: '20px 0' }}>
-                    추천할 장소가 없습니다.
+                    {t("search.norecommend")}
                 </div>
             </RecommendPlaceContainer>
         );
@@ -172,7 +175,7 @@ export default function RecommendPlace() {
         <RecommendPlaceContainer>
             <Title>
                 <img style={{ height: '24px' }} src={searchHeart} />
-                <p>주변에 가볼만한 곳</p>
+                <p>{t("search.near")}</p>
             </Title>
             <CardsContainer>
                 {recommendedPlaces.map((place, idx) => (

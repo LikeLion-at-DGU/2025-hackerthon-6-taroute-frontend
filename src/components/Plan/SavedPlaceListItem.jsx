@@ -8,6 +8,8 @@ import { useSavedPlaceContext } from '../../contexts/SavedPlaceContext';
 import { unsavePlaceFromServer } from '../../apis/savePlaceApi';
 import runningArrow from '../../assets/icons/arrow-down.svg';
 import placeNoImage from '../../assets/icons/placeNoImage.png';
+import { useTranslation } from "react-i18next";
+
 
 const SavedPlaceItem = styled.div`
     display: flex;
@@ -199,6 +201,8 @@ const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
     const navigate = useNavigate();
     const { removePlace } = useSavedPlaceContext();
     const [showTimeModal, setShowTimeModal] = useState(false);
+    const { t } = useTranslation();
+
 
     // 선택된 날짜의 요일 계산 (0: 일요일, 1: 월요일, ...)
     const selectedDay = selectedDate ? selectedDate.getDay() : new Date().getDay();
@@ -258,17 +262,17 @@ const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
     // 영업시간 데이터 정리
     const getRunningTimeData = () => {
         if (!place.running_time || !Array.isArray(place.running_time)) {
-            return Array(7).fill('정보없음');
+            return Array(7).fill(t("category.noinfo"));
         }
 
         return place.running_time.map(time => {
             if (!time || time === '정보없음') {
-                return '정보없음';
+                return t("category.noinfo");
             }
 
             // "일요일 휴무일" 형태에서 "휴무일"만 추출
             if (time.includes('휴무일')) {
-                return '휴무일';
+                return t("category.close");
             }
 
             // "월요일 10:30-22:30" 형태에서 시간 부분만 추출
@@ -279,27 +283,27 @@ const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
 
     // 휴무일인지 확인하는 함수
     const isHoliday = (timeText) => {
-        return timeText === '휴무일';
+        return timeText === t("category.close");
     };
 
     // 쉬는시간 데이터 API에서 추출
     const getBreakTime = () => {
         if (!place.running_time || !Array.isArray(place.running_time)) {
-            return '정보없음';
+            return t("category.noinfo");
         }
 
         // "쉬는 시간 매일 14:50-17:00" 형태의 데이터 찾기
         const breakTimeEntry = place.running_time.find(time =>
-            time && time.includes('쉬는 시간')
+            time && time.includes(t("category.break"))
         );
 
         if (breakTimeEntry) {
             // "쉬는 시간 매일 14:50-17:00"에서 시간 부분만 추출
             const timeMatch = breakTimeEntry.match(/\d{1,2}:\d{2}-\d{1,2}:\d{2}/);
-            return timeMatch ? timeMatch[0] : '정보없음';
+            return timeMatch ? timeMatch[0] : t("category.noinfo");
         }
 
-        return '정보없음';
+        return t("category.noinfo");
     };
 
     // 컴포넌트 언마운트 시 이벤트 리스너 정리
@@ -326,7 +330,7 @@ const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
                     <RunningTimeContainer onClick={(e) => { e.stopPropagation(); handleTimeClick(); }}>
                         <img src={clockIcon} />
                         <RunningTime>
-                            {todaysRunningTime || "영업시간 정보 미제공"}
+                            {todaysRunningTime || t("category.norunning")}
                         </RunningTime>
                         <img src={runningArrow} />
                     </RunningTimeContainer>
@@ -348,50 +352,50 @@ const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
                         <TimeList>
                             {/* 월-목 (왼쪽 열) */}
                             <TimeItem>
-                                <DayLabel>월요일</DayLabel>
+                                <DayLabel>{t("category.day1")}</DayLabel>
                                 <TimeText $isHoliday={isHoliday(getRunningTimeData()[1])}>
                                     {getRunningTimeData()[1]}
                                 </TimeText>
                             </TimeItem>
                             <TimeItem>
-                                <DayLabel>금요일</DayLabel>
+                                <DayLabel>{t("category.day5")}</DayLabel>
                                 <TimeText $isHoliday={isHoliday(getRunningTimeData()[5])}>
                                     {getRunningTimeData()[5]}
                                 </TimeText>
                             </TimeItem>
                             <TimeItem>
-                                <DayLabel>화요일</DayLabel>
+                                <DayLabel>{t("category.day2")}</DayLabel>
                                 <TimeText $isHoliday={isHoliday(getRunningTimeData()[2])}>
                                     {getRunningTimeData()[2]}
                                 </TimeText>
                             </TimeItem>
                             <TimeItem>
-                                <DayLabel>토요일</DayLabel>
+                                <DayLabel>{t("category.day6")}</DayLabel>
                                 <TimeText $isHoliday={isHoliday(getRunningTimeData()[6])}>
                                     {getRunningTimeData()[6]}
                                 </TimeText>
                             </TimeItem>
                             <TimeItem>
-                                <DayLabel>수요일</DayLabel>
+                                <DayLabel>{t("category.day3")}</DayLabel>
                                 <TimeText $isHoliday={isHoliday(getRunningTimeData()[3])}>
                                     {getRunningTimeData()[3]}
                                 </TimeText>
                             </TimeItem>
                             <TimeItem>
-                                <DayLabel>일요일</DayLabel>
+                                <DayLabel>{t("category.day7")}</DayLabel>
                                 <TimeText $isHoliday={isHoliday(getRunningTimeData()[0])}>
                                     {getRunningTimeData()[0]}
                                 </TimeText>
                             </TimeItem>
                             <TimeItem>
-                                <DayLabel>목요일</DayLabel>
+                                <DayLabel>{t("category.day4")}</DayLabel>
                                 <TimeText $isHoliday={isHoliday(getRunningTimeData()[4])}>
                                     {getRunningTimeData()[4]}
                                 </TimeText>
                             </TimeItem>
                         </TimeList>
                         <BreakTimeSection>
-                            <BreakTimeLabel>쉬는시간</BreakTimeLabel>
+                            <BreakTimeLabel>{t("category.break")}</BreakTimeLabel>
                             <BreakTimeText>{getBreakTime()}</BreakTimeText>
                         </BreakTimeSection>
                     </ModalContainer>

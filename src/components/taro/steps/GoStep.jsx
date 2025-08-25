@@ -11,11 +11,13 @@ import {
     Button
 } from '../styles/ReadyStep.style'
 import taruIcon from '../../../assets/icons/ResultTaru.svg'
+import { useTranslation } from "react-i18next";
 
 function GoStep({ next }) {
-    const navigate = useNavigate()
-    
-    // 최소 1초는 보여주고 TaroResult 페이지로 이동
+    const { t } = useTranslation();
+
+    // 최소 1초는 보여주고 다음 단계로 이동
+
     useEffect(() => {
         const t = setTimeout(() => {
             navigate('/taro/result')
@@ -29,7 +31,7 @@ function GoStep({ next }) {
             <Overlay />
             <ContentContainer>
                 <TaruIcon src={taruIcon} alt="타루 캐릭터" />
-                <Title>결과확인하기</Title>
+                <Title>{t("taro.check")}</Title>
             </ContentContainer>
         </Wrapper>
     )

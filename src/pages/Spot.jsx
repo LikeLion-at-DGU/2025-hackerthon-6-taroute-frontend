@@ -4,6 +4,8 @@ import SpotWhiteBox from "../components/Spot/SpotWhitebox";
 import PageNavbar from "../components/common/PageNavbar.jsx";
 import SpotMap from "../components/Spot/SpotMap.jsx";
 import { useState, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+
 
 const Spotcontainer = styled.div`
     display: flex;
@@ -40,6 +42,7 @@ const ContentOverlay = styled.div`
 `;
 
 const Spot = () => {
+    const { t } = useTranslation();
     const [currentRoute, setCurrentRoute] = useState(null);
     const [routeInfo, setRouteInfo] = useState(null);
     const [selectedTransport, setSelectedTransport] = useState('walk'); // 교통수단 상태 추가
@@ -114,7 +117,7 @@ const Spot = () => {
             
             {/* 상단에 표시될 컨텐츠들 */}
             <ContentOverlay>
-                <PageNavbar title="일정계획" />
+                <PageNavbar title={t("spot.title")} />
                 <div style={{ flex: 1 }} /> {/* 공간 확보용 */}
                 <RouteBox 
                     onRouteChange={handleRouteChange} 

@@ -10,6 +10,8 @@ import tour from '../../assets/icons/category/tour.png'
 import wikibook from '../../assets/icons/wikibook.png'
 import { useNavigate } from 'react-router-dom';
 import useSheetDrag from "../../hooks/common/useSheetDrag";
+import { useTranslation } from "react-i18next";
+
 
 
 const WhiteBoxContainer = styled.div`
@@ -65,19 +67,42 @@ const DragHandle = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 8px 0 6px 0;
+    padding: 12px 0 8px 0;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
-    touch-action: none; /* 가로/세로 스와이프 충돌 방지 */
+    touch-action: none; /* 브라우저 기본 터치 동작 방지 */
+    user-select: none; /* 텍스트 선택 방지 */
     cursor: grab;
+    transition: opacity 0.2s ease;
+    
     &::before {
-      content: "";
-      width: 40px;
-      height: 4px;
-      border-radius: 2px;
-      background: #E5E7EB;
+        content: "";
+        width: 40px;
+        height: 4px;
+        border-radius: 2px;
+        background: #E5E7EB;
+        transition: all 0.2s ease;
     }
-    &:active { cursor: grabbing; }
+    
+    &:hover::before {
+        background: #9CA3AF;
+        height: 5px;
+    }
+    
+    &:active { 
+        cursor: grabbing; 
+        opacity: 0.7;
+    }
+    
+    /* 모바일에서 더 큰 터치 영역 */
+    @media (max-width: 768px) {
+        padding: 16px 0 12px 0;
+        
+        &::before {
+            width: 48px;
+            height: 5px;
+        }
+    }
 `;
 
 const WhatWonder = styled.div`
@@ -167,14 +192,13 @@ const HotPlace = styled.div`
 
 const WhiteBox = ({ expandedTop = 96, collapsedTop = 360 }) => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
+
 
     const {
         y,
         dragging,
         onPointerDown,
-        onPointerMove,
-        onPointerUp,
-        snapTo,
     } = useSheetDrag({ expandedTop, collapsedTop, start: 'collapsed' });
 
     return (
@@ -184,48 +208,41 @@ const WhiteBox = ({ expandedTop = 96, collapsedTop = 360 }) => {
                 height: `${712 - y}px`, // 고정된 812px 프레임 기준으로 계산
                 maxHeight: `${712 - y}px`,
                 minHeight: `${712 - y}px`, // 최소 높이도 설정해서 강제로 스크롤 생성
-                transition: dragging ? 'none' : 'transform 240ms cubic-bezier(0.22, 1, 0.36, 1), height 240ms cubic-bezier(0.22, 1, 0.36, 1)'
+                transition: dragging ? 'none' : 'transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94), height 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94)'
             }}
         >
             <DragHandle
-                onPointerDown={(e) => {
-                    // 드래그 핸들 영역에서만 드래그 시작
-                    if (e.target === e.currentTarget || e.target.closest('::before')) {
-                        onPointerDown(e);
-                    }
-                }}
-                onPointerMove={onPointerMove}
-                onPointerUp={onPointerUp}
-                onPointerCancel={onPointerUp}
+                onPointerDown={onPointerDown}
+                onTouchStart={onPointerDown}
             />
             <WhatWonder>
                 <Title>
-                    <p>카테고리별 장소</p>
+                    <p>{t("home.category")}</p>
                 </Title>
                 <CategoryContainer>
                     <CategoryItem onClick={() => navigate('/category', { state: { initialCategory: '식당' } })}> {/* 식당 */}
                         <Tile>
                             <Icon src={restaurant} />
                         </Tile>
-                        <Label>식당</Label>
+                        <Label>{t("home.item1")}</Label>
                     </CategoryItem>
                     <CategoryItem onClick={() => navigate('/category', { state: { initialCategory: '카페' } })}> {/* 카페 */}
                         <Tile>
                             <Icon src={cafe} />
                         </Tile>
-                        <Label>카페</Label>
+                        <Label>{t("home.item2")}</Label>
                     </CategoryItem>
                     <CategoryItem onClick={() => navigate('/category', { state: { initialCategory: '문화시설' } })}> {/* 문화시설 */}
                         <Tile>
                             <Icon src={culture} />
                         </Tile>
-                        <Label>문화시설</Label>
+                        <Label>{t("home.item3")}</Label>
                     </CategoryItem>
                     <CategoryItem onClick={() => navigate('/category', { state: { initialCategory: '관광명소' } })}> {/* 관광명소 */}
                         <Tile>
                             <Icon src={tour} />
                         </Tile>
-                        <Label>관광명소</Label>
+                        <Label>{t("home.item4")}</Label>
                     </CategoryItem>
                 </CategoryContainer>
 
@@ -246,7 +263,7 @@ const WhiteBox = ({ expandedTop = 96, collapsedTop = 360 }) => {
             <HotPlace>
                 <Title>
                     <img src={title} />
-                    <p style={{fontWeight:"600", fontSize:'20', color:'#2A2A2A'}}>요즘 뜨는 운명의 장소</p>
+                    <p style={{fontWeight:"600", fontSize:'20', color:'#2A2A2A'}}>{t("home.recent")}</p>
                 </Title>
                 <SelectCategory />
             </HotPlace>

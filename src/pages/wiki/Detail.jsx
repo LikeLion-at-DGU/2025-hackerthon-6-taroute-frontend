@@ -10,8 +10,11 @@ import warningIcon from '../../assets/icons/warning.svg'
 import { getWikiDetail, likeWikiReview } from '../../apis/wikiApi.js'
 import { showToast } from '../../hooks/common/toast.js'
 import BottomSheetSelect from '../../components/common/BottomSheetSelect.jsx'
+import { useTranslation } from "react-i18next";
+
 
 export default function WikiDetail() {
+  const { t } = useTranslation();
   const { id: routeId } = useParams()
   const navigate = useNavigate()
   const { savedPlaces, addPlace, removePlace } = useSavedPlaceContext()
@@ -152,12 +155,12 @@ export default function WikiDetail() {
   return (
     <Wrap>
       <Bleed>
-      <PageNavbar title="지역위키" />
+      <PageNavbar title={t("wiki.titletop")} />
       </Bleed>
       <HeroSection style={{ marginLeft: -16, marginRight: -16, padding: '0 16px', minHeight: writeBarTop + 56 }}>
         <HeroBG $src={heroPhoto} />
         <SearchBar
-          placeholder="검색어를 입력해주세요"
+          placeholder={t("wiki.subtitletop")}
           value={searchKeyword}
           onChange={setSearchKeyword}
           bordered
@@ -178,7 +181,7 @@ export default function WikiDetail() {
         </Gallery>
         {showWriteBar && (
           <Actions style={{ position: 'fixed', top: writeBarTop, left: '50%', transform: 'translateX(-50%)', width: 'min(375px, 100vw)', paddingLeft: 16, paddingRight: 16, zIndex: 45 }}>
-            <WriteBtn onClick={() => navigate(`/wiki/place/${encodeURIComponent(place.id)}/review/new`)}>게시판 작성</WriteBtn>
+            <WriteBtn onClick={() => navigate(`/wiki/place/${encodeURIComponent(place.id)}/review/new`)}>{t("wiki.enter")}</WriteBtn>
             <LikeIconButton
               $active={isLiked}
               onClick={() => {
@@ -221,21 +224,21 @@ export default function WikiDetail() {
         />
 
 <Section>
-  <SecTitle><Dot /><TitleText>위키 별점</TitleText></SecTitle>
-  <Stars>{averageScore ? `★ ${averageScore.toFixed(1)}` : '평가 없음'}</Stars>
+  <SecTitle><Dot /><TitleText>{t("wiki.star")}</TitleText></SecTitle>
+  <Stars>{averageScore ? `★ ${averageScore.toFixed(1)}` : t("toast.noavg")}</Stars>
 </Section>
 
 <Section>
-  <SecTitle><Dot /><TitleText>AI 요약</TitleText></SecTitle>
-  <Summary>{place.summary || '요약 정보가 없습니다.'}</Summary>
+  <SecTitle><Dot /><TitleText>{t("wiki.summary")}</TitleText></SecTitle>
+  <Summary>{place.summary || t("toast.nosummary")}</Summary>
 </Section>
 
 <Section>
-  <SecTitle><Dot /><TitleText>기본 정보</TitleText></SecTitle>
+  <SecTitle><Dot /><TitleText>{t("wiki.info")}</TitleText></SecTitle>
   <Info>
-    <div>위치: {place.address || '-'}</div>
+    <div>{t("wiki.info_loc")}: {place.address || '-'}</div>
     <HoursBlock>
-      <HoursTitle>영업 시간</HoursTitle>
+      <HoursTitle>{t("wiki.info_time")}</HoursTitle>
       <HoursList>
         {hoursList.length > 0 ? (
           hoursList.map((h, i) => (
@@ -249,13 +252,13 @@ export default function WikiDetail() {
         )}
       </HoursList>
     </HoursBlock>
-    <div>전화번호: {place.phone || '-'}</div>
+    <div>{t("wiki.info_num")}: {place.phone || '-'}</div>
   </Info>
 </Section>
 
 
           <Section>
-  <SecTitle><Dot /><TitleText>게시판</TitleText></SecTitle>
+  <SecTitle><Dot /><TitleText>{t("wiki.review")}</TitleText></SecTitle>
   <SortBar>
     <PillButton type="button" onClick={() => setSortOpen(true)}>{sortKey}</PillButton>
   </SortBar>
@@ -263,8 +266,8 @@ export default function WikiDetail() {
           
           <BottomSheetSelect
             visible={sortOpen}
-            title="정렬 기준"
-            options={[{label:'추천순', value:'추천순'},{label:'최신순', value:'최신순'}]}
+            title={t("wiki.wikisort")}
+            options={[{label:t("wiki.reviewsort1"), value:'추천순'},{label:t("wiki.reviewsort1"), value:'최신순'}]}
             value={sortKey}
             onSelect={(v)=>{ setSortKey(v); setSortOpen(false) }}
             onClose={()=> setSortOpen(false)}
@@ -291,7 +294,7 @@ export default function WikiDetail() {
           (
             <ReportOverlay role="dialog" aria-modal="true" onClick={() => setReportOpen(false)}>
               <ReportBox onClick={(e) => e.stopPropagation()}>
-                <ReportTitle>해당 게시글을 신고하시겠습니까?</ReportTitle>
+                <ReportTitle>{t("wiki.reporttitle")}</ReportTitle>
                 <ReportList>
                   {reportOptions.map(opt => (
                     <ReportItem key={opt} onClick={() => setReportReason(opt)}>
@@ -299,7 +302,7 @@ export default function WikiDetail() {
                       <span>{opt}</span>
                       {opt === '기타' && (
                         <EtcInput
-                          placeholder="사유를 입력하세요"
+                          placeholder={t("wiki.why")}
                           value={reportEtc}
                           onChange={e => setReportEtc(e.target.value)}
                           onClick={e => { e.stopPropagation(); setReportReason('기타') }}
@@ -309,8 +312,8 @@ export default function WikiDetail() {
                   ))}
                 </ReportList>
                 <ReportActions>
-                  <CancelBtn type="button" onClick={() => setReportOpen(false)}>취소</CancelBtn>
-                  <SubmitBtn type="button" onClick={submitReport}>신고하기</SubmitBtn>
+                  <CancelBtn type="button" onClick={() => setReportOpen(false)}>{t("wiki.return")}</CancelBtn>
+                  <SubmitBtn type="button" onClick={submitReport}>{t("wiki.report")}</SubmitBtn>
                 </ReportActions>
               </ReportBox>
             </ReportOverlay>
@@ -323,12 +326,12 @@ export default function WikiDetail() {
             <ReportOverlay role="dialog" aria-modal="true" onClick={() => setReportThanksOpen(false)}>
               <ThanksBox onClick={(e) => e.stopPropagation()}>
                 <ThanksMessage>
-                  신고해주셔서 감사합니다.
+                  {t("wiki.thank")}
                   <br />
-                  더 나은 서비스를 위해 노력하겠습니다.
+                  {t("wiki.thank2")}
                 </ThanksMessage>
                 <ThanksActions>
-                  <OkBtn type="button" onClick={() => setReportThanksOpen(false)}>확인</OkBtn>
+                  <OkBtn type="button" onClick={() => setReportThanksOpen(false)}>{t("wiki.okay")}</OkBtn>
                 </ThanksActions>
               </ThanksBox>
             </ReportOverlay>
