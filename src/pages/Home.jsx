@@ -42,7 +42,7 @@ const GoTaroButton = styled.div`
     height: 180px;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 10px;
     background-color: rgba(0, 0, 0, 0.505);
     border-radius: 20px;
     font-weight: 300;
@@ -50,7 +50,9 @@ const GoTaroButton = styled.div`
     p{
         padding-bottom: 5px;
         line-height: 1.4;
-        margin-left: ${({ $isKo }) => ($isKo ? "0px" : "10px")};
+        margin-left: ${({ $isKo }) => ($isKo ? "0px" : "0px")};
+        padding-right: 0px;
+        width: ${({ $isKo }) => ($isKo ? "200px" : "190px")};
     }
 `;
 
@@ -75,7 +77,7 @@ const Home = () => {
                 </GoTaroText>
                 <GoTaroButton $isKo={isKo} onClick={() => navigate('/taro')}>
                     <p>{t("home.what")} <br />
-                        <span style={{ fontSize: "24px", color: "#FFC500", fontWeight: "500" }}>
+                        <span style={{ fontSize: "24px", color: "#FFC500", fontWeight: "500", marginRight:"10px" }}>
                             {t("home.taro")} &gt;</span></p>
                     <img src={taru} />
                 </GoTaroButton>
