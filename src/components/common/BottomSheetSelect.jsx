@@ -54,8 +54,8 @@ const Overlay = styled.div`
 `;
 
 const Sheet = styled.div`
-  width: calc(100% - 32px);
-  max-width: 420px;
+  width: calc(100% - 64px);
+  max-width: 375px;
   background: #fff;
   border-top-left-radius: 24px;
   border-top-right-radius: 24px;
