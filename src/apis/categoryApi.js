@@ -3,8 +3,15 @@ import { instance } from './instance'
 const DEFAULT_X = 126.98364611778
 const DEFAULT_Y = 37.565315667212
 
-const mapCategory = (ko) => {
-  switch (ko) {
+const mapCategory = (category) => {
+  // 영어 카테고리 값 처리
+  if (category === 'restaurant') return 'restaurant'
+  if (category === 'cafe') return 'cafe'
+  if (category === 'culture') return 'culture'
+  if (category === 'tourist') return 'tourist_attraction'
+  
+  // 한글 카테고리 값 처리 (기존 호환성 유지)
+  switch (category) {
     case '식당':
       return 'restaurant'
     case '카페':

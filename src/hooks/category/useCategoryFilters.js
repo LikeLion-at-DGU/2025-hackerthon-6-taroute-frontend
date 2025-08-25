@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 export function useCategoryFilters() {
   const [keyword, setKeyword] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('식당')
+  const [selectedCategory, setSelectedCategory] = useState('restaurant')
   const [distance, setDistance] = useState('') // placeholder: 거리
   const [visitTime, setVisitTime] = useState('') // placeholder: 방문시간
   const [visitDay, setVisitDay] = useState('') // placeholder: 방문요일

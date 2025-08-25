@@ -4,20 +4,21 @@ import BottomSheetSelect from '../common/BottomSheetSelect.jsx'
 import { useTranslation } from "react-i18next";
 
 const CATS = ['item1', 'item2', 'item3', 'item4']
-const { t } = useTranslation();
 
 export function WikiFilterBar({ selectedCategory, onSelectCategory }) {
   const [open, setOpen] = useState(false)
+  const { t } = useTranslation();
 
   return (
     <Bar>
       <Tabs>
         {CATS.map((c) => {
           const label = t(`category.${c}`);
-          <Tab key={c} $active={selectedCategory === c} onClick={() => onSelectCategory(c)}>
-            {c}
-          {label}
-          </Tab>
+          return (
+            <Tab key={c} $active={selectedCategory === c} onClick={() => onSelectCategory(c)}>
+              {label}
+            </Tab>
+          );
         })}
         <PillButton onClick={() => setOpen(true)}>
           {selectedCategory || '카테고리'}
@@ -27,7 +28,7 @@ export function WikiFilterBar({ selectedCategory, onSelectCategory }) {
       <BottomSheetSelect
         visible={open}
         title="카테고리"
-        options={CATS.map((c) => ({ label: c, value: c }))}
+        options={CATS.map((c) => ({ label: t(`category.${c}`), value: c }))}
         value={selectedCategory}
         onSelect={(v) => { onSelectCategory(v); setOpen(false) }}
         onClose={() => setOpen(false)}
@@ -44,9 +45,11 @@ const Bar = styled.div`
 const Tabs = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: flex-start;
+  gap: 16px;
   height: 40px;
   border-bottom: 1px solid #c8c8c8;
+  padding: 0 16px;
 `
 
 const Tab = styled.button`
@@ -57,6 +60,7 @@ const Tab = styled.button`
   border-bottom: 2px solid ${p => (p.$active ? '#ffc400' : 'transparent')};
   padding: 8px 0;
   cursor: pointer;
+  white-space: nowrap;
 `
 
 const PillButton = styled.button`
@@ -68,6 +72,7 @@ const PillButton = styled.button`
   color: #555;
   font-size: 12px;
   cursor: pointer;
+  margin-left: auto;
 `
 
 
