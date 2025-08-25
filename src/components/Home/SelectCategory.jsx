@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { getRecommend } from "../../apis/searchApi";
 import { useTranslation } from "react-i18next";
 
-
 // 카테고리별 API 코드 매핑
 const CATEGORY_GROUP_CODES = {
   restaurant: "FD6", // 음식점
@@ -276,7 +275,7 @@ const CardsGrid = styled.div`
   & > * {
     flex: 0 0 auto;
     scroll-snap-align: start;
-    min-width: 137px;          /* 카드의 최소 너비 명시 */
+    min-width: 137px;        
   }
 `;
 
