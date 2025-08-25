@@ -7,7 +7,7 @@ export const Overlay = CommonOverlay
 export const Content = styled.div`
   position: relative;
   width: 100%;
-  max-width: 420px;
+  max-width: 375px;
   margin: 0 auto;
   padding: 24px 0 96px; /* 하단 버튼 공간 확보 */
   display: flex;

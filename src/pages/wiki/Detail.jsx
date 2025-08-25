@@ -587,7 +587,8 @@ const ReportOverlay = styled.div`
   position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: grid; place-items: center; z-index: 1000;
 `
 const ReportBox = styled.div`
-  width: min(560px, calc(100vw - 40px));
+  width: calc(100% - 32px);
+  max-width: 320px;
   background: #fff; border-radius: 16px; padding: 22px 22px 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 `
 const ReportTitle = styled.h3`
@@ -618,7 +619,8 @@ const SubmitBtn = styled.button`
 
 // 신고 완료 토스트/모달
 const ThanksBox = styled.div`
-  width: min(720px, calc(100vw - 24px));
+  width: calc(100% - 32px);
+  max-width: 420px;
   background: #fff; border-radius: 16px; padding: 28px 24px 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 `
 const ThanksMessage = styled.p`
