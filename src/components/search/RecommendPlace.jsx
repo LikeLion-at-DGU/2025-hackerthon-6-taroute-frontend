@@ -23,7 +23,12 @@ const CardsContainer = styled.div`
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 20px;
-    scrollbar-color: #a18ae6 #f0f0f0;
+    &::-webkit-scrollbar {
+    display: none;
+    }
+
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
     & > * {
     flex: 0 0 auto;           /* 줄바꿈 없이 가로로 나열 */
     scroll-snap-align: start; /* 카드 단위 스냅 */

@@ -15,7 +15,7 @@ const CATEGORY_GROUP_CODES = {
 };
 
 const SelectCategory = () => {
-  const [ t, i18n ] = useTranslation();
+  const [t, i18n] = useTranslation();
   const [activeCat, setActiveCat] = useState("restaurant"); // 기본: 식당
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(true); // 기본적으로 로딩 상태로 시작
@@ -72,47 +72,47 @@ const SelectCategory = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const categoryCode = CATEGORY_GROUP_CODES[category];
       const categoryLabel = LABELS[category];
-      
+
       console.log(`🔍 ${categoryLabel} 카테고리 추천 장소 API 호출 시작 (코드: ${categoryCode})`);
-      
+
       const response = await getRecommend({
         x: userLocation.longitude,
         y: userLocation.latitude,
         category_group_code: categoryCode
       });
-      
+
       console.log(`📋 ${categoryLabel} API 응답:`, response);
-      
+
       // 응답 데이터 처리
-      const places = Array.isArray(response.data) ? response.data : 
-                    Array.isArray(response) ? response : [];
-      
+      const places = Array.isArray(response.data) ? response.data :
+        Array.isArray(response) ? response : [];
+
       const processedPlaces = places.map((place, index) => ({
         ...place,
         id: `${categoryLabel}-${place.place_name || place.name}-${index}`,
         google_place_id: place.google_place_id || place.place_id || place.id,
         category: categoryLabel // API 응답에 category 필드 추가
       }));
-      
+
       // 최대 4개까지만 표시
       const limitedPlaces = processedPlaces.slice(0, 4);
       setPlaces(limitedPlaces);
-      
+
       console.log(`✅ ${categoryLabel} 장소 ${limitedPlaces.length}개 로드 완료`);
       console.log(`🏷️ 로드된 장소들의 카테고리:`, limitedPlaces.map(p => ({ name: p.place_name, category: p.category })));
-      
+
     } catch (error) {
       console.error(`❌ ${LABELS[category]} 추천 장소 로딩 실패:`, error);
       setError(`${LABELS[category]} 추천 장소를 불러올 수 없습니다`);
-      
+
       // 에러 발생 시 더미 데이터로 폴백
       const fallbackPlaces = filterByCategory(DUMMY_PLACES, category).slice(0, 4);
       console.log(`🔄 ${LABELS[category]} 폴백 더미 데이터 사용:`, fallbackPlaces);
       setPlaces(fallbackPlaces);
-      
+
     } finally {
       setLoading(false);
     }
@@ -130,7 +130,7 @@ const SelectCategory = () => {
     setActiveCat(category);
     const label = LABELS[category];
     console.log(`🏷️ 카테고리 변경: ${label}`);
-    
+
     if (userLocation) {
       loadCategoryPlaces(category);
     }
@@ -169,8 +169,8 @@ const SelectCategory = () => {
       {!loading && !error && places.length > 0 && (
         <CardsGrid>
           {places.map((place, idx) => (
-            <PlaceCard 
-              key={place.id || `${activeCat}-${idx}`} 
+            <PlaceCard
+              key={place.id || `${activeCat}-${idx}`}
               place={place}
               userLocation={userLocation}
             />
@@ -263,18 +263,12 @@ const CardsGrid = styled.div`
   scrollbar-width: thin;      /* Firefox용 얇은 스크롤바 */
   
   /* 웹킷 브라우저용 스크롤바 스타일링 */
-  &::-webkit-scrollbar {
-    height: 4px;
+&::-webkit-scrollbar {
+    display: none;
   }
-  
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 2px;
-  }
+
+  scrollbar-width: none; 
+  -ms-overflow-style: none;
   
   & > * {
     flex: 0 0 auto;

@@ -110,12 +110,18 @@ function PlaceCard({ place }) {
     return place.running_time.map((time) => {
       if (!time || time === '정보없음') return '정보없음'
       if (time.includes('휴무일')) return '휴무일'
+      
+      // "월요일 24시간 영업" 형태에서 "24시간 영업"만 추출
+      if (time.includes('24시간 영업')) {
+        return time.replace(/^[가-힣]+요일\s*/, '');
+      }
+      
       const m = time.match(/\d{1,2}:\d{2}-\d{1,2}:\d{2}/)
       return m ? m[0] : time
     })
   }
 
-  const isHoliday = (timeText) => timeText === '휴무일'
+  const isHoliday = (timeText) => timeText === '휴무일';
 
   const getBreakTime = () => {
     if (!place?.running_time || !Array.isArray(place.running_time)) return '정보없음'
@@ -126,6 +132,8 @@ function PlaceCard({ place }) {
     }
     return '정보없음'
   }
+
+
 
   const handleTimeClick = () => {
     setShowTimeModal(true)
@@ -175,7 +183,7 @@ function PlaceCard({ place }) {
           <IconMap />
           <Text $ml="-4px">{place.distance || place.location}</Text>
         </Row>
-        <RunningTimeContainer onClick={(e)=>{ e.stopPropagation(); handleTimeClick(); }}>
+        <RunningTimeContainer onClick={(e) => { e.stopPropagation(); handleTimeClick(); }}>
           <IconTime src={timeIcon} alt="시간" />
           <Text>{todaysRunningTime || '영업시간 정보 미제공'}</Text>
           <ArrowImg src={runningArrow} alt="상세 시간" />
@@ -262,6 +270,13 @@ const ThumbList = styled.div`
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x proximity;
+  &::-webkit-scrollbar {
+        display: none;
+    }
+
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+
 `
 
 const ThumbItem = styled.div`
@@ -315,8 +330,8 @@ const IconBase = styled.img`
 
 const IconMap = styled(({ className }) => (
   <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M9.55769 7.24998C9.55769 7.59681 9.41992 7.92942 9.17468 8.17466C8.92944 8.4199 8.59682 8.55768 8.25 8.55768C7.90318 8.55768 7.57056 8.4199 7.32532 8.17466C7.08008 7.92942 6.94231 7.59681 6.94231 7.24998C6.94231 6.90316 7.08008 6.57055 7.32532 6.32531C7.57056 6.08007 7.90318 5.94229 8.25 5.94229C8.59682 5.94229 8.92944 6.08007 9.17468 6.32531C9.41992 6.57055 9.55769 6.90316 9.55769 7.24998Z" fill="currentColor"/>
-    <path d="M7.72235 12.9136C7.09405 12.474 6.51023 11.974 5.97919 11.4209C5.04615 10.4447 4 8.97939 4 7.24997C4 5.1217 5.72681 2.99997 8.25 2.99997C10.7732 2.99997 12.5 5.1217 12.5 7.24997C12.5 8.97939 11.4538 10.4447 10.5208 11.4209C9.98977 11.974 9.40595 12.474 8.77765 12.9136C8.60569 13.0332 8.42719 13.1431 8.25 13.2555C8.07346 13.1431 7.89431 13.0332 7.72235 12.9136ZM8.25 4.30766C6.52319 4.30766 5.30769 5.76705 5.30769 7.24997C5.30769 8.46285 6.05962 9.61297 6.92465 10.5166C7.33278 10.9421 7.77614 11.3323 8.25 11.683C8.72383 11.3325 9.1672 10.9425 9.57535 10.5172C10.4404 9.61297 11.1923 8.46351 11.1923 7.24997C11.1923 5.76705 9.97681 4.30766 8.25 4.30766Z" fill="currentColor"/>
+    <path d="M9.55769 7.24998C9.55769 7.59681 9.41992 7.92942 9.17468 8.17466C8.92944 8.4199 8.59682 8.55768 8.25 8.55768C7.90318 8.55768 7.57056 8.4199 7.32532 8.17466C7.08008 7.92942 6.94231 7.59681 6.94231 7.24998C6.94231 6.90316 7.08008 6.57055 7.32532 6.32531C7.57056 6.08007 7.90318 5.94229 8.25 5.94229C8.59682 5.94229 8.92944 6.08007 9.17468 6.32531C9.41992 6.57055 9.55769 6.90316 9.55769 7.24998Z" fill="currentColor" />
+    <path d="M7.72235 12.9136C7.09405 12.474 6.51023 11.974 5.97919 11.4209C5.04615 10.4447 4 8.97939 4 7.24997C4 5.1217 5.72681 2.99997 8.25 2.99997C10.7732 2.99997 12.5 5.1217 12.5 7.24997C12.5 8.97939 11.4538 10.4447 10.5208 11.4209C9.98977 11.974 9.40595 12.474 8.77765 12.9136C8.60569 13.0332 8.42719 13.1431 8.25 13.2555C8.07346 13.1431 7.89431 13.0332 7.72235 12.9136ZM8.25 4.30766C6.52319 4.30766 5.30769 5.76705 5.30769 7.24997C5.30769 8.46285 6.05962 9.61297 6.92465 10.5166C7.33278 10.9421 7.77614 11.3323 8.25 11.683C8.72383 11.3325 9.1672 10.9425 9.57535 10.5172C10.4404 9.61297 11.1923 8.46351 11.1923 7.24997C11.1923 5.76705 9.97681 4.30766 8.25 4.30766Z" fill="currentColor" />
   </svg>
 ))`
   margin-left: -3px; /* 위치 아이콘만 좌측으로 살짝 이동 */
