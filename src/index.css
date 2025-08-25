@@ -127,7 +127,7 @@ body {
   background: white;
   /* 프레임 밖 배경색을 흰색으로 */
   margin: 0;
-  padding: 30px 25px 60px 25px;
+  /* padding: 30px 25px 60px 25px; */
 
   /* 마우스 이벤트로 인한 스크롤 완전 방지 */
   pointer-events: auto;
