@@ -431,28 +431,13 @@ const Sheet = styled.div`
   margin: 0 auto;
   /* 812px 프레임 기준으로 최대 높이 제한 */
     max-height: 712px;
-    /* 스크롤바를 강제로 표시 */
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0,0,0,0.5) transparent;
-    /* WebKit 스크롤바 스타일 */
     &::-webkit-scrollbar {
-        width: 6px;
-        display: block !important;
+        display: none;
     }
-    
-    &::-webkit-scrollbar-track {
-        background: rgba(0,0,0,0.1);
-        border-radius: 3px;
-    }
-    
-    &::-webkit-scrollbar-thumb {
-        background-color: rgba(0,0,0,0.5);
-        border-radius: 3px;
-    }
-    
-    &::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(0,0,0,0.7);
-    }
+
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+
 `
 
 const Handle = styled.div`

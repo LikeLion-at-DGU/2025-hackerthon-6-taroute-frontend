@@ -410,6 +410,8 @@ flex:1;
 height:36px; 
 border:none; 
 background:#eee;
+color: #2a2a2a;
+font-weight: 500;
 display: flex;
 width: 284px;
 height: 34px;
@@ -654,6 +656,12 @@ const Sheet = styled.div`
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  &::-webkit-scrollbar {
+        display: none;
+    }
+
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
   padding: 0 16px 24px;
     
 `

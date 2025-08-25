@@ -29,8 +29,12 @@ const ResultsContainer = styled.div`
     width: 343px;          // 카드 컨테이너 너비 고정
     padding: 10px 0;
     margin-top: 5px;
-    scrollbar-width: thin;
-    scrollbar-color: #a18ae6 #f0f0f0;
+    &::-webkit-scrollbar {
+    display: none;
+    }
+
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
 `;
 
 const NoResultContainer = styled.div`

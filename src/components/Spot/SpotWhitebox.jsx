@@ -33,6 +33,12 @@ const SpotWhiteBoxContainer = styled.div`
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
     margin-top: 60px;
 `;
 

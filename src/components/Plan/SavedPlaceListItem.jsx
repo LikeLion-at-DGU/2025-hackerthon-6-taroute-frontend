@@ -275,6 +275,11 @@ const SavedPlaceListItem = ({ place, selectedDate, onRemove }) => {
                 return t("category.close");
             }
 
+            // "월요일 24시간 영업" 형태에서 "24시간 영업"만 추출
+            if (time.includes('24시간 영업')) {
+                return ("24시간 영업");
+            }
+
             // "월요일 10:30-22:30" 형태에서 시간 부분만 추출
             const timeMatch = time.match(/\d{1,2}:\d{2}-\d{1,2}:\d{2}/);
             return timeMatch ? timeMatch[0] : time;

@@ -216,6 +216,12 @@ const Bleed = styled.div`
 const Content = styled.div`
   flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 120px;
   -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  &::-webkit-scrollbar {
+        display: none;
+    }
+
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
 `
 const Header = styled.header`
   margin: 16px 0 8px; display: flex; flex-direction: column; gap: 6px;
