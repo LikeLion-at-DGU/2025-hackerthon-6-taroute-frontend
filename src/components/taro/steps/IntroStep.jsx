@@ -10,14 +10,15 @@ import {
 import { useTranslation } from "react-i18next";
 
 
+
 function IntroStep({ next, prev }) {
   const { t } = useTranslation();
-
+  
   return (
     <Wrapper>
       <Background />
       <Overlay />
-      <BackButton onClick={prev} />
+      <BackButton onClick={goHome} />
       <Title>
         {t("taro.title")}
         <br />

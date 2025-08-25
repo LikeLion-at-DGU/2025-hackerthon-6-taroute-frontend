@@ -27,7 +27,6 @@ function ShuffleStep({ next, prev }) {
     <Wrapper>
       <Background />
       <Overlay />
-      <BackButton onClick={prev} />
       <ContentContainer>
         <TaruIcon src={taruIcon} alt="타루 캐릭터" />
         <Title>{t("taro.loading")}</Title>

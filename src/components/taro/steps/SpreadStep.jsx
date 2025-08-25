@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Wrapper,
   Background,
@@ -25,6 +26,7 @@ import { useTranslation } from "react-i18next";
 
 
 function SpreadStep({ next, prev }) {
+  const navigate = useNavigate()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
@@ -143,7 +145,6 @@ function SpreadStep({ next, prev }) {
     <Wrapper>
       <Background />
       <Overlay />
-      <BackButton onClick={prev} />
       <ContentContainer>
         <CardPlaceholder>
           <CardBackgroundImage src={tarocardBg} alt="카드 배경" />

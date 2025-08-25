@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import Layout from '../layouts/Layout.jsx'
 import Home from '../pages/Home.jsx'
 import Taro from '../pages/Taro.jsx'
+import TaroResult from '../pages/TaroResult.jsx'
 import NotFound from '../pages/NotFound.jsx'
 import Search from '../pages/Search.jsx'
 import SearchResults from '../pages/SearchResults.jsx'
@@ -28,6 +29,7 @@ function AppRoutes() {
             </Route>
             <Route element={<Layout />}>
                 <Route path="/taro" element={<Taro />} />
+                <Route path="/taro/result" element={<TaroResult />} />
                 <Route path="/category" element={<Category />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/results" element={<SearchResults />} />

@@ -10,12 +10,14 @@ import {
   BackButton,
 } from '../styles/ConsentStep.style.js'
 import taruSvg from '../../../assets/icons/taru.svg'
+import homeIcon from '../../../assets/icons/home.svg'
 import useTextAnimation from '../../../hooks/useTextAnimation'
 import { useTranslation } from "react-i18next";
 
 
 function ConsentStep({ next, prev }) {
   const { t } = useTranslation();
+
   console.log('ConsentStep rendered with next:', next, 'prev:', prev)
 
   const lines = [
@@ -27,10 +29,17 @@ function ConsentStep({ next, prev }) {
 
   const { displayText, isAnimating, showComplete, handleTextClick, alwaysShowArrow } = useTextAnimation(lines, next)
 
+  const handleGoHome = () => {
+    navigate('/');
+  };
+
   return (
     <Wrapper>
       <Overlay />
       <BackButton onClick={prev} />
+      <HomeButton onClick={handleGoHome}>
+        <img src={homeIcon} alt="홈" />
+      </HomeButton>
       <TaruMascot src={taruSvg} alt="타루" aria-label="타루" role="img" />
 
       <BubbleHeader>

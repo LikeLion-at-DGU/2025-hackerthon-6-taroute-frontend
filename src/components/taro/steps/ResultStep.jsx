@@ -34,7 +34,6 @@ import {
   ExitModalDescription,
   ExitModalFooter,
   ExitModalButton,
-  BackButton,
 } from '../styles/ResultStep.style.js'
 import { useTranslation } from "react-i18next";
 
@@ -110,15 +109,31 @@ function ResultStep({ prev, goTo }) {
           address: item.address,
           place_photos: item.place_photos,
         }))
-        setCards(prev => {
-          const stableRetry = prev.find(c => c.isRetry)
-          return [...mapped, stableRetry || { id: 'VIII', title: '다시 뽑기', isRetry: true }]
-        })
+        
+        const finalCards = [...mapped, { id: 'VIII', title: '다시 뽑기', img: undefined, liked: false, isRetry: true }]
+        setCards(finalCards)
+        
+        // 처리된 카드 데이터를 sessionStorage에 저장하여 뒤로가기 시에도 동일한 결과 유지
+        sessionStorage.setItem('taro_processed_cards', JSON.stringify(finalCards))
+        
         return true
       } catch {
         return false
       }
     }
+
+    // 이미 처리된 카드가 있다면 그것을 사용 (뒤로가기 시 동일한 결과 유지)
+    const processedCards = sessionStorage.getItem('taro_processed_cards')
+    if (processedCards) {
+      try {
+        const parsed = JSON.parse(processedCards)
+        setCards(parsed)
+        return
+      } catch {}
+    }
+
+    // 이미 카드가 로드되어 있다면 다시 로드하지 않음
+    if (cards[0].title !== '로딩 중') return
 
     const rawNow = sessionStorage.getItem('taro_selected_result')
     if (rawNow && applyFromStorage(rawNow)) return
@@ -135,7 +150,7 @@ function ResultStep({ prev, goTo }) {
     }, 150)
 
     return () => clearInterval(timer)
-  }, [])
+  }, []) // 의존성 배열을 빈 배열로 유지하여 컴포넌트 마운트 시에만 실행
 
   // 디테일 카드가 열릴 때 /chats/place_summary로 요약을 로드하여 카드에 주입
   useEffect(() => {
@@ -159,7 +174,6 @@ function ResultStep({ prev, goTo }) {
   return (
     <Wrapper>
       <Overlay />
-      <BackButton onClick={prev} />
       <Content>
         <Title>{t("taro.card")}</Title>
 
@@ -171,14 +185,25 @@ function ResultStep({ prev, goTo }) {
               isRetry={!!c.isRetry}
               onClick={() => {
                 if (c.isRetry) {
-                  if (typeof goTo === 'function') goTo(0)
+                  if (typeof goTo === 'function') {
+                    goTo(0)
+                  } else {
+                    // goTo 함수가 없으면 기본 동작 (타로 페이지로 이동)
+                    window.location.href = '/taro'
+                  }
                 } else {
                   openDetail(page * pageSize + idx)
                 }
               }}
               style={{ cursor: c.isRetry ? 'pointer' : 'default' }}
             >
-              {!c.isRetry && (
+              {c.isRetry ? (
+                // 다시 뽑기 카드 - 고대 숫자와 제목 제거
+                <>
+                  {/* 고대 숫자와 제목 제거 */}
+                </>
+              ) : (
+                // 일반 카드
                 <>
                   <CardBadge>{c.id}</CardBadge>
                   <CardImage src={c.img} alt={c.title} />
@@ -191,18 +216,27 @@ function ResultStep({ prev, goTo }) {
                       const target = cards[globalIndex]
                       if (!target?.place_id) {
                         // UI 토글만 수행
-                        setCards(prev => prev.map((card, i) => i === globalIndex ? { ...card, liked: !card.liked } : card))
+                        const newCards = cards.map((card, i) => i === globalIndex ? { ...card, liked: !card.liked } : card)
+                        setCards(newCards)
+                        // 찜 상태를 sessionStorage에 반영
+                        sessionStorage.setItem('taro_processed_cards', JSON.stringify(newCards))
                         return
                       }
                       // 토글 동작: 이미 찜 상태면 해제, 아니면 저장
                       if (target.liked) {
                         try {
                           removePlace(target.place_id)
-                          setCards(prev => prev.map((card, i) => i === globalIndex ? { ...card, liked: false } : card))
+                          const newCards = cards.map((card, i) => i === globalIndex ? { ...card, liked: false } : card)
+                          setCards(newCards)
+                          // 찜 상태를 sessionStorage에 반영
+                          sessionStorage.setItem('taro_processed_cards', JSON.stringify(newCards))
                           showToast('찜을 해제했어요.')
                         } catch {
                           // 로컬 해제만 수행
-                          setCards(prev => prev.map((card, i) => i === globalIndex ? { ...card, liked: false } : card))
+                          const newCards = cards.map((card, i) => i === globalIndex ? { ...card, liked: false } : card)
+                          setCards(newCards)
+                          // 찜 상태를 sessionStorage에 반영
+                          sessionStorage.setItem('taro_processed_cards', JSON.stringify(newCards))
                           showToast('찜을 해제했어요.')
                         }
                         return
@@ -214,7 +248,10 @@ function ResultStep({ prev, goTo }) {
                           const toSave = { ...placeData, id: placeData.id || target.place_id }
                           try { addPlace(toSave) } catch {}
                         }
-                        setCards(prev => prev.map((card, i) => i === globalIndex ? { ...card, liked: true } : card))
+                        const newCards = cards.map((card, i) => i === globalIndex ? { ...card, liked: true } : card)
+                        setCards(newCards)
+                        // 찜 상태를 sessionStorage에 반영
+                        sessionStorage.setItem('taro_processed_cards', JSON.stringify(newCards))
                         showToast('장소가 저장되었습니다.')
                       } catch (e) {
                         showToast('저장 중 오류가 발생했어요.')
@@ -249,6 +286,29 @@ function ResultStep({ prev, goTo }) {
       {detailIndex !== null && cards[detailIndex] && !cards[detailIndex].isRetry && (
         <DetailOverlay onClick={closeDetail}>
           <DetailCard onClick={(e) => e.stopPropagation()} bg={detailCardBg}>
+            {/* 뒤로가기 버튼 추가 */}
+            <div style={{
+              position: 'absolute',
+              top: '20px',
+              left: '20px',
+              zIndex: 10,
+              cursor: 'pointer',
+              background: 'rgba(0,0,0,0.5)',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '20px'
+            }} onClick={(e) => {
+              e.stopPropagation()
+              closeDetail()
+            }}>
+              ←
+            </div>
+            
             <DetailInner>
               <DetailImage src={cards[detailIndex].img} alt={cards[detailIndex].title} />
               <DetailTitle>{cards[detailIndex].title}</DetailTitle>
@@ -261,13 +321,56 @@ function ResultStep({ prev, goTo }) {
                     showToast('해당 장소의 상세 정보를 찾을 수 없어요.')
                     return
                   }
+
                   navigate(`/wiki/place/${encodeURIComponent(rawId)}`)
                 }}>{t("taro.gowiki")}</SmallButton>
                 <DetailHeartButton onClick={(e) => {
+
                   e.stopPropagation()
                   const idx = detailIndex
                   const target = cards[idx]
-                  setCards(prev => prev.map((c, i) => i === idx ? { ...c, liked: !c.liked } : c))
+                  if (!target?.place_id) {
+                    // UI 토글만 수행
+                    const newCards = cards.map((card, i) => i === idx ? { ...card, liked: !card.liked } : card)
+                    setCards(newCards)
+                    // 찜 상태를 sessionStorage에 반영
+                    sessionStorage.setItem('taro_processed_cards', JSON.stringify(newCards))
+                    return
+                  }
+                  // 토글 동작: 이미 찜 상태면 해제, 아니면 저장
+                  if (target.liked) {
+                    try {
+                      removePlace(target.place_id)
+                      const newCards = cards.map((card, i) => i === idx ? { ...card, liked: false } : card)
+                      setCards(newCards)
+                      // 찜 상태를 sessionStorage에 반영
+                      sessionStorage.setItem('taro_processed_cards', JSON.stringify(newCards))
+                      showToast('찜을 해제했어요.')
+                    } catch {
+                      // 로컬 해제만 수행
+                      const newCards = cards.map((card, i) => i === idx ? { ...card, liked: false } : card)
+                      setCards(newCards)
+                      // 찜 상태를 sessionStorage에 반영
+                      sessionStorage.setItem('taro_processed_cards', JSON.stringify(newCards))
+                      showToast('찜을 해제했어요.')
+                    }
+                    return
+                  }
+                  try {
+                    const res = await savePlaceToServer(target.place_id)
+                    const placeData = res?.data ?? res
+                    if (placeData) {
+                      const toSave = { ...placeData, id: placeData.id || target.place_id }
+                      try { addPlace(toSave) } catch {}
+                    }
+                    const newCards = cards.map((card, i) => i === idx ? { ...card, liked: true } : card)
+                    setCards(newCards)
+                    // 찜 상태를 sessionStorage에 반영
+                    sessionStorage.setItem('taro_processed_cards', JSON.stringify(newCards))
+                    showToast('장소가 저장되었습니다.')
+                  } catch (e) {
+                    showToast('저장 중 오류가 발생했어요.')
+                  }
                 }}>
                   <DetailHeartSvg src={(cards[detailIndex]?.liked ? blackHeartIcon : heartIcon)} alt="찜" />
                 </DetailHeartButton>
@@ -284,8 +387,7 @@ function ResultStep({ prev, goTo }) {
       {showExitModal && (
         <ExitModalOverlay onClick={closeExitModal}>
           <ExitModal onClick={(e) => e.stopPropagation()}>
-            <ExitModalHeader>
-             
+            <ExitModalHeader>           
             </ExitModalHeader>
             <ExitModalContent>
               <ExitModalTitle>{t("taro.ending")}</ExitModalTitle>
