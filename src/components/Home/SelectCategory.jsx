@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { getRecommend } from "../../apis/searchApi";
 import { useTranslation } from "react-i18next";
 
-
 // 카테고리별 API 코드 매핑
 const CATEGORY_GROUP_CODES = {
   restaurant: "FD6", // 음식점
@@ -90,12 +89,15 @@ const SelectCategory = () => {
       const places = Array.isArray(response.data) ? response.data :
         Array.isArray(response) ? response : [];
 
-      const processedPlaces = places.map((place, index) => ({
-        ...place,
-        id: `${categoryLabel}-${place.place_name || place.name}-${index}`,
-        google_place_id: place.google_place_id || place.place_id || place.id,
-        category: categoryLabel // API 응답에 category 필드 추가
-      }));
+      const processedPlaces = places.map((place, index) => {
+        const googlePlaceId = place.google_place_id || place.place_id || place.id;
+        return {
+          ...place,
+          id: googlePlaceId || `${categoryLabel}-${place.place_name || place.name}-${index}`,
+          google_place_id: googlePlaceId,
+          category: categoryLabel // API 응답에 category 필드 추가
+        };
+      });
 
       // 최대 4개까지만 표시
       const limitedPlaces = processedPlaces.slice(0, 4);
@@ -273,7 +275,7 @@ const CardsGrid = styled.div`
   & > * {
     flex: 0 0 auto;
     scroll-snap-align: start;
-    min-width: 137px;          /* 카드의 최소 너비 명시 */
+    min-width: 137px;        
   }
 `;
 
