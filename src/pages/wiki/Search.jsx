@@ -82,7 +82,7 @@ const Hero = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: flex-start; /* 가운데에서 위쪽으로 */
-  padding-top: 24px;          /* 상단으로 올리기 */
+  padding-top: 100px;          /* 상단으로 올리기 */
 `
 
 const Mascot = styled.img`

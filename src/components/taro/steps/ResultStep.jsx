@@ -38,7 +38,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 
-import sampleImg from '../../../assets/images/ads_temp/temp1.jpg'
+import sampleImg from '../../../assets/images/ads_temp/SadTaru.jpg'
 import cardBg from '../../../assets/icons/taro/ResultTaroCard.svg'
 import { useEffect, useMemo, useState } from 'react'
 import heartIcon from '../../../assets/icons/Heart.svg'
@@ -51,7 +51,9 @@ import { useSavedPlaceContext } from '../../../contexts/SavedPlaceContext'
 import { fetchPlaceSummary } from '../../../apis/taroApi'
 
 import { useNavigate } from 'react-router-dom'
-import SadTaruIcon from '../../../assets/icons/taru/SadTaru.svg'
+
+
+
 
 function ResultStep({ prev, goTo }) {
   const { t } = useTranslation();
