@@ -1,0 +1,52 @@
+import { Routes, Route } from 'react-router-dom'
+import Layout from '../layouts/Layout.jsx'
+import Home from '../pages/Home.jsx'
+import Taro from '../pages/Taro.jsx'
+import TaroResult from '../pages/TaroResult.jsx'
+import NotFound from '../pages/NotFound.jsx'
+import Search from '../pages/Search.jsx'
+import SearchResults from '../pages/SearchResults.jsx'
+import Category from '../pages/Category.jsx'
+import Wiki from '../pages/wiki/Index.jsx'
+import MainLayout from '../layouts/MainLayout.jsx'
+import WikiSearch from '../pages/wiki/Search.jsx'
+import WikiDetail from '../pages/wiki/Detail.jsx'
+import WikiReviewWrite from '../pages/wiki/ReviewWrite.jsx'
+import Plan from '../pages/Plan.jsx'
+import Location from '../pages/Location.jsx'
+import LocationMap from '../pages/LocationMap.jsx'
+import Spot from '../pages/Spot.jsx'
+import ShareSpot from '../pages/ShareSpot.jsx'
+
+
+function AppRoutes() {
+    return (
+        <Routes>
+            <Route element={<MainLayout />}>
+                <Route index element={<Home />} />     {/* "/" */}
+                <Route path="plan" element={<Plan />} />
+                <Route path="wiki" element={<Wiki />} />
+            </Route>
+            <Route element={<Layout />}>
+                <Route path="/taro" element={<Taro />} />
+                <Route path="/taro/result" element={<TaroResult />} />
+                <Route path="/category" element={<Category />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/results" element={<SearchResults />} />
+                {/* 메인 레이아웃 영역에서 이미 /wiki 라우팅 처리됨 */}
+                <Route path="/wiki/search" element={<WikiSearch />} />
+                <Route path="/wiki/place/:id" element={<WikiDetail />} />
+                <Route path="/wiki/place/:id/review/new" element={<WikiReviewWrite />} />
+                <Route path="*" element={<NotFound />} />
+                <Route path="/location" element={<Location />} />
+                <Route path="/location-map" element={<LocationMap />} />
+                <Route path="/spot" element={<Spot />} />
+                <Route path="/r/:shareId" element={<ShareSpot />} />
+            </Route>
+        </Routes>
+    )
+}
+
+export default AppRoutes
+
+

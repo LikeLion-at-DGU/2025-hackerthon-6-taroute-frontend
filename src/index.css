@@ -1,11 +1,10 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Paperlogy', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  color: #2A2A2A;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -13,54 +12,169 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+@font-face {
+  font-family: 'MaruBuri';
+  src: url('./assets/fonts/MaruBuri-ExtraLight.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
 }
-a:hover {
-  color: #535bf2;
+
+@font-face {
+  font-family: 'MaruBuri';
+  src: url('./assets/fonts/MaruBuri-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MaruBuri';
+  src: url('./assets/fonts/MaruBuri-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MaruBuri';
+  src: url('./assets/fonts/MaruBuri-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MaruBuri';
+  src: url('./assets/fonts/MaruBuri-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* MaruBuriOTF 별칭 등록 (요청에 따라 모든 타로 페이지에서 이 이름을 사용) */
+@font-face {
+  font-family: 'MaruBuriOTF';
+  src: url('./assets/fonts/MaruBuri-ExtraLight.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MaruBuriOTF';
+  src: url('./assets/fonts/MaruBuri-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MaruBuriOTF';
+  src: url('./assets/fonts/MaruBuri-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MaruBuriOTF';
+  src: url('./assets/fonts/MaruBuri-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MaruBuriOTF';
+  src: url('./assets/fonts/MaruBuri-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  max-height: 100vh;
+  min-height: 100vh; /* 최소 높이도 고정 */
+  width: 100%;
+  max-width: 100vw;
+  min-width: 100vw; /* 최소 너비도 고정 */
+  /* 뷰포트 높이를 절대 넘지 못하게 */
+  overscroll-behavior: none;
+  overflow: hidden;
+  /* 페이지 레벨에서 스크롤 완전 차단 */
+  position: fixed; /* body를 완전히 고정 */
+  top: 0;
+  left: 0;
 }
 
 body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  /* lock window scroll; scroll only inside #root */
+  background: white;
+  /* 프레임 밖 배경색을 흰색으로 */
   margin: 0;
-  min-width: 320px;
-  min-height: 100dvh;
+  /* padding: 30px 25px 60px 25px; */
+
+  /* 마우스 이벤트로 인한 스크롤 완전 방지 */
+  pointer-events: auto;
+  user-select: none; /* 텍스트 선택으로 인한 스크롤 방지 */
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+#root {
+  min-height: 0;
+  min-width: 0;
+  flex: 0 0 auto;
+  display: flow-root;
+  width: 375px;
+  height: 812px;
+  max-height: 812px;
+  max-width: 375px;
+  /* 절대 375x812px을 넘지 못하게 강제 제한 */
+  overflow: hidden;
+  /* #root 자체는 스크롤 금지 - 내부 요소들만 스크롤 가능 */
+  -webkit-overflow-scrolling: touch;
+  /* smooth scrolling on iOS */
+  overscroll-behavior: contain;
+  /* avoid page bounce/gesture conflicts */
+  position: relative;
+  contain: layout size style;
+  /* 크기 제한을 더 강력하게 */
+  transform: translateZ(0);
+  /* fixed 요소들이 #root 기준으로 작동하게 하는 트릭 */
+  background: linear-gradient(
+    180deg,
+    #2C2A4A 10%,
+    #3d3570df 60%,
+    #9B84EC 90%
+  );
+  /* 프레임 테두리와 그림자 추가 */
+  box-shadow: 
+    0 0 0 1px rgba(0, 0, 0, 0.1),
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 10px 20px rgba(0, 0, 0, 0.1);
+  /* 완전 고정을 위한 추가 설정 */
+  pointer-events: auto; /* #root 내부에서는 마우스 이벤트 허용 */
+  user-select: auto; /* #root 내부에서는 텍스트 선택 허용 */
+  margin: 20px 0;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }

@@ -1,0 +1,117 @@
+import styled from 'styled-components'
+import bgImage from '../../../assets/images/bg_3.jpg'
+
+export const Wrapper = styled.div`
+  position: relative;
+  width: 100%;
+  height: 812px;
+  min-height: 812px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  overflow: hidden;
+`;
+
+export const Background = styled.div`
+  position: absolute;
+  inset: 0;
+  background-image: url(${bgImage});
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+`;
+
+export const Overlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+`;
+
+export const ContentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  z-index: 10;
+  position: relative;
+`;
+
+export const TaruIcon = styled.img`
+  width: 162px;
+  height: 173px;
+  margin-bottom: 2rem;
+`;
+
+export const Title = styled.h1`
+  margin: 0;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-family: MaruBuriOTF;
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1.25;
+  color: #FFFFFF;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  position: relative;
+  z-index: 10;
+  margin-bottom: 3rem;
+`;
+
+export const ButtonContainer = styled.div`
+  display: flex;
+  gap: 1rem;
+  position: relative;
+  z-index: 10;
+`;
+
+export const Button = styled.button`
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 2px solid white;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: MaruBuriOTF;
+  font-weight: 600;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+`;
+
+export const BackButton = styled.button`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  &::before {
+    content: "‹";
+    color: #FFFFFF;
+    font-size: 24px;
+    font-weight: bold;
+  }
+`;

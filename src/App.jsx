@@ -1,19 +1,21 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Layout from './layouts/Layout.jsx'
-import HomePage from './pages/Home.jsx'
-import NotFoundPage from './pages/NotFound.jsx'
-
+import { BrowserRouter } from 'react-router-dom'
+import { SavedPlaceProvider } from './contexts/SavedPlaceContext.jsx'
+import AppRoutes from './routes/AppRoutes.jsx'
+import { RecoilRoot } from 'recoil'
+import './lang/i18n'
+import LanguageGate from './components/common/LanguageGate.jsx'
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <RecoilRoot>
+      <BrowserRouter>
+        <SavedPlaceProvider>
+          <LanguageGate>
+            <AppRoutes />
+          </LanguageGate>
+        </SavedPlaceProvider>
+      </BrowserRouter>
+    </RecoilRoot>
   )
 }
 
