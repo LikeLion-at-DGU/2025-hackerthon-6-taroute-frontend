@@ -162,10 +162,6 @@ body {
     #9B84EC 90%
   );
   /* 프레임 테두리와 그림자 추가 */
-  box-shadow: 
-    0 0 0 1px rgba(0, 0, 0, 0.1),
-    0 20px 40px rgba(0, 0, 0, 0.15),
-    0 10px 20px rgba(0, 0, 0, 0.1);
   /* 완전 고정을 위한 추가 설정 */
   pointer-events: auto; /* #root 내부에서는 마우스 이벤트 허용 */
   user-select: auto; /* #root 내부에서는 텍스트 선택 허용 */

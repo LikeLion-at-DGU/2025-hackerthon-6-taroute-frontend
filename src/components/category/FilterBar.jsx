@@ -65,8 +65,8 @@ export function FilterBar({
               visible={sheet.type === 'distance'}
               title={t("category.sortlocation")}
               options={[
-                { label: '전체', value: '전체' },
-                { label: '500m 이내', value: '500m 이내' },
+                { label: t("category.location4"), value: '전체' },
+                { label: t("category.location0"), value: '500m 이내' },
                 { label: t("category.location1"), value: '1km 이내' },
                 { label: t("category.location2"), value: '3km 이내' },
                 { label: t("category.location3"), value: '5km 이내' },
@@ -80,7 +80,7 @@ export function FilterBar({
               visible={sheet.type === 'visitTime'}
               title={t("category.sorttime")}
               options={[
-                { label: '전체', value: '전체' },
+                { label: t("category.time0"), value: '전체' },
                 { label: t("category.time1"), value: '아침 (6:00 - 12:00)' },
                 { label: t("category.time2"), value: '낮 (12:00 - 17:00)' },
                 { label: t("category.time3"), value: '저녁 (17:00 - 21:00)' },
@@ -96,7 +96,7 @@ export function FilterBar({
               visible={sheet.type === 'visitDay'}
               title={t("category.sortday")}
               options={[
-                { label: '전체', value: '전체' },
+                { label: t("category.day0"), value: '전체' },
                 { label: t("category.day1"), value: '월요일' },
                 { label: t("category.day2"), value: '화요일' },
                 { label: t("category.day3"), value: '수요일' },

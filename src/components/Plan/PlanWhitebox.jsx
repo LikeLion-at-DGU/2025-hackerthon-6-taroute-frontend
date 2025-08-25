@@ -10,6 +10,7 @@ import SavedPlaceListItem from "./SavedPlaceListItem";
 import calendarIcon from '../../assets/icons/calendar.svg';
 import arrow from '../../assets/icons/arrowDownGray.svg';
 import noImageIcon from '../../assets/icons/placeNoImage.png';
+import { useTranslation } from "react-i18next";
 
 const WhiteBoxContainer = styled.div`
     position: fixed;
@@ -299,6 +300,8 @@ const PlanWhiteBox = ({ expandedTop = 105, collapsedTop = 390 }) => {
     const [showToast, setShowToast] = useState(false);
     const [removedPlace, setRemovedPlace] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const { t } = useTranslation();
+
 
     // 저장된 장소들을 관리하는 커스텀 훅
     const { savedPlaces, handleClearAll, addPlace } = useSavedPlaceContext();
@@ -415,7 +418,7 @@ const PlanWhiteBox = ({ expandedTop = 105, collapsedTop = 390 }) => {
                 />
                 <WhatWonder>
                     <Title>
-                        <p>내가 찜한 장소들</p>
+                        <p>{t("plan.pick")}</p>
                     </Title>
 
                     <ButtonBar>
@@ -424,7 +427,7 @@ const PlanWhiteBox = ({ expandedTop = 105, collapsedTop = 390 }) => {
                             <p>{formatDate(selectedDate)}</p>
                             <img src={arrow} />
                         </CalendarBar>
-                        <p onClick={handleDeleteAllClick} style={{ cursor: 'pointer' }}>전체삭제</p>
+                        <p onClick={handleDeleteAllClick} style={{ cursor: 'pointer' }}>{t("plan.deleteall")}</p>
                     </ButtonBar>
 
                     {/* 저장된 장소들 표시 */}
@@ -442,8 +445,8 @@ const PlanWhiteBox = ({ expandedTop = 105, collapsedTop = 390 }) => {
                             </SavedPlaceList>
                         ) : (
                             <EmptyMessage>
-                                저장된 장소가 없습니다.<br />
-                                마음에 드는 장소를 찜해보세요!
+                                {t("spot.noplace")}<br />
+                                {t("spot.noplace")}
                             </EmptyMessage>
                         )}
                     </SavedPlaceContainer>
@@ -462,14 +465,14 @@ const PlanWhiteBox = ({ expandedTop = 105, collapsedTop = 390 }) => {
             {/* 동선 계획하기 버튼 - 화이트박스와 독립적으로 화면에 고정 */}
             {isExpanded && savedPlaces.length > 0 && (
                 <PlanButton onClick={handlePlanRoute}>
-                    동선 계획하기 ({savedPlaces.length}개 장소)
+                    {t("plan.goplan")}({savedPlaces.length}{t("plan.count")})
                 </PlanButton>
             )}
 
             {/* 찜 취소 토스트 메시지 */}
             <ToastMessage $show={showToast}>
-                <span>찜이 취소되었습니다</span>
-                <UndoButton onClick={handleUndoRemove}>복구</UndoButton>
+                <span>{t("plan.cancle")}</span>
+                <UndoButton onClick={handleUndoRemove}>{t("plan.recancle")}</UndoButton>
             </ToastMessage>
 
             {/* 전체삭제 확인 모달 - body에 Portal로 렌더링 */}
@@ -477,15 +480,15 @@ const PlanWhiteBox = ({ expandedTop = 105, collapsedTop = 390 }) => {
                 <ConfirmOverlay onClick={handleCancelDelete}>
                     <ConfirmModal onClick={(e) => e.stopPropagation()}>
                         <ConfirmMessage>
-                            찜한 장소를 전체 삭제하시겠습니까?<br />
-                            삭제 후에는 취소할 수 없습니다.
+                            {t("plan.deletetext")}<br />
+                            {t("plan.deletetext2")}
                         </ConfirmMessage>
                         <ConfirmButtons>
                             <CancelButton onClick={handleCancelDelete}>
-                                취소
+                                {t("plan.return")}
                             </CancelButton>
                             <DeleteButton onClick={handleConfirmDelete}>
-                                삭제
+                                {t("plan.delete")}
                             </DeleteButton>
                         </ConfirmButtons>
                     </ConfirmModal>
