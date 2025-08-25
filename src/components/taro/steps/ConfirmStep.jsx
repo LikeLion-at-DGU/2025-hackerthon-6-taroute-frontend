@@ -8,12 +8,15 @@ import {
   ButtonPrev,
   ButtonNext,
   BackButton,
+  HomeButton,
 } from '../styles/ConfirmStep.style.js'
 import taruSvg from '../../../assets/icons/taru.svg'
 import homeIcon from '../../../assets/icons/home.svg'
 import useTextAnimation from '../../../hooks/useTextAnimation'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from "react-i18next";
+
+//깃 반영용
 
 
 function ConfirmStep({ next, prev }) {
@@ -68,3 +71,4 @@ function ConfirmStep({ next, prev }) {
 }
 
 export default ConfirmStep
+

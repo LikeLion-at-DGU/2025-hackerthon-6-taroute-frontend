@@ -8,6 +8,7 @@ import {
   ButtonPrev,
   ButtonNext,
   BackButton,
+  HomeButton,
 } from '../styles/ConsentStep.style.js'
 import taruSvg from '../../../assets/icons/taru.svg'
 import homeIcon from '../../../assets/icons/home.svg'
