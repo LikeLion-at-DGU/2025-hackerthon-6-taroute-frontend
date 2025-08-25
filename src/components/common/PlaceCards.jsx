@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSavedPlaceContext } from "../../contexts/SavedPlaceContext";
 import { useNavigate } from 'react-router-dom';
 import bg1 from '../../assets/images/bg_1.jpg';
@@ -160,20 +160,31 @@ const PlaceCard = ({ place, category, userLocation: propUserLocation }) => {
   // props로 받은 위치 정보가 있으면 우선 사용, 없으면 훅에서 가져온 위치 사용
   const userLocation = propUserLocation || hookUserLocation;
 
-  // 각 카드마다 개별적으로 저장 상태 계산
-  const isSaved = savedPlaces.some(savedPlace => {
-    // API 데이터 구조에 맞게 비교
-    const currentPlaceName = place.place_name || place.name;
-    const savedPlaceName = savedPlace.place_name || savedPlace.name;
-    const currentAddress = place.address || place.address_name || place.location;
-    const savedAddress = savedPlace.address || savedPlace.address_name || savedPlace.location;
+  // 각 카드마다 개별적으로 저장 상태 계산 (useMemo로 최적화)
+  const isSaved = useMemo(() => {
+    const result = savedPlaces.some(savedPlace => {
+      // API 데이터 구조에 맞게 비교
+      const currentPlaceName = place.place_name || place.name;
+      const savedPlaceName = savedPlace.place_name || savedPlace.name;
+      const currentAddress = place.address || place.address_name || place.location;
+      const savedAddress = savedPlace.address || savedPlace.address_name || savedPlace.location;
 
-    const nameMatch = currentPlaceName === savedPlaceName;
-    const addressMatch = currentAddress === savedAddress;
-    const idMatch = savedPlace.id && place.id && savedPlace.id === place.id;
+      const nameMatch = currentPlaceName === savedPlaceName;
+      const addressMatch = currentAddress === savedAddress;
+      const idMatch = savedPlace.id && place.id && savedPlace.id === place.id;
 
-    return idMatch || (nameMatch && addressMatch);
-  });
+      return idMatch || (nameMatch && addressMatch);
+    });
+    
+    console.log('💝 isSaved 계산:', {
+      placeName: place.place_name || place.name,
+      placeId: place.id,
+      savedPlacesCount: savedPlaces.length,
+      isSaved: result
+    });
+    
+    return result;
+  }, [savedPlaces, place]);
 
   // 거리 계산
   const getDistanceText = () => {
