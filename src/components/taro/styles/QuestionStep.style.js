@@ -86,15 +86,15 @@ export const OptionButton = styled.button`
   align-items: center;
   display: flex;
   align-self: stretch;
-  gap: 29px;
+  gap: 15px;
   width: 100%;
-  padding: 28px 21px;
+  padding: 20px 18px;
   border-radius: 12px;
   border: none;
   background: #F0F0F0;
   color: #2A2A2A;
   font-family: MaruBuriOTF;
-  font-size: 18px;
+  font-size: 15px;
   cursor: pointer;
   text-align: left;
 
