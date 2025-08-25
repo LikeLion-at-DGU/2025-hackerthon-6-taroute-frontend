@@ -430,7 +430,7 @@ const PlanWhiteBox = ({ expandedTop = 105, collapsedTop = 390 }) => {
                         ) : (
                             <EmptyMessage>
                                 {t("spot.noplace")}<br />
-                                {t("spot.noplace")}
+                                {t("spot.pick")}
                             </EmptyMessage>
                         )}
                     </SavedPlaceContainer>
