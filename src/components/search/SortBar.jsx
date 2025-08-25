@@ -110,7 +110,7 @@ export const SortBar = ({ onSortChange, selectedSort }) => {
                 <Barbutton onClick={() => setShowSelect(true)}>
                     <BarbuttonInner>
                         <p style={{ fontSize: "10px", fontWeight: "400" }}>
-                            {t(`search.sortitem${selectedIdx + 1}`)}
+                            {t(`search.sortitem${selectedIdx}`)}
                         </p>
                         <img src={arrow_down} style={{ width: 10 }} />
                     </BarbuttonInner>
