@@ -1,3 +1,4 @@
+import useTaroFlow from '../../../hooks/useTaroFlow.js';
 import {
   Wrapper,
   Background,
@@ -12,7 +13,7 @@ import { useTranslation } from "react-i18next";
 
 function IntroStep({ next, prev, goHome }) {
   const { t } = useTranslation();
-
+ 
   return (
     <Wrapper>
       <Background />
