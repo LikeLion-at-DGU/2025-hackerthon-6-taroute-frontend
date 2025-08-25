@@ -16,40 +16,11 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { useTranslation } from "react-i18next";
 
-const HomeButton = styled.button`
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 40px;
-  height: 40px;
-  background: transparent;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.05);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  img {
-    width: 18px;
-    height: 21px;
-    filter: brightness(0) invert(1);
-  }
-`;
 
 function ConsentStep({ next, prev }) {
   const { t } = useTranslation();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+
 
   console.log('ConsentStep rendered with next:', next, 'prev:', prev)
 

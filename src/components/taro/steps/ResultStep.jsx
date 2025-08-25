@@ -321,6 +321,7 @@ function ResultStep({ prev, goTo }) {
                     showToast('해당 장소의 상세 정보를 찾을 수 없어요.')
                     return
                   }
+
                   
                   // 방법 1: 현재 페이지를 히스토리에 추가
                   window.history.pushState({ from: 'taro_result' }, '', window.location.pathname)
@@ -331,6 +332,7 @@ function ResultStep({ prev, goTo }) {
                 }}>{t("taro.gowiki")}</SmallButton>
                 
                 <DetailHeartButton onClick={async (e) => {
+
                   e.stopPropagation()
                   const idx = detailIndex
                   const target = cards[idx]
